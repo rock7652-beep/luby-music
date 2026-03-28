@@ -607,6 +607,7 @@ function onQtyChange() {
   const qty = parseInt(document.getElementById('fqty').value) || 1;
   const hint = document.getElementById('multiSlotHint');
   const label = document.getElementById('slotSectionLabel');
+
   if (qty >= 2) {
     hint.style.display = 'block';
     label.textContent = `選擇預約時段（請選 ${qty === 4 ? '多個' : qty} 個）`;
@@ -614,8 +615,28 @@ function onQtyChange() {
     hint.style.display = 'none';
     label.textContent = '選擇預約時段';
   }
-  // Re-render with correct input type
-  renderFrontDates();
+
+  // 只切換 input type，不重新渲染（避免清掉已選時段）
+  const inputs = document.querySelectorAll('#dateSlotsContainer input[data-date]');
+  inputs.forEach(inp => {
+    if (inp.disabled) return; // 已約/關閉的不動
+    if (qty >= 2) {
+      inp.type = 'checkbox';
+      inp.removeAttribute('name');
+    } else {
+      inp.type = 'radio';
+      inp.setAttribute('name', 'bookSlot');
+      // 單選時只保留第一個勾選
+    }
+  });
+  // 單選時若有多個被選中，只保留第一個
+  if (qty === 1) {
+    let found = false;
+    document.querySelectorAll('#dateSlotsContainer input[type=radio]').forEach(inp => {
+      if (inp.checked && !found) found = true;
+      else inp.checked = false;
+    });
+  }
 }
 
 async function renderFrontDates() {
@@ -629,7 +650,6 @@ async function renderFrontDates() {
 
   const qty = parseInt(document.getElementById('fqty').value) || 1;
   const inputType = qty >= 2 ? 'checkbox' : 'radio';
-  const inputName = qty >= 2 ? '' : 'name="bookSlot"';
 
   // 從 Google Sheets 讀取已預約時段
   let remoteBookedKeys = new Set();
