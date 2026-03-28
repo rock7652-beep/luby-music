@@ -358,11 +358,17 @@ footer { text-align: center; margin-top: 32px; font-size: 0.7rem; color: var(--m
     <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;">
       <div class="cff" style="flex:1;min-width:160px;">
         <label>新密碼</label>
-        <input type="password" id="newPw1" placeholder="輸入新密碼">
+        <div style="position:relative;">
+          <input type="password" id="newPw1" placeholder="輸入新密碼" style="padding-right:36px;">
+          <button type="button" onclick="togglePwVis('newPw1','eye1')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#6a73a0;padding:0;line-height:1;" id="eye1">👁</button>
+        </div>
       </div>
       <div class="cff" style="flex:1;min-width:160px;">
         <label>確認新密碼</label>
-        <input type="password" id="newPw2" placeholder="再次輸入">
+        <div style="position:relative;">
+          <input type="password" id="newPw2" placeholder="再次輸入" style="padding-right:36px;">
+          <button type="button" onclick="togglePwVis('newPw2','eye2')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#6a73a0;padding:0;line-height:1;" id="eye2">👁</button>
+        </div>
       </div>
       <button class="add-btn" onclick="changePw()" style="background:#2d6a4f;">更新密碼</button>
     </div>
@@ -456,8 +462,8 @@ function renderAdminDates() {
       return `<span class="stag" style="${tagStyle}display:inline-flex;align-items:center;gap:4px;">
         ${s}${isBooked ? ' 已約' : isClosed ? ' 關閉' : ''}
         ${isBooked
-          ? `<button onclick="cancelBooking(${i},'${s}')" title="取消此預約，釋放時段" style="background:none;border:none;cursor:pointer;color:#e07070;font-size:0.68rem;padding:0 2px;line-height:1;" >✕</button>`
-          : `<button onclick="toggleSlot(${i},'${s}')" style="background:none;border:none;cursor:pointer;color:${actionColor};font-size:0.68rem;padding:0 2px;line-height:1;">${actionLabel}</button>`
+          ? `<button onclick="cancelBooking('${d.date}','${s}')" title="取消此預約，釋放時段" style="background:none;border:none;cursor:pointer;color:#e07070;font-size:0.68rem;padding:0 2px;line-height:1;">✕</button>`
+          : `<button onclick="toggleSlot('${d.date}','${s}')" style="background:none;border:none;cursor:pointer;color:${actionColor};font-size:0.68rem;padding:0 2px;line-height:1;">${actionLabel}</button>`
         }
       </span>`;
     }).join('') : '<span style="font-size:0.72rem;color:#555e7a;font-style:italic;">未設定時段</span>';
@@ -465,8 +471,8 @@ function renderAdminDates() {
       <div class="di-hdr">
         <div class="di-name">📅 ${fmtDate(d.date)}</div>
         <div class="di-btns">
-          <button class="tog-btn" onclick="toggleDate(${i})">${act ? '暫停' : '開啟'}</button>
-          <button class="del-btn" onclick="deleteDate(${i})">刪除</button>
+          <button class="tog-btn" onclick="toggleDate('${d.date}')">${act ? '暫停' : '開啟'}</button>
+          <button class="del-btn" onclick="deleteDate('${d.date}')">刪除</button>
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -489,6 +495,18 @@ function saveConfig() {
   const ok = document.getElementById('cfgOk');
   ok.style.display = 'block';
   setTimeout(() => ok.style.display = 'none', 2200);
+}
+
+function togglePwVis(inputId, btnId) {
+  const input = document.getElementById(inputId);
+  const btn = document.getElementById(btnId);
+  if (input.type === 'password') {
+    input.type = 'text';
+    btn.textContent = '🙈';
+  } else {
+    input.type = 'password';
+    btn.textContent = '👁';
+  }
 }
 
 function changePw() {
@@ -540,22 +558,18 @@ function addDate() {
   setTimeout(() => { btn.textContent = orig; btn.style.background = ''; }, 2000);
 }
 
-async function cancelBooking(dateIdx, slot) {
-  const dates = loadDates();
-  const dateStr = dates[dateIdx].date;
+async function cancelBooking(dateStr, slot) {
   const key = dateStr + '|' + slot;
   if (!confirm(`確定取消「${fmtDate(dateStr)} ${slot}」的預約並釋放時段？`)) return;
 
   const cfg = loadCfg();
   const sheetsUrl = cfg.sheetsUrl || 'https://script.google.com/macros/s/AKfycbx2YnezQWcK-c5p_-FKGO2vXdTIZmkZwYoYlfw2frcw98MA2yDF5mgdIqfUyPUy4wagCg/exec';
 
-  // 用 GET 方式傳送取消請求（避免 CORS 問題）
   try {
     const url = sheetsUrl + '?action=cancelBooking&key=' + encodeURIComponent(key);
     await fetch(url, { mode: 'no-cors' });
   } catch(err) { console.error('Sheets cancel:', err); }
 
-  // 清除本機紀錄
   const bookings = loadBookings().filter(b => !(b.date === dateStr && b.time === slot));
   saveBookings(bookings);
 
@@ -563,9 +577,10 @@ async function cancelBooking(dateIdx, slot) {
   alert(`✓ 已釋放「${fmtDate(dateStr)} ${slot}」時段`);
 }
 
-function toggleSlot(dateIdx, slot) {
+function toggleSlot(dateStr, slot) {
   const dates = loadDates();
-  const d = dates[dateIdx];
+  const d = dates.find(x => x.date === dateStr);
+  if (!d) return;
   if (!d.closedSlots) d.closedSlots = [];
   const idx = d.closedSlots.indexOf(slot);
   if (idx >= 0) d.closedSlots.splice(idx, 1);
@@ -574,14 +589,16 @@ function toggleSlot(dateIdx, slot) {
   renderAdminDates();
 }
 
-function deleteDate(i) {
+function deleteDate(dateStr) {
   if (!confirm('確定刪除此日期？')) return;
-  const dates = loadDates(); dates.splice(i, 1); saveDates(dates); renderAdminDates();
+  const dates = loadDates().filter(d => d.date !== dateStr);
+  saveDates(dates); renderAdminDates();
 }
 
-function toggleDate(i) {
+function toggleDate(dateStr) {
   const dates = loadDates();
-  dates[i].active = dates[i].active === false;
+  const d = dates.find(x => x.date === dateStr);
+  if (d) d.active = d.active === false ? true : false;
   saveDates(dates); renderAdminDates();
 }
 
