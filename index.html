@@ -357,29 +357,38 @@ const loadBookings = () => { try { return JSON.parse(localStorage.getItem('luby_
 const saveBookings = b => localStorage.setItem('luby_bookings', JSON.stringify(b));
 
 function getUrl() { return loadCfg().sheetsUrl || SHEETS_URL; }
+function getCached() { try { return JSON.parse(localStorage.getItem('luby_dates_cache')) || []; } catch { return []; } }
+function setCache(dates) { localStorage.setItem('luby_dates_cache', JSON.stringify(dates)); localStorage.setItem('luby_dates_cache_ts', Date.now()); }
+function isCacheFresh(ms=300000) { return (Date.now() - (parseInt(localStorage.getItem('luby_dates_cache_ts'))||0)) < ms; }
 
-// 日期：Sheets 為主，localStorage 為快取
-async function loadDates() {
+// 快取優先：立即返回快取，背景靜默同步
+async function loadDates(forceRemote=false) {
+  const cached = getCached();
+  if (!forceRemote && isCacheFresh() && cached.length) return cached;
+  // 有快取先用，同時背景刷新
+  if (cached.length && !forceRemote) {
+    fetch(getUrl() + '?action=getDates')
+      .then(r=>r.json()).then(j=>{ if(j.dates) setCache(j.dates); }).catch(()=>{});
+    return cached;
+  }
+  // 沒快取才等待
   try {
     const res = await fetch(getUrl() + '?action=getDates');
     const json = await res.json();
-    if (json.dates) {
-      localStorage.setItem('luby_dates_cache', JSON.stringify(json.dates));
-      return json.dates;
-    }
+    if (json.dates) { setCache(json.dates); return json.dates; }
   } catch(e) {}
-  try { return JSON.parse(localStorage.getItem('luby_dates_cache')) || []; } catch { return []; }
+  return cached;
 }
 
-async function saveDates(dates) {
-  localStorage.setItem('luby_dates_cache', JSON.stringify(dates));
-  try {
-    await fetch(getUrl(), {
-      method:'POST', mode:'no-cors',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ action:'saveDates', dates })
-    });
-  } catch(e) { console.error('saveDates:', e); }
+// 立即存本機，背景同步 Sheets（不阻塞 UI）
+function saveDates(dates) {
+  setCache(dates);
+  fetch(getUrl(), {
+    method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ action:'saveDates', dates })
+  }).catch(e => console.error('saveDates:', e));
+  return Promise.resolve(); // 不等待 Sheets
 }
 
 // ============================================================
@@ -438,13 +447,54 @@ async function renderAdmin() {
   await renderAdminDates();
 }
 
-async function renderAdminDates() {
+async function renderAdminDates(forceRemote=false) {
   const el = document.getElementById('adminDatesList');
-  el.innerHTML = '<div class="empty-hint" style="color:#6a93b0;">⏳ 載入中…</div>';
-  const dates = (await loadDates()).sort((a,b) => a.date.localeCompare(b.date));
-  if (!dates.length) { el.innerHTML = '<div class="empty-hint">尚未新增任何日期</div>'; return; }
+  // 先用快取立即渲染
+  const cached = getCached();
+  if (cached.length) _renderDatesList(cached, el);
+  else el.innerHTML = '<div class="empty-hint" style="color:#6a93b0;">⏳ 載入中…</div>';
+  // 背景從 Sheets 拉最新資料
+  const dates = (await loadDates(forceRemote)).sort((a,b) => a.date.localeCompare(b.date));
+  _renderDatesList(dates, el);
+}
+
+function _renderDatesList(dates, el) {
+  const sorted = [...dates].sort((a,b)=>a.date.localeCompare(b.date));
+  if (!sorted.length) { el.innerHTML = '<div class="empty-hint">尚未新增任何日期</div>'; return; }
   const bookings = loadBookings();
   el.innerHTML = dates.map(d => {
+    const act = d.active !== false;
+    const bookedSlots = bookings.filter(b => b.date === d.date).map(b => b.time);
+    const tags = d.slots.length ? d.slots.map(s => {
+      const isBooked = bookedSlots.includes(s);
+      const isClosed = (d.closedSlots||[]).includes(s);
+      let ts = '';
+      if (isBooked) ts='background:rgba(180,80,80,0.15);color:#c07080;border-color:rgba(180,80,80,0.3);';
+      else if (isClosed) ts='background:rgba(100,100,100,0.15);color:#888;border-color:rgba(100,100,100,0.3);text-decoration:line-through;';
+      const al = isClosed?'開':'關', ac = isClosed?'#4aaa7a':'#c07080';
+      return `<span class="stag" style="${ts}display:inline-flex;align-items:center;gap:4px;">
+        ${s}${isBooked?' 已約':isClosed?' 關閉':''}
+        ${isBooked
+          ? `<button onclick="cancelBooking('${d.date}','${s}')" style="background:none;border:none;cursor:pointer;color:#e07070;font-size:0.68rem;padding:0 2px;">✕</button>`
+          : `<button onclick="toggleSlot('${d.date}','${s}')" style="background:none;border:none;cursor:pointer;color:${ac};font-size:0.68rem;padding:0 2px;">${al}</button>`
+        }
+      </span>`;
+    }).join('') : '<span style="font-size:0.72rem;color:#555e7a;font-style:italic;">未設定時段</span>';
+    return `<div class="di">
+      <div class="di-hdr">
+        <div class="di-name">📅 ${fmtDate(d.date)}</div>
+        <div class="di-btns">
+          <button class="tog-btn" onclick="toggleDate('${d.date}')">${act?'暫停':'開啟'}</button>
+          <button class="del-btn" onclick="deleteDate('${d.date}')">刪除</button>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <span class="badge" style="background:${act?'rgba(79,142,247,0.15)':'rgba(150,80,80,0.15)'};color:${act?'var(--aa)':'#c07080'};">${act?'開放中':'已暫停'}</span>
+        <div class="slot-tags">${tags}</div>
+      </div>
+    </div>`;
+  }).join('');
+  el.innerHTML = sorted.map(d => {
     const act = d.active !== false;
     const bookedSlots = bookings.filter(b => b.date === d.date).map(b => b.time);
     const tags = d.slots.length ? d.slots.map(s => {
@@ -535,12 +585,11 @@ async function addDate() {
     cur.setDate(cur.getDate()+1);
   }
   if(added===0){alert('所選日期已全部存在');return;}
-  const btn=document.getElementById('addDateBtn');
-  btn.disabled=true; btn.textContent='儲存中…';
-  await saveDates(dates);
+  saveDates(dates); // 背景同步
   document.getElementById('newDateFrom').value='';
   document.getElementById('newDateTo').value='';
-  btn.disabled=false; btn.textContent=`✓ 已新增 ${added} 天`; btn.style.background='#2d6a4f';
+  const btn=document.getElementById('addDateBtn');
+  btn.textContent=`✓ 已新增 ${added} 天`; btn.style.background='#2d6a4f';
   setTimeout(()=>{btn.textContent='新增日期';btn.style.background='';},2200);
   await renderAdminDates();
 }
@@ -548,14 +597,16 @@ async function addDate() {
 async function deleteDate(dateStr) {
   if(!confirm('確定刪除此日期？'))return;
   const dates=(await loadDates()).filter(d=>d.date!==dateStr);
-  await saveDates(dates); await renderAdminDates();
+  saveDates(dates); // 不等待
+  await renderAdminDates();
 }
 
 async function toggleDate(dateStr) {
   const dates=await loadDates();
   const d=dates.find(x=>x.date===dateStr);
   if(d) d.active=d.active===false?true:false;
-  await saveDates(dates); await renderAdminDates();
+  saveDates(dates); // 不等待
+  await renderAdminDates();
 }
 
 async function toggleSlot(dateStr, slot) {
@@ -565,7 +616,8 @@ async function toggleSlot(dateStr, slot) {
   if(!d.closedSlots)d.closedSlots=[];
   const idx=d.closedSlots.indexOf(slot);
   if(idx>=0)d.closedSlots.splice(idx,1); else d.closedSlots.push(slot);
-  await saveDates(dates); await renderAdminDates();
+  saveDates(dates); // 不等待
+  await renderAdminDates();
 }
 
 async function cancelBooking(dateStr, slot) {
