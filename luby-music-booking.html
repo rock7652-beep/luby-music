@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>陸比音樂｜吉他保養預約</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #1a1209; --warm: #2c1f0e; --gold: #b8892a; --cream: #f5f0e8;
+  --paper: #faf7f2; --muted: #8a7a65; --border: #d9cfc0;
+  --error: #c0392b; --success: #2d6a4f;
+  --ab: #1a1f2e; --ac: #242938; --abr: #353b52; --aa: #4f8ef7;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--paper); color: var(--ink); font-family: 'Noto Sans TC', sans-serif; font-weight: 300; min-height: 100vh; }
+body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23b8892a' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E"); pointer-events: none; z-index: 0; }
+
+.page { display: none; }
+.page.active { display: block; }
+
+/* FRONT */
+#frontPage { position: relative; z-index: 1; }
+.container { max-width: 680px; margin: 0 auto; padding: 56px 22px 72px; }
+header { text-align: center; margin-bottom: 44px; animation: fadeDown 0.8s ease both; }
+.brand-ornament { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 18px; }
+.ornament-line { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--gold)); }
+.ornament-line.r { background: linear-gradient(90deg, var(--gold), transparent); }
+.brand-name { font-family: 'Noto Serif TC', serif; font-size: 2.2rem; font-weight: 700; color: var(--warm); letter-spacing: 0.15em; margin-bottom: 5px; }
+.brand-sub { font-family: 'Cormorant Garamond', serif; font-size: 1rem; color: var(--gold); letter-spacing: 0.3em; font-style: italic; }
+.page-title { margin-top: 24px; font-family: 'Noto Serif TC', serif; font-size: 1rem; font-weight: 600; color: var(--warm); letter-spacing: 0.2em; display: inline-block; }
+.page-title::before, .page-title::after { content: '—'; color: var(--gold); margin: 0 8px; }
+
+.form-card { background: white; border: 1px solid var(--border); border-radius: 2px; padding: 40px 40px 32px; box-shadow: 0 2px 40px rgba(26,18,9,0.07), 0 0 0 4px rgba(184,137,42,0.04); animation: fadeUp 0.9s ease 0.2s both; }
+@media(max-width:520px){ .form-card{padding:24px 18px 20px;} .brand-name{font-size:1.7rem;} }
+
+.sec-label { font-family: 'Noto Serif TC', serif; font-size: 0.73rem; font-weight: 600; color: var(--gold); letter-spacing: 0.25em; margin-bottom: 16px; padding-bottom: 9px; border-bottom: 1px solid var(--border); }
+.form-sec { margin-bottom: 30px; }
+.fg { margin-bottom: 16px; }
+label { display: block; font-size: 0.78rem; color: var(--muted); letter-spacing: 0.08em; margin-bottom: 6px; }
+label .req { color: var(--gold); margin-left: 2px; }
+input[type=text], input[type=tel], input[type=email], select, textarea {
+  width: 100%; padding: 10px 13px; border: 1px solid var(--border); border-radius: 1px;
+  background: var(--paper); font-family: 'Noto Sans TC', sans-serif; font-size: 0.87rem;
+  font-weight: 300; color: var(--ink); outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s; -webkit-appearance: none;
+}
+input[type=text]:focus, input[type=tel]:focus, input[type=email]:focus, select:focus, textarea:focus {
+  border-color: var(--gold); background: white; box-shadow: 0 0 0 3px rgba(184,137,42,0.1);
+}
+input::placeholder, textarea::placeholder { color: #c5bab0; }
+textarea { resize: vertical; min-height: 76px; line-height: 1.7; }
+select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23b8892a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 13px center; padding-right: 34px; cursor: pointer; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media(max-width:440px){ .field-row{grid-template-columns:1fr;} }
+.ferr { font-size: 0.72rem; color: var(--error); margin-top: 4px; display: none; }
+.fg.has-error input, .fg.has-error select, .fg.has-error textarea { border-color: var(--error); }
+.fg.has-error .ferr { display: block; }
+
+/* Date slots */
+.date-slots-wrap { display: flex; flex-direction: column; gap: 12px; }
+.date-block { border: 1px solid var(--border); border-radius: 2px; overflow: hidden; }
+.date-block-hd { background: var(--cream); padding: 9px 14px; font-family: 'Noto Serif TC', serif; font-size: 0.83rem; color: var(--warm); font-weight: 600; letter-spacing: 0.08em; }
+.time-slots { display: grid; grid-template-columns: repeat(4, 1fr); }
+.tsi input[type=radio], .tsi input[type=checkbox] { position: absolute; opacity: 0; width: 0; height: 0; }
+.tsi label { display: flex; align-items: center; justify-content: center; padding: 11px 4px; border-right: 1px solid var(--border); border-top: 1px solid var(--border); font-size: 0.83rem; color: var(--warm); cursor: pointer; transition: all 0.18s; user-select: none; flex-direction: column; gap: 1px; }
+.tsi:nth-child(4n) label { border-right: none; }
+.tsi:nth-child(-n+4) label { border-top: none; }
+.tsi input:checked + label { background: var(--warm); color: var(--cream); }
+.tsi label:hover { background: var(--cream); }
+.tsi.booked label { background: #f0ece6; color: #c8bfb0; cursor: not-allowed; }
+.tsi.booked label::after { content: '已約'; font-size: 0.62rem; color: #b8a898; }
+.tsi.closed label { background: #f5f5f5; color: #d0c8c0; cursor: not-allowed; }
+.tsi.closed label::after { content: '關閉'; font-size: 0.62rem; color: #ccc; }
+
+/* Fee table */
+.fee-table { width: 100%; border-collapse: collapse; font-size: 0.76rem; margin-top: 6px; }
+.fee-table th { background: var(--cream); color: var(--warm); font-weight: 600; padding: 6px 9px; text-align: left; border: 1px solid var(--border); font-family: 'Noto Serif TC', serif; }
+.fee-table td { padding: 6px 9px; border: 1px solid var(--border); color: var(--ink); line-height: 1.55; }
+.fee-table tr:nth-child(even) td { background: #fdfbf7; }
+
+/* Notice */
+.notice-box { background: #fffbf0; border: 1px solid #e8d89a; border-radius: 1px; padding: 14px 16px; margin-bottom: 22px; font-size: 0.78rem; color: #7a6020; line-height: 1.88; }
+.notice-box .nt { font-weight: 600; color: var(--gold); letter-spacing: 0.12em; margin-bottom: 6px; font-family: 'Noto Serif TC', serif; }
+
+/* Buttons */
+.submit-btn { width: 100%; padding: 14px; background: var(--warm); color: var(--cream); border: none; border-radius: 1px; font-family: 'Noto Serif TC', serif; font-size: 0.93rem; font-weight: 600; letter-spacing: 0.3em; cursor: pointer; transition: all 0.3s; }
+.submit-btn:hover { background: var(--gold); }
+.submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.success-screen { display: none; text-align: center; padding: 40px 16px; animation: fadeUp 0.6s ease both; }
+.success-icon { width: 56px; height: 56px; margin: 0 auto 18px; background: #f0f9f4; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.success-title { font-family: 'Noto Serif TC', serif; font-size: 1.2rem; font-weight: 700; color: var(--warm); letter-spacing: 0.15em; margin-bottom: 9px; }
+.success-msg { font-size: 0.84rem; color: var(--muted); line-height: 1.9; }
+
+footer { text-align: center; margin-top: 32px; font-size: 0.7rem; color: var(--muted); letter-spacing: 0.1em; opacity: 0.6; animation: fadeUp 1s ease 0.5s both; }
+.admin-link { display: inline-block; margin-top: 8px; font-size: 0.68rem; color: #bbb; opacity: 0.35; cursor: pointer; transition: opacity 0.2s; }
+.admin-link:hover { opacity: 0.8; }
+
+.spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid rgba(245,240,232,0.3); border-top-color: var(--cream); border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle; margin-right: 5px; }
+
+/* ADMIN */
+#adminPage { background: var(--ab); min-height: 100vh; color: #e0e4f0; font-family: 'Noto Sans TC', sans-serif; }
+.aw { max-width: 740px; margin: 0 auto; padding: 36px 18px 56px; }
+.ahdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 10px; }
+.atitle { font-family: 'Noto Serif TC', serif; font-size: 1.3rem; color: #e0e4f0; letter-spacing: 0.15em; }
+.atitle span { color: var(--aa); }
+.back-btn { padding: 7px 16px; background: transparent; border: 1px solid var(--abr); color: #aab; border-radius: 4px; cursor: pointer; font-size: 0.78rem; transition: all 0.2s; }
+.back-btn:hover { border-color: var(--aa); color: var(--aa); }
+
+.acard { background: var(--ac); border: 1px solid var(--abr); border-radius: 8px; padding: 24px; margin-bottom: 18px; }
+.acard-title { font-size: 0.75rem; font-weight: 500; color: var(--aa); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 18px; }
+
+.add-form { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+.add-form .af { display: flex; flex-direction: column; gap: 5px; }
+.add-form label { font-size: 0.72rem; color: #8a93b0; letter-spacing: 0.1em; }
+.add-form input[type=date] { background: #1a1f2e; border: 1px solid var(--abr); color: #e0e4f0; padding: 8px 11px; border-radius: 4px; font-size: 0.83rem; outline: none; font-family: 'Noto Sans TC', sans-serif; width: 155px; }
+.add-form input[type=date]:focus { border-color: var(--aa); }
+.add-btn { padding: 8px 20px; background: var(--aa); color: white; border: none; border-radius: 4px; font-size: 0.83rem; cursor: pointer; letter-spacing: 0.08em; transition: all 0.2s; white-space: nowrap; }
+.add-btn:hover { background: #6ba3ff; }
+
+.slotcbs { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 13px; }
+.slcb { position: relative; }
+.slcb input { position: absolute; opacity: 0; }
+.slcb label { display: inline-flex; align-items: center; padding: 5px 13px; border: 1px solid var(--abr); border-radius: 20px; font-size: 0.78rem; color: #8a93b0; cursor: pointer; transition: all 0.2s; user-select: none; }
+.slcb input:checked + label { border-color: var(--aa); color: var(--aa); background: rgba(79,142,247,0.1); }
+.slcb-title { font-size: 0.7rem; color: #6a73a0; letter-spacing: 0.1em; margin-bottom: 5px; margin-top: 14px; }
+
+.dates-list { display: flex; flex-direction: column; gap: 10px; }
+.di { background: #1e2438; border: 1px solid var(--abr); border-radius: 6px; padding: 14px 16px; }
+.di-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 9px; flex-wrap: wrap; gap: 6px; }
+.di-name { font-family: 'Noto Serif TC', serif; font-size: 0.92rem; color: #d0d8f0; letter-spacing: 0.1em; }
+.di-btns { display: flex; gap: 6px; }
+.tog-btn { padding: 4px 11px; background: transparent; border: 1px solid var(--abr); color: #8a93b0; border-radius: 4px; font-size: 0.73rem; cursor: pointer; transition: all 0.2s; }
+.tog-btn:hover { border-color: #aaa; color: #ccc; }
+.del-btn { padding: 4px 11px; background: transparent; border: 1px solid #553040; color: #c07080; border-radius: 4px; font-size: 0.73rem; cursor: pointer; transition: all 0.2s; }
+.del-btn:hover { background: #553040; color: #ff8fa0; }
+.slot-tags { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+.stag { font-size: 0.72rem; padding: 3px 10px; border-radius: 10px; background: rgba(79,142,247,0.12); color: var(--aa); border: 1px solid rgba(79,142,247,0.22); }
+.badge { font-size: 0.7rem; padding: 2px 9px; border-radius: 9px; }
+.empty-hint { text-align: center; color: #4a5370; padding: 20px; font-size: 0.82rem; }
+
+.cfg-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media(max-width:480px){ .cfg-grid{grid-template-columns:1fr;} }
+.cff { display: flex; flex-direction: column; gap: 5px; }
+.cff label { font-size: 0.7rem; color: #8a93b0; letter-spacing: 0.1em; }
+.cff input { background: #1a1f2e; border: 1px solid var(--abr); color: #e0e4f0; padding: 8px 11px; border-radius: 4px; font-size: 0.8rem; outline: none; font-family: 'Noto Sans TC', sans-serif; }
+.cff input:focus { border-color: var(--aa); }
+.save-cfg-btn { margin-top: 12px; padding: 8px 20px; background: #2d6a4f; color: white; border: none; border-radius: 4px; font-size: 0.8rem; cursor: pointer; letter-spacing: 0.1em; transition: all 0.2s; }
+.save-cfg-btn:hover { background: #3a8a64; }
+.cfg-ok { font-size: 0.73rem; color: #4aaa7a; margin-top: 7px; display: none; }
+.cfg-note { font-size: 0.7rem; color: #4a5370; margin-top: 9px; line-height: 1.65; }
+
+/* Login */
+#loginOverlay { position: fixed; inset: 0; background: var(--ab); z-index: 999; display: none; align-items: center; justify-content: center; }
+#loginOverlay.show { display: flex; }
+.lbox { background: var(--ac); border: 1px solid var(--abr); border-radius: 10px; padding: 36px 32px; width: 300px; text-align: center; }
+.ltitle { font-family: 'Noto Serif TC', serif; font-size: 1.05rem; color: #d0d8f0; letter-spacing: 0.15em; margin-bottom: 4px; }
+.lsub { font-size: 0.72rem; color: #5a6880; margin-bottom: 20px; letter-spacing: 0.1em; }
+.lbox input[type=password] { background: #1a1f2e; border: 1px solid var(--abr); color: #e0e4f0; padding: 10px 13px; border-radius: 4px; font-size: 0.86rem; outline: none; width: 100%; margin-bottom: 10px; font-family: 'Noto Sans TC', sans-serif; }
+.lbox input[type=password]:focus { border-color: var(--aa); }
+.login-btn { width: 100%; padding: 10px; background: var(--aa); color: white; border: none; border-radius: 4px; font-size: 0.86rem; cursor: pointer; letter-spacing: 0.12em; font-family: 'Noto Serif TC', serif; transition: all 0.2s; }
+.login-btn:hover { background: #6ba3ff; }
+.lerr { font-size: 0.72rem; color: #e07070; margin-top: 7px; min-height: 16px; }
+
+@keyframes fadeDown { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+@keyframes spin { to{transform:rotate(360deg)} }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginOverlay">
+  <div class="lbox">
+    <div class="ltitle">陸比音樂</div>
+    <div class="lsub">店家管理後台</div>
+    <input type="password" id="pwInput" placeholder="請輸入管理密碼" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">進入後台</button>
+    <div class="lerr" id="loginErr"></div>
+  </div>
+</div>
+
+<!-- ========== FRONT PAGE ========== -->
+<div id="frontPage" class="page active">
+<div class="container">
+  <header>
+    <div class="brand-ornament">
+      <div class="ornament-line"></div>
+      <svg width="42" height="42" viewBox="0 0 48 48" fill="none">
+        <path d="M32 8c2-2 5-2 7 0s2 5 0 7L20 34l-4 1-4 7-3-3 7-4 1-4L32 8z" stroke="#b8892a" stroke-width="1.5" stroke-linejoin="round"/>
+        <path d="M28 12l8 8M16 30c-2 2-2 5 0 7" stroke="#b8892a" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="13" cy="37" r="2" stroke="#b8892a" stroke-width="1.2"/>
+      </svg>
+      <div class="ornament-line r"></div>
+    </div>
+    <div class="brand-name">陸比音樂</div>
+    <div class="brand-sub">Luby Music Studio</div>
+    <div class="page-title">吉他保養預約</div>
+  </header>
+
+  <div class="form-card" id="formCard">
+    <form id="bookingForm" novalidate>
+
+      <div class="form-sec">
+        <div class="sec-label">保養費用說明</div>
+        <table class="fee-table">
+          <tr><th>樂器</th><th>小保養</th><th>大保養</th><th>琴弦（另計）</th></tr>
+          <tr><td>🎸 吉他</td><td>$500</td><td>$800–$1,000</td><td>六條 $220–$760</td></tr>
+          <tr><td>🎵 烏克麗麗</td><td>$500</td><td>$800</td><td>四條 $200–$530</td></tr>
+          <tr><td>⚡ 電吉他</td><td>$600</td><td>$1,500</td><td>六條 $180–$540</td></tr>
+          <tr><td>🎵 電貝斯</td><td>$600</td><td>$1,500</td><td>四條 $600</td></tr>
+        </table>
+        <div style="margin-top:9px;font-size:0.73rem;color:var(--muted);line-height:1.7;">
+          ❗ 保養須同時更換琴弦，自備琴弦酌收 $100–$150 換弦工本費。通常以小保養收件，Fret 生鏽/指板霉裂/較多灰塵則以大保養收件，以現場評估為主。
+        </div>
+      </div>
+
+      <div class="form-sec">
+        <div class="sec-label">預約須知</div>
+        <div class="notice-box">
+          <div class="nt">📌 重要事項</div>
+          未預約/平日仍可收件，以現場順序施作，通常隔日取件，件數多則 +1 工作天（不含週日）。<br>
+          保養約 1 小時，請準時送件。<strong>若需送兩件，請預約兩個時段</strong>（一個時段以一件為主）。<br>
+          最佳保養週期：2–3 個月一次。Line 諮詢：<a href="https://line.me/R/ti/p/@gay6872z" target="_blank" style="color:var(--gold);font-weight:500;text-decoration:none;border-bottom:1px solid var(--gold);">@gay6872z</a>
+        </div>
+      </div>
+
+      <div class="form-sec">
+        <div class="sec-label">客戶資訊</div>
+        <div class="field-row">
+          <div class="fg" id="fg-name">
+            <label>姓名 <span class="req">*</span></label>
+            <input type="text" id="fname" placeholder="您的姓名">
+            <div class="ferr">請填寫姓名</div>
+          </div>
+          <div class="fg" id="fg-phone">
+            <label>聯絡電話 <span class="req">*</span></label>
+            <input type="tel" id="fphone" placeholder="09xx-xxxxxx">
+            <div class="ferr">請填寫有效電話</div>
+          </div>
+        </div>
+        <div class="fg" id="fg-email">
+          <label>Email <span class="req">*</span> <span style="color:var(--muted);font-size:0.7rem;">（確認信將寄至此信箱）</span></label>
+          <input type="email" id="femail" placeholder="your@email.com">
+          <div class="ferr">請填寫有效 Email</div>
+        </div>
+      </div>
+
+      <div class="form-sec">
+        <div class="sec-label">送修件數</div>
+        <div class="fg" id="fg-qty">
+          <label>件數 <span class="req">*</span></label>
+          <select id="fqty" onchange="onQtyChange()">
+            <option value="">請選擇</option>
+            <option value="1">1 把</option>
+            <option value="2">2 把</option>
+            <option value="3">3 把</option>
+            <option value="4">4 把以上</option>
+          </select>
+          <div class="ferr">請選擇件數</div>
+        </div>
+        <div id="multiSlotHint" style="display:none;margin-top:6px;padding:9px 12px;background:#fffbf0;border:1px solid #e8d89a;border-radius:1px;font-size:0.76rem;color:#7a6020;line-height:1.7;">
+          ⚠️ 送修 2 把以上請複選對應數量的時段（每把各需一個時段）
+        </div>
+      </div>
+
+      <div class="form-sec">
+        <div class="sec-label" id="slotSectionLabel">選擇預約時段</div>
+        <div class="fg" id="fg-slot">
+          <div id="dateSlotsContainer" class="date-slots-wrap">
+            <div style="padding:22px;text-align:center;color:var(--muted);font-size:0.82rem;">
+              目前尚無開放預約日期，請稍後再查看或 Line：@gay6872z
+            </div>
+          </div>
+          <div class="ferr" id="slotErr">請選擇預約時段</div>
+        </div>
+      </div>
+
+      <div class="form-sec">
+        <div class="sec-label">其他備註</div>
+        <textarea id="fnotes" placeholder="樂器現況、特殊需求、或其他問題…"></textarea>
+      </div>
+
+      <div class="fg" id="fg-consent" style="margin-bottom:20px;">
+        <label style="display:flex;align-items:flex-start;gap:9px;cursor:pointer;color:var(--ink);font-size:0.78rem;line-height:1.65;">
+          <input type="checkbox" id="fconsent" style="width:auto;margin-top:3px;flex-shrink:0;">
+          我已閱讀並同意依個人資料保護法提供個人資料，供陸比音樂用於預約確認及相關服務通知。
+        </label>
+        <div class="ferr">請勾選同意</div>
+      </div>
+
+      <button type="submit" class="submit-btn" id="submitBtn">送出預約申請</button>
+    </form>
+
+    <div class="success-screen" id="successScreen">
+      <div class="success-icon">
+        <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+          <circle cx="16" cy="16" r="14" stroke="#2d6a4f" stroke-width="1.5"/>
+          <path d="M9 16.5l4.5 4.5 9-9" stroke="#2d6a4f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="success-title">預約申請已送出！</div>
+      <div class="success-msg" id="successMsg"></div>
+    </div>
+  </div>
+
+  <footer>
+    © 陸比音樂 Luby Music Studio
+    <br><span class="admin-link" onclick="goAdmin()">店家管理後台</span>
+  </footer>
+</div>
+</div>
+
+<!-- ========== ADMIN PAGE ========== -->
+<div id="adminPage" class="page">
+<div class="aw">
+  <div class="ahdr">
+    <div class="atitle">陸比音樂 <span>後台管理</span></div>
+    <button class="back-btn" onclick="goFront()">← 返回預約頁面</button>
+  </div>
+
+  <div class="acard">
+    <div class="acard-title">📧 EmailJS 通知設定</div>
+    <div class="cfg-grid">
+      <div class="cff"><label>Public Key</label><input type="text" id="cfgPK" placeholder="YOUR_PUBLIC_KEY"></div>
+      <div class="cff"><label>Service ID</label><input type="text" id="cfgSID" placeholder="service_xxxxxxx"></div>
+      <div class="cff"><label>店家通知 Template ID</label><input type="text" id="cfgTO" placeholder="template_xxxxxxx"></div>
+      <div class="cff"><label>客戶確認信 Template ID</label><input type="text" id="cfgTC" placeholder="template_xxxxxxx"></div>
+      <div class="cff"><label>店家收件信箱</label><input type="email" id="cfgOE" placeholder="lubymusic@gmail.com"></div>
+      <div class="cff" style="grid-column:1/-1;"><label>Google Sheets 網址（Apps Script 部署網址）</label><input type="text" id="cfgGS" placeholder="https://script.google.com/macros/s/..."></div>
+    </div>
+    <button class="save-cfg-btn" onclick="saveConfig()">儲存設定</button>
+    <div class="cfg-ok" id="cfgOk">✓ 設定已儲存</div>
+    <div class="cfg-note">
+      到 <strong>emailjs.com</strong> 免費註冊，每月免費寄 200 封。Template 變數請使用：<br>
+      <code style="font-size:0.68rem;color:#6a93b0;">{{customer_name}} {{customer_phone}} {{customer_email}} {{booking_date}} {{guitar_qty}} {{notes}}</code>
+    </div>
+  </div>
+
+  <div class="acard">
+    <div class="acard-title">➕ 新增開放預約日期</div>
+    <div style="font-size:0.72rem;color:#6a73a0;margin-bottom:12px;">可選單一日期，或選起訖範圍一次批次新增多天。</div>
+    <div class="add-form">
+      <div class="af"><label>起始日期</label><input type="date" id="newDateFrom"></div>
+      <div class="af"><label>結束日期 <span style="color:#555e7a;">（單日可留空）</span></label><input type="date" id="newDateTo"></div>
+      <button class="add-btn" onclick="addDate()">新增日期</button>
+    </div>
+    <div class="slcb-title" style="display:flex;align-items:center;justify-content:space-between;">
+      <span>開放時段（可多選）</span>
+      <button onclick="toggleAllSlots()" id="toggleAllBtn" style="padding:3px 12px;background:transparent;border:1px solid var(--abr);color:#8a93b0;border-radius:12px;font-size:0.72rem;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='#aaa';this.style.color='#ccc'" onmouseout="this.style.borderColor='var(--abr)';this.style.color='#8a93b0'">全部取消</button>
+    </div>
+    <div class="slotcbs" id="newSlotCbs"></div>
+  </div>
+
+  <div class="acard">
+    <div class="acard-title">🔑 修改後台密碼</div>
+    <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;">
+      <div class="cff" style="flex:1;min-width:160px;">
+        <label>新密碼</label>
+        <input type="password" id="newPw1" placeholder="輸入新密碼">
+      </div>
+      <div class="cff" style="flex:1;min-width:160px;">
+        <label>確認新密碼</label>
+        <input type="password" id="newPw2" placeholder="再次輸入">
+      </div>
+      <button class="add-btn" onclick="changePw()" style="background:#2d6a4f;">更新密碼</button>
+    </div>
+    <div id="pwMsg" style="font-size:0.73rem;margin-top:8px;min-height:16px;"></div>
+  </div>
+
+  <div class="acard">
+    <div class="acard-title">📅 已開放預約日期</div>
+    <div class="dates-list" id="adminDatesList"><div class="empty-hint">尚未新增任何日期</div></div>
+  </div>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+const SK = { dates: 'luby_dates', config: 'luby_config', bookings: 'luby_bookings' };
+const SLOTS = ['10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00'];
+const DEFAULT_PW = 'luby2024';
+
+const loadDates = () => { try { return JSON.parse(localStorage.getItem(SK.dates)) || []; } catch { return []; } };
+const saveDates = d => localStorage.setItem(SK.dates, JSON.stringify(d));
+const loadCfg = () => { try { return JSON.parse(localStorage.getItem(SK.config)) || {}; } catch { return {}; } };
+const saveCfg = c => localStorage.setItem(SK.config, JSON.stringify(c));
+const loadBookings = () => { try { return JSON.parse(localStorage.getItem(SK.bookings)) || []; } catch { return []; } };
+const saveBookings = b => localStorage.setItem(SK.bookings, JSON.stringify(b));
+
+function goAdmin() {
+  document.getElementById('loginOverlay').classList.add('show');
+  document.getElementById('pwInput').value = '';
+  document.getElementById('loginErr').textContent = '';
+  document.getElementById('adminPage').classList.add('active');
+  document.getElementById('frontPage').classList.remove('active');
+}
+function doLogin() {
+  const cfg = loadCfg();
+  if (document.getElementById('pwInput').value === (cfg.password || DEFAULT_PW)) {
+    document.getElementById('loginOverlay').classList.remove('show');
+    renderAdmin();
+  } else {
+    document.getElementById('loginErr').textContent = '密碼錯誤';
+  }
+}
+function goFront() {
+  document.getElementById('frontPage').classList.add('active');
+  document.getElementById('adminPage').classList.remove('active');
+  renderFrontDates();
+}
+
+function fmtDate(ds) {
+  const parts = ds.split('-');
+  const y = parseInt(parts[0]), m = parseInt(parts[1]), d = parseInt(parts[2]);
+  const dw = ['日','一','二','三','四','五','六'][new Date(y, m-1, d).getDay()];
+  return `${m}月${d}日（${dw}）`;
+}
+
+/* ADMIN */
+function renderAdmin() {
+  const cfg = loadCfg();
+  document.getElementById('cfgPK').value = cfg.pubKey || 'RaamsiaDHLjtIj7bK';
+  document.getElementById('cfgSID').value = cfg.serviceId || 'lubymusic@hotmail.com';
+  document.getElementById('cfgTO').value = cfg.tplOwner || 'template_11tk9tg';
+  document.getElementById('cfgTC').value = cfg.tplCustomer || 'template_9xsijum';
+  document.getElementById('cfgOE').value = cfg.ownerEmail || 'lubymusic@hotmail.com';
+  document.getElementById('cfgGS').value = cfg.sheetsUrl || 'https://script.google.com/macros/s/AKfycbx2YnezQWcK-c5p_-FKGO2vXdTIZmkZwYoYlfw2frcw98MA2yDF5mgdIqfUyPUy4wagCg/exec';
+  const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate()+1);
+  const tStr = tomorrow.toISOString().split('T')[0];
+  document.getElementById('newDateFrom').min = tStr;
+  document.getElementById('newDateTo').min = tStr;
+  document.getElementById('newSlotCbs').innerHTML = SLOTS.map(t =>
+    `<div class="slcb"><input type="checkbox" id="ns_${t.replace(':','')}" value="${t}" checked><label for="ns_${t.replace(':','')}">${t}</label></div>`
+  ).join('');
+  renderAdminDates();
+}
+
+function renderAdminDates() {
+  const dates = loadDates().sort((a,b) => a.date.localeCompare(b.date));
+  const el = document.getElementById('adminDatesList');
+  if (!dates.length) { el.innerHTML = '<div class="empty-hint">尚未新增任何日期</div>'; return; }
+  const bookings = loadBookings();
+  el.innerHTML = dates.map((d, i) => {
+    const act = d.active !== false;
+    const bookedSlots = bookings.filter(b => b.date === d.date).map(b => b.time);
+    const tags = d.slots.length ? d.slots.map(s => {
+      const isBooked = bookedSlots.includes(s);
+      const isClosed = (d.closedSlots || []).includes(s);
+      let tagStyle = '';
+      if (isBooked) tagStyle = 'background:rgba(180,80,80,0.15);color:#c07080;border-color:rgba(180,80,80,0.3);';
+      else if (isClosed) tagStyle = 'background:rgba(100,100,100,0.15);color:#888;border-color:rgba(100,100,100,0.3);text-decoration:line-through;';
+      const actionLabel = isClosed ? '開' : '關';
+      const actionColor = isClosed ? '#4aaa7a' : '#c07080';
+      return `<span class="stag" style="${tagStyle}display:inline-flex;align-items:center;gap:4px;">
+        ${s}${isBooked ? ' 已約' : isClosed ? ' 關閉' : ''}
+        ${isBooked
+          ? `<button onclick="cancelBooking(${i},'${s}')" title="取消此預約，釋放時段" style="background:none;border:none;cursor:pointer;color:#e07070;font-size:0.68rem;padding:0 2px;line-height:1;" >✕</button>`
+          : `<button onclick="toggleSlot(${i},'${s}')" style="background:none;border:none;cursor:pointer;color:${actionColor};font-size:0.68rem;padding:0 2px;line-height:1;">${actionLabel}</button>`
+        }
+      </span>`;
+    }).join('') : '<span style="font-size:0.72rem;color:#555e7a;font-style:italic;">未設定時段</span>';
+    return `<div class="di">
+      <div class="di-hdr">
+        <div class="di-name">📅 ${fmtDate(d.date)}</div>
+        <div class="di-btns">
+          <button class="tog-btn" onclick="toggleDate(${i})">${act ? '暫停' : '開啟'}</button>
+          <button class="del-btn" onclick="deleteDate(${i})">刪除</button>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <span class="badge" style="background:${act?'rgba(79,142,247,0.15)':'rgba(150,80,80,0.15)'};color:${act?'var(--aa)':'#c07080'};">${act?'開放中':'已暫停'}</span>
+        <div class="slot-tags">${tags}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function saveConfig() {
+  const cfg = loadCfg();
+  cfg.pubKey = document.getElementById('cfgPK').value.trim();
+  cfg.serviceId = document.getElementById('cfgSID').value.trim();
+  cfg.tplOwner = document.getElementById('cfgTO').value.trim();
+  cfg.tplCustomer = document.getElementById('cfgTC').value.trim();
+  cfg.ownerEmail = document.getElementById('cfgOE').value.trim();
+  cfg.sheetsUrl = document.getElementById('cfgGS').value.trim();
+  saveCfg(cfg);
+  const ok = document.getElementById('cfgOk');
+  ok.style.display = 'block';
+  setTimeout(() => ok.style.display = 'none', 2200);
+}
+
+function changePw() {
+  const p1 = document.getElementById('newPw1').value;
+  const p2 = document.getElementById('newPw2').value;
+  const msg = document.getElementById('pwMsg');
+  if (!p1) { msg.style.color = '#e07070'; msg.textContent = '請輸入新密碼'; return; }
+  if (p1 !== p2) { msg.style.color = '#e07070'; msg.textContent = '兩次密碼不一致'; return; }
+  if (p1.length < 4) { msg.style.color = '#e07070'; msg.textContent = '密碼至少 4 個字元'; return; }
+  const cfg = loadCfg(); cfg.password = p1; saveCfg(cfg);
+  document.getElementById('newPw1').value = '';
+  document.getElementById('newPw2').value = '';
+  msg.style.color = '#4aaa7a'; msg.textContent = '✓ 密碼已更新';
+  setTimeout(() => msg.textContent = '', 2500);
+}
+
+function toggleAllSlots() {
+  const cbs = [...document.querySelectorAll('#newSlotCbs input[type=checkbox]')];
+  const allChecked = cbs.every(c => c.checked);
+  cbs.forEach(c => c.checked = !allChecked);
+  document.getElementById('toggleAllBtn').textContent = allChecked ? '全選' : '全部取消';
+}
+
+function addDate() {
+  const from = document.getElementById('newDateFrom').value;
+  const to = document.getElementById('newDateTo').value || from;
+  if (!from) { alert('請選擇起始日期'); return; }
+  if (to < from) { alert('結束日期不能早於起始日期'); return; }
+  const slots = [...document.querySelectorAll('#newSlotCbs input:checked')].map(c => c.value);
+  const dates = loadDates();
+  let added = 0;
+  let cur = new Date(from + 'T12:00:00');
+  const end = new Date(to + 'T12:00:00');
+  while (cur <= end) {
+    const ds = cur.getFullYear() + '-' + String(cur.getMonth()+1).padStart(2,'0') + '-' + String(cur.getDate()).padStart(2,'0');
+    if (!dates.find(d => d.date === ds)) { dates.push({ date: ds, slots, active: true }); added++; }
+    cur.setDate(cur.getDate() + 1);
+  }
+  if (added === 0) { alert('所選日期已全部存在'); return; }
+  saveDates(dates);
+  document.getElementById('newDateFrom').value = '';
+  document.getElementById('newDateTo').value = '';
+  renderAdminDates();
+  // Show feedback
+  const btn = document.querySelector('.add-btn');
+  const orig = btn.textContent;
+  btn.textContent = `✓ 已新增 ${added} 天`;
+  btn.style.background = '#2d6a4f';
+  setTimeout(() => { btn.textContent = orig; btn.style.background = ''; }, 2000);
+}
+
+async function cancelBooking(dateIdx, slot) {
+  const dates = loadDates();
+  const dateStr = dates[dateIdx].date;
+  const key = dateStr + '|' + slot;
+  if (!confirm(`確定取消「${fmtDate(dateStr)} ${slot}」的預約並釋放時段？`)) return;
+
+  const cfg = loadCfg();
+  const sheetsUrl = cfg.sheetsUrl || 'https://script.google.com/macros/s/AKfycbx2YnezQWcK-c5p_-FKGO2vXdTIZmkZwYoYlfw2frcw98MA2yDF5mgdIqfUyPUy4wagCg/exec';
+
+  // 用 GET 方式傳送取消請求（避免 CORS 問題）
+  try {
+    const url = sheetsUrl + '?action=cancelBooking&key=' + encodeURIComponent(key);
+    await fetch(url, { mode: 'no-cors' });
+  } catch(err) { console.error('Sheets cancel:', err); }
+
+  // 清除本機紀錄
+  const bookings = loadBookings().filter(b => !(b.date === dateStr && b.time === slot));
+  saveBookings(bookings);
+
+  renderAdminDates();
+  alert(`✓ 已釋放「${fmtDate(dateStr)} ${slot}」時段`);
+}
+
+function toggleSlot(dateIdx, slot) {
+  const dates = loadDates();
+  const d = dates[dateIdx];
+  if (!d.closedSlots) d.closedSlots = [];
+  const idx = d.closedSlots.indexOf(slot);
+  if (idx >= 0) d.closedSlots.splice(idx, 1);
+  else d.closedSlots.push(slot);
+  saveDates(dates);
+  renderAdminDates();
+}
+
+function deleteDate(i) {
+  if (!confirm('確定刪除此日期？')) return;
+  const dates = loadDates(); dates.splice(i, 1); saveDates(dates); renderAdminDates();
+}
+
+function toggleDate(i) {
+  const dates = loadDates();
+  dates[i].active = dates[i].active === false;
+  saveDates(dates); renderAdminDates();
+}
+
+/* FRONT */
+function onQtyChange() {
+  const qty = parseInt(document.getElementById('fqty').value) || 1;
+  const hint = document.getElementById('multiSlotHint');
+  const label = document.getElementById('slotSectionLabel');
+  if (qty >= 2) {
+    hint.style.display = 'block';
+    label.textContent = `選擇預約時段（請選 ${qty === 4 ? '多個' : qty} 個）`;
+  } else {
+    hint.style.display = 'none';
+    label.textContent = '選擇預約時段';
+  }
+  // Re-render with correct input type
+  renderFrontDates();
+}
+
+async function renderFrontDates() {
+  const today = new Date().toISOString().split('T')[0];
+  const dates = loadDates().filter(d => d.active !== false && d.date >= today).sort((a,b) => a.date.localeCompare(b.date));
+  const c = document.getElementById('dateSlotsContainer');
+  if (!dates.length) {
+    c.innerHTML = `<div style="padding:22px;text-align:center;color:var(--muted);font-size:0.82rem;">目前尚無開放預約日期，請稍後再查看或 Line：@gay6872z</div>`;
+    return;
+  }
+
+  const qty = parseInt(document.getElementById('fqty').value) || 1;
+  const inputType = qty >= 2 ? 'checkbox' : 'radio';
+  const inputName = qty >= 2 ? '' : 'name="bookSlot"';
+
+  // 從 Google Sheets 讀取已預約時段
+  let remoteBookedKeys = new Set();
+  const cfg = loadCfg();
+  const sheetsUrl = cfg.sheetsUrl || 'https://script.google.com/macros/s/AKfycbx2YnezQWcK-c5p_-FKGO2vXdTIZmkZwYoYlfw2frcw98MA2yDF5mgdIqfUyPUy4wagCg/exec';
+  try {
+    const res = await fetch(sheetsUrl + '?action=getBookings');
+    const json = await res.json();
+    if (json.bookings) json.bookings.forEach(k => remoteBookedKeys.add(k));
+  } catch(e) {}
+  loadBookings().forEach(b => remoteBookedKeys.add(b.date + '|' + b.time));
+
+  c.innerHTML = dates.map((d, di) => {
+    // Get closed slots for this date
+    const closedSlots = new Set(d.closedSlots || []);
+    return `<div class="date-block">
+      <div class="date-block-hd">📅 預約 ${fmtDate(d.date)}　<span style="font-size:0.72rem;color:var(--muted);font-weight:300;">（一個時段以一件為主）</span></div>
+      <div class="time-slots">${d.slots.map((t, ti) => {
+        const isBooked = remoteBookedKeys.has(d.date + '|' + t);
+        const isClosed = closedSlots.has(t);
+        const disabled = isBooked || isClosed;
+        const cls = isBooked ? 'booked' : isClosed ? 'closed' : '';
+        return `<div class="tsi${cls ? ' ' + cls : ''}">
+          <input type="${inputType}" ${inputType==='radio'?'name="bookSlot"':''} id="sl_${di}_${ti}" value="${d.date}|${t}" data-label="${fmtDate(d.date)} ${t}" data-date="${d.date}" data-time="${t}"${disabled ? ' disabled' : ''}>
+          <label for="sl_${di}_${ti}">${t}</label>
+        </div>`;
+      }).join('')}</div>
+    </div>`;
+  }).join('');
+}
+
+/* SUBMIT */
+document.getElementById('bookingForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const name = document.getElementById('fname').value.trim();
+  const phone = document.getElementById('fphone').value.trim();
+  const email = document.getElementById('femail').value.trim();
+  const qty = parseInt(document.getElementById('fqty').value) || 0;
+  const consent = document.getElementById('fconsent').checked;
+  let ok = true;
+
+  [['fg-name', !name], ['fg-phone', !/^[0-9\-\+\s]{8,}$/.test(phone)],
+   ['fg-email', !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)],
+   ['fg-qty', !qty], ['fg-consent', !consent]
+  ].forEach(([id, err]) => { document.getElementById(id).classList.toggle('has-error', err); if (err) ok = false; });
+
+  const slotErr = document.getElementById('slotErr');
+  const isMulti = qty >= 2;
+  const selectedSlots = isMulti
+    ? [...document.querySelectorAll('input[type=checkbox][data-date]:checked')]
+    : (document.querySelector('input[name="bookSlot"]:checked') ? [document.querySelector('input[name="bookSlot"]:checked')] : []);
+
+  if (!selectedSlots.length) { slotErr.style.display = 'block'; ok = false; }
+  else if (isMulti && qty < 4 && selectedSlots.length < qty) {
+    slotErr.textContent = `送修 ${qty} 把請選 ${qty} 個時段（已選 ${selectedSlots.length} 個）`;
+    slotErr.style.display = 'block'; ok = false;
+  } else { slotErr.style.display = 'none'; slotErr.textContent = '請選擇預約時段'; }
+  if (!ok) return;
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>送出中…';
+
+  const notes = document.getElementById('fnotes').value.trim() || '無';
+  const slotLabels = selectedSlots.map(s => s.dataset.label).join('、');
+  const cfg = loadCfg();
+  const sheetsUrl = cfg.sheetsUrl || 'https://script.google.com/macros/s/AKfycbx2YnezQWcK-c5p_-FKGO2vXdTIZmkZwYoYlfw2frcw98MA2yDF5mgdIqfUyPUy4wagCg/exec';
+  const pubKey      = cfg.pubKey      || 'RaamsiaDHLjtIj7bK';
+  const serviceId   = cfg.serviceId   || 'lubymusic@hotmail.com';
+  const tplOwner    = cfg.tplOwner    || 'template_11tk9tg';
+  const tplCustomer = cfg.tplCustomer || 'template_9xsijum';
+  const ownerEmail  = cfg.ownerEmail  || 'lubymusic@hotmail.com';
+
+  // 1. 寫入 Google Sheets（每個時段一筆）
+  for (const s of selectedSlots) {
+    try {
+      await fetch(sheetsUrl, {
+        method: 'POST', mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'addBooking', name, phone, email,
+          booking_date: s.dataset.label,
+          booking_date_key: s.dataset.date + '|' + s.dataset.time,
+          guitar_qty: qty + ' 把', notes
+        })
+      });
+    } catch(err) { console.error('Sheets:', err); }
+  }
+
+  // 2. 本機備份
+  const bookings = loadBookings();
+  selectedSlots.forEach(s => bookings.push({ date: s.dataset.date, time: s.dataset.time, name, phone, email, qty, notes, ts: Date.now() }));
+  saveBookings(bookings);
+
+  // 3. 寄送 Email
+  let sent = false;
+  try {
+    emailjs.init(pubKey);
+    const p = { customer_name: name, customer_phone: phone, customer_email: email, booking_date: slotLabels, guitar_qty: qty + ' 把', notes, owner_email: ownerEmail };
+    await Promise.all([
+      emailjs.send(serviceId, tplOwner, p),
+      emailjs.send(serviceId, tplCustomer, p)
+    ]);
+    sent = true;
+  } catch(err) { console.error('EmailJS:', err); }
+
+  document.getElementById('bookingForm').style.display = 'none';
+  document.getElementById('successScreen').style.display = 'block';
+  document.getElementById('successMsg').innerHTML =
+    `感謝您，<strong>${name}</strong>！<br>
+    預約時段：<strong>${slotLabels}</strong><br>
+    送修件數：<strong>${qty} 把</strong><br><br>
+    ${sent ? `確認信已寄至 <strong>${email}</strong><br>` : ''}
+    我們將盡快與您確認，如有疑問請 <a href="https://line.me/R/ti/p/@gay6872z" target="_blank" style="color:var(--gold);">Line：@gay6872z</a>`;
+});
+
+renderFrontDates();
+</script>
+</body>
+</html>
