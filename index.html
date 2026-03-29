@@ -913,12 +913,6 @@ document.getElementById('bookingForm').addEventListener('submit', async function
   let sent = false;
   try {
     emailjs.init(pubKey);
-    // 取消連結指向我們自己的網站（不需要 Google 登入）
-    const cancelUrl = 'https://rock7652-beep.github.io/luby-music/' +
-      '?cancel=1' +
-      '&key=' + encodeURIComponent(selectedSlots.map(s=>s.dataset.date+'|'+s.dataset.time).join(',')) +
-      '&email=' + encodeURIComponent(email) +
-      '&name=' + encodeURIComponent(name);
     const p = {
       customer_name: name,
       customer_phone: phone,
@@ -926,8 +920,7 @@ document.getElementById('bookingForm').addEventListener('submit', async function
       booking_date: slotLabels,
       guitar_qty: qty + ' 把',
       notes,
-      owner_email: ownerEmail,
-      cancel_url: cancelUrl
+      owner_email: ownerEmail
     };
     await Promise.all([
       emailjs.send(serviceId, tplOwner, p),
