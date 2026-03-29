@@ -361,35 +361,36 @@ function getCached() { try { return JSON.parse(localStorage.getItem('luby_dates_
 function setCache(dates) { localStorage.setItem('luby_dates_cache', JSON.stringify(dates)); localStorage.setItem('luby_dates_cache_ts', Date.now()); }
 function isCacheFresh(ms=300000) { return (Date.now() - (parseInt(localStorage.getItem('luby_dates_cache_ts'))||0)) < ms; }
 
-// 快取優先：立即返回快取，背景靜默同步
 async function loadDates(forceRemote=false) {
   const cached = getCached();
-  // 沒有快取時，一定要等 Sheets
-  if (!cached.length) {
-    try {
-      const res = await fetch(getUrl() + '?action=getDates');
-      const json = await res.json();
-      if (json.dates) { setCache(json.dates); return json.dates; }
-    } catch(e) {}
-    return [];
-  }
-  // 有快取但過期，先回傳快取，背景刷新
-  if (!isCacheFresh()) {
-    fetch(getUrl() + '?action=getDates')
-      .then(r=>r.json()).then(j=>{ if(j.dates) setCache(j.dates); }).catch(()=>{});
-  }
+  // 一律從 Sheets 讀最新（快取只當網路失敗的備援）
+  try {
+    const res = await fetch(getUrl() + '?action=getDates');
+    const json = await res.json();
+    if (json.dates) { setCache(json.dates); return json.dates; }
+  } catch(e) {}
+  // 網路失敗才用快取
   return cached;
 }
 
-// 立即存本機，背景同步 Sheets（不阻塞 UI）
-function saveDates(dates) {
+// 立即存本機，同步等待 Sheets（確保跨裝置一致）
+async function saveDates(dates) {
   setCache(dates);
-  fetch(getUrl(), {
-    method:'POST', mode:'no-cors',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ action:'saveDates', dates })
-  }).catch(e => console.error('saveDates:', e));
-  return Promise.resolve(); // 不等待 Sheets
+  try {
+    await fetch(getUrl(), {
+      method:'POST', mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ action:'saveDates', dates })
+    });
+    // 等一下再強制刷新快取確保一致
+    setTimeout(async () => {
+      try {
+        const res = await fetch(getUrl() + '?action=getDates');
+        const json = await res.json();
+        if (json.dates) setCache(json.dates);
+      } catch(e) {}
+    }, 2000);
+  } catch(e) { console.error('saveDates:', e); }
 }
 
 // ============================================================
@@ -586,11 +587,12 @@ async function addDate() {
     cur.setDate(cur.getDate()+1);
   }
   if(added===0){alert('所選日期已全部存在');return;}
-  saveDates(dates); // 背景同步
+  const btn=document.getElementById('addDateBtn');
+  btn.disabled=true; btn.textContent='儲存中…';
+  await saveDates(dates);
   document.getElementById('newDateFrom').value='';
   document.getElementById('newDateTo').value='';
-  const btn=document.getElementById('addDateBtn');
-  btn.textContent=`✓ 已新增 ${added} 天`; btn.style.background='#2d6a4f';
+  btn.disabled=false; btn.textContent=`✓ 已新增 ${added} 天`; btn.style.background='#2d6a4f';
   setTimeout(()=>{btn.textContent='新增日期';btn.style.background='';},2200);
   await renderAdminDates();
 }
@@ -598,7 +600,7 @@ async function addDate() {
 async function deleteDate(dateStr) {
   if(!confirm('確定刪除此日期？'))return;
   const dates=(await loadDates()).filter(d=>d.date!==dateStr);
-  saveDates(dates); // 不等待
+  await saveDates(dates);
   await renderAdminDates();
 }
 
@@ -606,7 +608,7 @@ async function toggleDate(dateStr) {
   const dates=await loadDates();
   const d=dates.find(x=>x.date===dateStr);
   if(d) d.active=d.active===false?true:false;
-  saveDates(dates); // 不等待
+  await saveDates(dates);
   await renderAdminDates();
 }
 
@@ -617,7 +619,7 @@ async function toggleSlot(dateStr, slot) {
   if(!d.closedSlots)d.closedSlots=[];
   const idx=d.closedSlots.indexOf(slot);
   if(idx>=0)d.closedSlots.splice(idx,1); else d.closedSlots.push(slot);
-  saveDates(dates); // 不等待
+  await saveDates(dates);
   await renderAdminDates();
 }
 
