@@ -379,30 +379,17 @@ async function loadDates() {
 }
 
 async function saveDates(dates) {
-  setCache(dates);
-  try {
-    await new Promise((resolve) => {
-      var xhr = new XMLHttpRequest();
-      xhr.open('POST', getUrl(), true);
-      xhr.setRequestHeader('Content-Type', 'text/plain');
-      xhr.onload = resolve;
-      xhr.onerror = resolve;
-      xhr.send(JSON.stringify({ action: 'saveDates', dates: dates }));
-    });
-    // 等 Sheets 寫入完成再更新快取
-    await new Promise(r => setTimeout(r, 1500));
-    const res = await fetch(getUrl() + '?action=getDates');
-    const json = await res.json();
-    if (json.dates && json.dates.length > 0) {
-      setCache(json.dates);
-      return true;
-    }
-    // Sheets 還沒更新，保留本機快取
-    return true;
-  } catch(e) {
-    console.error('saveDates:', e);
-    return false;
-  }
+  setCache(dates); // 立即更新本機快取
+  // 背景同步 Sheets，不阻塞 UI
+  new Promise((resolve) => {
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', getUrl(), true);
+    xhr.setRequestHeader('Content-Type', 'text/plain');
+    xhr.onload = resolve;
+    xhr.onerror = resolve;
+    xhr.send(JSON.stringify({ action: 'saveDates', dates: dates }));
+  }).catch(e => console.error('saveDates bg:', e));
+  return true; // 立即回傳，不等待
 }
 
 // ============================================================
@@ -595,21 +582,20 @@ async function addDate() {
     cur.setDate(cur.getDate()+1);
   }
   if(added===0){alert('所選日期已全部存在');return;}
-  const btn=document.getElementById('addDateBtn');
-  btn.disabled=true; btn.textContent='儲存中…';
-  await saveDates(dates);
   document.getElementById('newDateFrom').value='';
   document.getElementById('newDateTo').value='';
-  btn.disabled=false; btn.textContent=`✓ 已新增 ${added} 天`; btn.style.background='#2d6a4f';
+  const btn=document.getElementById('addDateBtn');
+  btn.textContent=`✓ 已新增 ${added} 天`; btn.style.background='#2d6a4f';
   setTimeout(()=>{btn.textContent='新增日期';btn.style.background='';},2200);
-  await renderAdminDates();
+  await saveDates(dates); // 背景同步
+  _renderDatesList(dates.sort((a,b)=>a.date.localeCompare(b.date)), document.getElementById('adminDatesList'));
 }
 
 async function deleteDate(dateStr) {
   if(!confirm('確定刪除此日期？'))return;
   const dates=(await loadDates()).filter(d=>d.date!==dateStr);
   await saveDates(dates);
-  await renderAdminDates();
+  _renderDatesList(dates.sort((a,b)=>a.date.localeCompare(b.date)), document.getElementById('adminDatesList'));
 }
 
 async function toggleDate(dateStr) {
@@ -617,7 +603,7 @@ async function toggleDate(dateStr) {
   const d=dates.find(x=>x.date===dateStr);
   if(d) d.active=d.active===false?true:false;
   await saveDates(dates);
-  await renderAdminDates();
+  _renderDatesList(dates.sort((a,b)=>a.date.localeCompare(b.date)), document.getElementById('adminDatesList'));
 }
 
 async function toggleSlot(dateStr, slot) {
@@ -628,7 +614,7 @@ async function toggleSlot(dateStr, slot) {
   const idx=d.closedSlots.indexOf(slot);
   if(idx>=0)d.closedSlots.splice(idx,1); else d.closedSlots.push(slot);
   await saveDates(dates);
-  await renderAdminDates();
+  _renderDatesList(dates.sort((a,b)=>a.date.localeCompare(b.date)), document.getElementById('adminDatesList'));
 }
 
 async function cancelBooking(dateStr, slot) {
