@@ -351,7 +351,8 @@ footer{text-align:center;margin-top:32px;font-size:0.7rem;color:var(--muted);let
 // 設定
 // ============================================================
 const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyp19kpz1OlT13fXHySfgVctIdQrR-7vj1VtgWWifr45tvxhlQXqzetv2KRFla5bsbp/exec';
-const SLOTS = ['10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00'];
+const SLOTS = ['10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'];
+const SAT_SLOTS = ['10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00']; // 週六預設時段
 const DEFAULT_PW = 'luby2024';
 
 // ============================================================
@@ -545,7 +546,7 @@ async function renderAdminDates() {
 function _renderAdminSaturdays(satDates, closedMap, el, bookedKeys) {
   el.innerHTML = satDates.map(dateStr => {
     const closedSlots = closedMap[dateStr] || [];
-    const tags = SLOTS.map(s => {
+    const tags = SAT_SLOTS.map(s => {
       const isBooked = bookedKeys.has(dateStr+'|'+s);
       const isClosed = closedSlots.includes(s);
       let ts = '';
@@ -798,7 +799,7 @@ async function renderFrontDates() {
 
   // 合併週六 + 特殊日期，按日期排序
   const allDates = [
-    ...satDates.map(ds => ({ date: ds, slots: SLOTS, closedSlots: closedMap[ds] || [] })),
+    ...satDates.map(ds => ({ date: ds, slots: SAT_SLOTS, closedSlots: closedMap[ds] || [] })),
     ...specialDates
   ].sort((a,b) => a.date.localeCompare(b.date));
 
