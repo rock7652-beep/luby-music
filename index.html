@@ -364,19 +364,20 @@ function isCacheFresh(ms=300000) { return (Date.now() - (parseInt(localStorage.g
 // 快取優先：立即返回快取，背景靜默同步
 async function loadDates(forceRemote=false) {
   const cached = getCached();
-  if (!forceRemote && isCacheFresh() && cached.length) return cached;
-  // 有快取先用，同時背景刷新
-  if (cached.length && !forceRemote) {
+  // 沒有快取時，一定要等 Sheets
+  if (!cached.length) {
+    try {
+      const res = await fetch(getUrl() + '?action=getDates');
+      const json = await res.json();
+      if (json.dates) { setCache(json.dates); return json.dates; }
+    } catch(e) {}
+    return [];
+  }
+  // 有快取但過期，先回傳快取，背景刷新
+  if (!isCacheFresh()) {
     fetch(getUrl() + '?action=getDates')
       .then(r=>r.json()).then(j=>{ if(j.dates) setCache(j.dates); }).catch(()=>{});
-    return cached;
   }
-  // 沒快取才等待
-  try {
-    const res = await fetch(getUrl() + '?action=getDates');
-    const json = await res.json();
-    if (json.dates) { setCache(json.dates); return json.dates; }
-  } catch(e) {}
   return cached;
 }
 
