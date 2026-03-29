@@ -450,9 +450,22 @@ async function renderAdmin() {
 
 async function renderAdminDates() {
   const el = document.getElementById('adminDatesList');
-  el.innerHTML = '<div class="empty-hint" style="color:#6a93b0;">⏳ 載入中…</div>';
-  const dates = (await loadDates()).sort((a,b) => a.date.localeCompare(b.date));
-  _renderDatesList(dates, el);
+  // 立即用快取渲染
+  const cached = getCached();
+  if (cached.length) {
+    _renderDatesList(cached.sort((a,b)=>a.date.localeCompare(b.date)), el);
+  } else {
+    el.innerHTML = '<div class="empty-hint" style="color:#6a93b0;">⏳ 載入中…</div>';
+  }
+  // 背景從 Sheets 拉最新，靜默更新
+  try {
+    const res = await fetch(getUrl() + '?action=getDates');
+    const json = await res.json();
+    if (json.dates && json.dates.length > 0) {
+      setCache(json.dates);
+      _renderDatesList(json.dates.sort((a,b)=>a.date.localeCompare(b.date)), el);
+    }
+  } catch(e) {}
 }
 
 function _renderDatesList(dates, el) {
@@ -593,27 +606,30 @@ async function addDate() {
 
 async function deleteDate(dateStr) {
   if(!confirm('確定刪除此日期？'))return;
-  const dates=(await loadDates()).filter(d=>d.date!==dateStr);
-  await saveDates(dates);
+  const dates = getCached().filter(d=>d.date!==dateStr);
+  setCache(dates);
+  saveDates(dates); // 背景同步
   _renderDatesList(dates.sort((a,b)=>a.date.localeCompare(b.date)), document.getElementById('adminDatesList'));
 }
 
 async function toggleDate(dateStr) {
-  const dates=await loadDates();
-  const d=dates.find(x=>x.date===dateStr);
-  if(d) d.active=d.active===false?true:false;
-  await saveDates(dates);
+  const dates = getCached();
+  const d = dates.find(x=>x.date===dateStr);
+  if(d) d.active = d.active===false ? true : false;
+  setCache(dates);
+  saveDates(dates); // 背景同步
   _renderDatesList(dates.sort((a,b)=>a.date.localeCompare(b.date)), document.getElementById('adminDatesList'));
 }
 
 async function toggleSlot(dateStr, slot) {
-  const dates=await loadDates();
-  const d=dates.find(x=>x.date===dateStr);
-  if(!d)return;
-  if(!d.closedSlots)d.closedSlots=[];
-  const idx=d.closedSlots.indexOf(slot);
-  if(idx>=0)d.closedSlots.splice(idx,1); else d.closedSlots.push(slot);
-  await saveDates(dates);
+  const dates = getCached();
+  const d = dates.find(x=>x.date===dateStr);
+  if(!d) return;
+  if(!d.closedSlots) d.closedSlots=[];
+  const idx = d.closedSlots.indexOf(slot);
+  if(idx>=0) d.closedSlots.splice(idx,1); else d.closedSlots.push(slot);
+  setCache(dates);
+  saveDates(dates); // 背景同步
   _renderDatesList(dates.sort((a,b)=>a.date.localeCompare(b.date)), document.getElementById('adminDatesList'));
 }
 
