@@ -443,14 +443,10 @@ async function renderAdmin() {
   await renderAdminDates();
 }
 
-async function renderAdminDates(forceRemote=false) {
+async function renderAdminDates() {
   const el = document.getElementById('adminDatesList');
-  // 先用快取立即渲染
-  const cached = getCached();
-  if (cached.length) _renderDatesList(cached, el);
-  else el.innerHTML = '<div class="empty-hint" style="color:#6a93b0;">⏳ 載入中…</div>';
-  // 背景從 Sheets 拉最新資料
-  const dates = (await loadDates(forceRemote)).sort((a,b) => a.date.localeCompare(b.date));
+  el.innerHTML = '<div class="empty-hint" style="color:#6a93b0;">⏳ 載入中…</div>';
+  const dates = (await loadDates()).sort((a,b) => a.date.localeCompare(b.date));
   _renderDatesList(dates, el);
 }
 
