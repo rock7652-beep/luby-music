@@ -450,22 +450,25 @@ async function renderAdmin() {
 
 async function renderAdminDates() {
   const el = document.getElementById('adminDatesList');
-  // 立即用快取渲染
   const cached = getCached();
   if (cached.length) {
     _renderDatesList(cached.sort((a,b)=>a.date.localeCompare(b.date)), el);
   } else {
     el.innerHTML = '<div class="empty-hint" style="color:#6a93b0;">⏳ 載入中…</div>';
-  }
-  // 背景從 Sheets 拉最新，靜默更新
-  try {
-    const res = await fetch(getUrl() + '?action=getDates');
-    const json = await res.json();
-    if (json.dates && json.dates.length > 0) {
-      setCache(json.dates);
-      _renderDatesList(json.dates.sort((a,b)=>a.date.localeCompare(b.date)), el);
+    // 沒有快取才等待 Sheets
+    try {
+      const res = await fetch(getUrl() + '?action=getDates');
+      const json = await res.json();
+      if (json.dates && json.dates.length > 0) {
+        setCache(json.dates);
+        _renderDatesList(json.dates.sort((a,b)=>a.date.localeCompare(b.date)), el);
+      } else {
+        el.innerHTML = '<div class="empty-hint">尚未新增任何日期</div>';
+      }
+    } catch(e) {
+      el.innerHTML = '<div class="empty-hint">尚未新增任何日期</div>';
     }
-  } catch(e) {}
+  }
 }
 
 function _renderDatesList(dates, el) {
@@ -585,7 +588,7 @@ async function addDate() {
   if (!from){alert('請選擇起始日期');return;}
   if (to<from){alert('結束日期不能早於起始日期');return;}
   const slots=[...document.querySelectorAll('#newSlotCbs input:checked')].map(c=>c.value);
-  const dates=await loadDates();
+  const dates=getCached(); // 直接用快取，不等 Sheets
   let added=0;
   let cur=new Date(from+'T12:00:00');
   const end=new Date(to+'T12:00:00');
@@ -600,7 +603,8 @@ async function addDate() {
   const btn=document.getElementById('addDateBtn');
   btn.textContent=`✓ 已新增 ${added} 天`; btn.style.background='#2d6a4f';
   setTimeout(()=>{btn.textContent='新增日期';btn.style.background='';},2200);
-  await saveDates(dates); // 背景同步
+  setCache(dates);
+  saveDates(dates); // 背景同步 Sheets
   _renderDatesList(dates.sort((a,b)=>a.date.localeCompare(b.date)), document.getElementById('adminDatesList'));
 }
 
