@@ -920,6 +920,11 @@ document.getElementById('bookingForm').addEventListener('submit', async function
   let sent = false;
   try {
     emailjs.init(pubKey);
+    // 產生取消連結
+    const cancelUrl = SHEETS_URL +
+      '?action=cancelPage' +
+      '&key=' + encodeURIComponent(selectedSlots.map(s=>s.dataset.date+'|'+s.dataset.time).join(',')) +
+      '&email=' + encodeURIComponent(email);
     const p = {
       customer_name: name,
       customer_phone: phone,
@@ -927,7 +932,8 @@ document.getElementById('bookingForm').addEventListener('submit', async function
       booking_date: slotLabels,
       guitar_qty: qty + ' 把',
       notes,
-      owner_email: ownerEmail
+      owner_email: ownerEmail,
+      cancel_url: cancelUrl
     };
     await Promise.all([
       emailjs.send(serviceId, tplOwner, p),
