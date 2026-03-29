@@ -593,7 +593,8 @@ async function syncPassword() {
   try {
     const res = await fetch(getUrl() + '?action=getPassword');
     const json = await res.json();
-    if (json.password) {
+    // 只有 Sheets 有密碼時才覆蓋本機
+    if (json.password && json.password.length >= 4) {
       const cfg = loadCfg();
       cfg.password = json.password;
       saveCfg(cfg);
