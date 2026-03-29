@@ -454,16 +454,20 @@ async function renderAdminDates() {
   const el = document.getElementById('adminDatesList');
   const cached = getCached();
   if (cached.length) {
-    _renderDatesList(cached.sort((a,b)=>a.date.localeCompare(b.date)), el);
+    // 先用快取渲染，同時背景讀取 Sheets 的預約資料
+    const bookingRes = await fetch(getUrl() + '?action=getBookings').then(r=>r.json()).catch(()=>({bookings:[]}));
+    const remoteBookings = bookingRes.bookings || [];
+    _renderDatesListWithBookings(cached.sort((a,b)=>a.date.localeCompare(b.date)), el, remoteBookings);
   } else {
     el.innerHTML = '<div class="empty-hint" style="color:#6a93b0;">⏳ 載入中…</div>';
-    // 沒有快取才等待 Sheets
     try {
-      const res = await fetch(getUrl() + '?action=getDates');
-      const json = await res.json();
-      if (json.dates && json.dates.length > 0) {
-        setCache(json.dates);
-        _renderDatesList(json.dates.sort((a,b)=>a.date.localeCompare(b.date)), el);
+      const [datesRes, bookingRes] = await Promise.all([
+        fetch(getUrl() + '?action=getDates').then(r=>r.json()),
+        fetch(getUrl() + '?action=getBookings').then(r=>r.json())
+      ]);
+      if (datesRes.dates && datesRes.dates.length > 0) {
+        setCache(datesRes.dates);
+        _renderDatesListWithBookings(datesRes.dates.sort((a,b)=>a.date.localeCompare(b.date)), el, bookingRes.bookings||[]);
       } else {
         el.innerHTML = '<div class="empty-hint">尚未新增任何日期</div>';
       }
@@ -474,46 +478,22 @@ async function renderAdminDates() {
 }
 
 function _renderDatesList(dates, el) {
+  _renderDatesListWithBookings(dates, el, []);
+}
+
+function _renderDatesListWithBookings(dates, el, remoteBookingKeys) {
   const sorted = [...dates].sort((a,b)=>a.date.localeCompare(b.date));
   if (!sorted.length) { el.innerHTML = '<div class="empty-hint">尚未新增任何日期</div>'; return; }
-  const bookings = loadBookings();
-  el.innerHTML = dates.map(d => {
-    const act = d.active !== false;
-    const bookedSlots = bookings.filter(b => b.date === d.date).map(b => b.time);
-    const tags = d.slots.length ? d.slots.map(s => {
-      const isBooked = bookedSlots.includes(s);
-      const isClosed = (d.closedSlots||[]).includes(s);
-      let ts = '';
-      if (isBooked) ts='background:rgba(180,80,80,0.15);color:#c07080;border-color:rgba(180,80,80,0.3);';
-      else if (isClosed) ts='background:rgba(100,100,100,0.15);color:#888;border-color:rgba(100,100,100,0.3);text-decoration:line-through;';
-      const al = isClosed?'開':'關', ac = isClosed?'#4aaa7a':'#c07080';
-      return `<span class="stag" style="${ts}display:inline-flex;align-items:center;gap:4px;">
-        ${s}${isBooked?' 已約':isClosed?' 關閉':''}
-        ${isBooked
-          ? `<button onclick="cancelBooking('${d.date}','${s}')" style="background:none;border:none;cursor:pointer;color:#e07070;font-size:0.68rem;padding:0 2px;">✕</button>`
-          : `<button onclick="toggleSlot('${d.date}','${s}')" style="background:none;border:none;cursor:pointer;color:${ac};font-size:0.68rem;padding:0 2px;">${al}</button>`
-        }
-      </span>`;
-    }).join('') : '<span style="font-size:0.72rem;color:#555e7a;font-style:italic;">未設定時段</span>';
-    return `<div class="di">
-      <div class="di-hdr">
-        <div class="di-name">📅 ${fmtDate(d.date)}</div>
-        <div class="di-btns">
-          <button class="tog-btn" onclick="toggleDate('${d.date}')">${act?'暫停':'開啟'}</button>
-          <button class="del-btn" onclick="deleteDate('${d.date}')">刪除</button>
-        </div>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-        <span class="badge" style="background:${act?'rgba(79,142,247,0.15)':'rgba(150,80,80,0.15)'};color:${act?'var(--aa)':'#c07080'};">${act?'開放中':'已暫停'}</span>
-        <div class="slot-tags">${tags}</div>
-      </div>
-    </div>`;
-  }).join('');
+  // 合併本機和遠端預約紀錄
+  const localBookings = loadBookings();
+  const allBookedKeys = new Set([
+    ...remoteBookingKeys,
+    ...localBookings.map(b => b.date+'|'+b.time)
+  ]);
   el.innerHTML = sorted.map(d => {
     const act = d.active !== false;
-    const bookedSlots = bookings.filter(b => b.date === d.date).map(b => b.time);
     const tags = d.slots.length ? d.slots.map(s => {
-      const isBooked = bookedSlots.includes(s);
+      const isBooked = allBookedKeys.has(d.date+'|'+s);
       const isClosed = (d.closedSlots||[]).includes(s);
       let ts = '';
       if (isBooked) ts='background:rgba(180,80,80,0.15);color:#c07080;border-color:rgba(180,80,80,0.3);';
