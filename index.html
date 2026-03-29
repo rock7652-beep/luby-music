@@ -890,22 +890,32 @@ document.getElementById('bookingForm').addEventListener('submit', async function
   const tplCustomer=cfg.tplCustomer||'template_9xsijum';
   const ownerEmail=cfg.ownerEmail||'lubymusic@hotmail.com';
 
-  // 1. 寫入 Sheets
+  // 1. 寫入 Sheets + 觸發寄信
   for(const s of selectedSlots){
     try {
-      await new Promise((resolve) => {
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', sheetsUrl, true);
-        xhr.setRequestHeader('Content-Type', 'text/plain');
-        xhr.onload = resolve;
-        xhr.onerror = resolve;
-        xhr.send(JSON.stringify({
+      // 先用 no-cors POST 寫入資料
+      fetch(sheetsUrl, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({
           action: 'addBooking', name, phone, email,
           booking_date: s.dataset.label,
           booking_date_key: s.dataset.date+'|'+s.dataset.time,
           guitar_qty: qty+' 把', notes
-        }));
+        })
       });
+      // 用 GET 觸發寄信（GET 沒有 CORS 問題，可以等待回應）
+      await new Promise(r => setTimeout(r, 1500)); // 等 POST 完成
+      const params = new URLSearchParams({
+        action: 'sendBookingEmail',
+        key: s.dataset.date+'|'+s.dataset.time,
+        name, phone, email,
+        booking_date: s.dataset.label,
+        guitar_qty: qty+' 把',
+        notes
+      });
+      await fetch(sheetsUrl + '?' + params.toString());
     } catch(e){ console.error('addBooking:', e); }
   }
 
