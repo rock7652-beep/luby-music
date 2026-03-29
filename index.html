@@ -373,24 +373,18 @@ async function loadDates(forceRemote=false) {
   return cached;
 }
 
-// 立即存本機，同步等待 Sheets（確保跨裝置一致）
+// 全部用 GET 請求，徹底解決 CORS 問題
 async function saveDates(dates) {
   setCache(dates);
   try {
-    await fetch(getUrl(), {
-      method:'POST', mode:'no-cors',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ action:'saveDates', dates })
-    });
-    // 等一下再強制刷新快取確保一致
-    setTimeout(async () => {
-      try {
-        const res = await fetch(getUrl() + '?action=getDates');
-        const json = await res.json();
-        if (json.dates) setCache(json.dates);
-      } catch(e) {}
-    }, 2000);
-  } catch(e) { console.error('saveDates:', e); }
+    const url = getUrl() + '?action=saveDates&data=' + encodeURIComponent(JSON.stringify(dates));
+    const res = await fetch(url);
+    const json = await res.json();
+    return json.status === 'ok';
+  } catch(e) {
+    console.error('saveDates:', e);
+    return false;
+  }
 }
 
 // ============================================================
@@ -741,17 +735,19 @@ document.getElementById('bookingForm').addEventListener('submit', async function
   const tplCustomer=cfg.tplCustomer||'template_9xsijum';
   const ownerEmail=cfg.ownerEmail||'lubymusic@hotmail.com';
 
-  // 1. 寫入 Sheets
+  // 1. 寫入 Sheets（GET 請求，無 CORS 問題）
   for(const s of selectedSlots){
     try {
-      await fetch(sheetsUrl,{method:'POST',mode:'no-cors',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({action:'addBooking',name,phone,email,
-          booking_date:s.dataset.label,
-          booking_date_key:s.dataset.date+'|'+s.dataset.time,
-          guitar_qty:qty+' 把',notes})
+      const params = new URLSearchParams({
+        action: 'addBooking',
+        name, phone, email,
+        booking_date: s.dataset.label,
+        booking_date_key: s.dataset.date+'|'+s.dataset.time,
+        guitar_qty: qty+' 把',
+        notes
       });
-    } catch(e){}
+      await fetch(sheetsUrl + '?' + params.toString());
+    } catch(e){ console.error('addBooking:', e); }
   }
 
   // 2. 本機備份
