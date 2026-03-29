@@ -612,15 +612,15 @@ async function addDate() {
   setTimeout(()=>{btn.textContent='新增日期';btn.style.background='';},2200);
   setCache(dates);
   saveDates(dates); // 背景同步 Sheets
-  _renderDatesList(dates.sort((a,b)=>a.date.localeCompare(b.date)), document.getElementById('adminDatesList'));
+  await renderAdminDates();
 }
 
 async function deleteDate(dateStr) {
   if(!confirm('確定刪除此日期？'))return;
   const dates = getCached().filter(d=>d.date!==dateStr);
   setCache(dates);
-  saveDates(dates); // 背景同步
-  _renderDatesList(dates.sort((a,b)=>a.date.localeCompare(b.date)), document.getElementById('adminDatesList'));
+  saveDates(dates);
+  await renderAdminDates();
 }
 
 async function toggleDate(dateStr) {
@@ -628,8 +628,8 @@ async function toggleDate(dateStr) {
   const d = dates.find(x=>x.date===dateStr);
   if(d) d.active = d.active===false ? true : false;
   setCache(dates);
-  saveDates(dates); // 背景同步
-  _renderDatesList(dates.sort((a,b)=>a.date.localeCompare(b.date)), document.getElementById('adminDatesList'));
+  saveDates(dates);
+  await renderAdminDates();
 }
 
 async function toggleSlot(dateStr, slot) {
@@ -640,8 +640,8 @@ async function toggleSlot(dateStr, slot) {
   const idx = d.closedSlots.indexOf(slot);
   if(idx>=0) d.closedSlots.splice(idx,1); else d.closedSlots.push(slot);
   setCache(dates);
-  saveDates(dates); // 背景同步
-  _renderDatesList(dates.sort((a,b)=>a.date.localeCompare(b.date)), document.getElementById('adminDatesList'));
+  saveDates(dates);
+  await renderAdminDates();
 }
 
 async function cancelBooking(dateStr, slot) {
