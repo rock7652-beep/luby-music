@@ -318,8 +318,14 @@ footer{text-align:center;margin-top:32px;font-size:0.7rem;color:var(--muted);let
   </div>
 
   <div class="acard">
-    <div class="acard-title">➕ 新增開放預約日期</div>
-    <div style="font-size:0.72rem;color:#6a73a0;margin-bottom:12px;">可選單一日期，或選起訖範圍一次批次新增多天。</div>
+    <div class="acard-title">📅 自動週六時段管理</div>
+    <div style="font-size:0.72rem;color:#6a73a0;margin-bottom:16px;">系統自動產生未來 4 個週六，點「關」可關閉特定時段。</div>
+    <div class="dates-list" id="adminDatesList"><div class="empty-hint">⏳ 載入中…</div></div>
+  </div>
+
+  <div class="acard">
+    <div class="acard-title">➕ 新增特殊日期（平日／週日）</div>
+    <div style="font-size:0.72rem;color:#6a73a0;margin-bottom:12px;">額外開放非週六的日期，例如週日或平日特殊場次。</div>
     <div class="add-form">
       <div class="af"><label>起始日期</label><input type="date" id="newDateFrom"></div>
       <div class="af"><label>結束日期 <span style="color:#555e7a;">（單日可留空）</span></label><input type="date" id="newDateTo"></div>
@@ -333,8 +339,8 @@ footer{text-align:center;margin-top:32px;font-size:0.7rem;color:var(--muted);let
   </div>
 
   <div class="acard">
-    <div class="acard-title">📅 已開放預約日期</div>
-    <div class="dates-list" id="adminDatesList"><div class="empty-hint">⏳ 載入中…</div></div>
+    <div class="acard-title">📌 特殊日期列表</div>
+    <div class="dates-list" id="adminSpecialList"><div class="empty-hint">尚未新增特殊日期</div></div>
   </div>
 </div>
 </div>
@@ -361,6 +367,24 @@ function getCached() { try { return JSON.parse(localStorage.getItem('luby_dates_
 function setCache(dates) { localStorage.setItem('luby_dates_cache', JSON.stringify(dates)); localStorage.setItem('luby_dates_cache_ts', Date.now()); }
 function isCacheFresh(ms=300000) { return (Date.now() - (parseInt(localStorage.getItem('luby_dates_cache_ts'))||0)) < ms; }
 
+// 自動產生未來 4 個週六的日期字串
+function getNext4Saturdays() {
+  const result = [];
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const d = new Date(today);
+  // 找下一個週六（包含今天如果今天是週六）
+  const dow = d.getDay(); // 0=日, 6=六
+  const daysToSat = dow === 6 ? 0 : (6 - dow);
+  d.setDate(d.getDate() + daysToSat);
+  for (let i = 0; i < 4; i++) {
+    const ds = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    result.push(ds);
+    d.setDate(d.getDate() + 7);
+  }
+  return result;
+}
+
 async function loadDates() {
   const cached = getCached();
   try {
@@ -370,7 +394,6 @@ async function loadDates() {
       setCache(json.dates);
       return json.dates;
     }
-    // Sheets 回傳空陣列但快取有資料 → 信任快取（Sheets 可能還在更新）
     if (cached.length > 0) return cached;
     return [];
   } catch(e) {
@@ -452,40 +475,98 @@ async function renderAdmin() {
 
 async function renderAdminDates() {
   const el = document.getElementById('adminDatesList');
-  const cached = getCached();
+  const satDates = getNext4Saturdays();
   const localKeys = new Set(loadBookings().map(b=>b.date+'|'+b.time));
 
-  if (cached.length) {
-    // 立即顯示（只用本機 bookings）
-    _renderDatesListWithBookings(cached.sort((a,b)=>a.date.localeCompare(b.date)), el, localKeys);
-    // 背景更新 bookings（靜默，不重新渲染除非有變化）
-    fetch(getUrl()+'?action=getBookings').then(r=>r.json()).then(json=>{
-      if (!json.bookings) return;
-      const remoteKeys = new Set([...json.bookings, ...localKeys]);
-      // 只有當遠端有本機沒有的已約時段才重新渲染
-      let hasNew = false;
-      json.bookings.forEach(k=>{ if(!localKeys.has(k)) hasNew=true; });
-      if (hasNew) _renderDatesListWithBookings(cached.sort((a,b)=>a.date.localeCompare(b.date)), el, remoteKeys);
-    }).catch(()=>{});
+  // 從 Sheets 讀取設定
+  const sheetsData = await loadDates();
+  const closedMap = {};
+  sheetsData.forEach(d => { if (d.closedSlots) closedMap[d.date] = d.closedSlots; });
+
+  // 特殊日期 = Sheets 裡非週六的日期
+  const today = new Date().toISOString().split('T')[0];
+  const specialDates = sheetsData.filter(d => {
+    const dow = new Date(d.date+'T12:00:00').getDay();
+    return dow !== 6 && d.date >= today; // 非週六且未過期
+  });
+
+  // 渲染週六時段
+  _renderAdminSaturdays(satDates, closedMap, el, localKeys);
+
+  // 渲染特殊日期列表
+  const spEl = document.getElementById('adminSpecialList');
+  if (!specialDates.length) {
+    spEl.innerHTML = '<div class="empty-hint">尚未新增特殊日期</div>';
   } else {
-    el.innerHTML = '<div class="empty-hint" style="color:#6a93b0;">⏳ 載入中…</div>';
-    try {
-      const [datesRes, bookingRes] = await Promise.all([
-        fetch(getUrl()+'?action=getDates').then(r=>r.json()),
-        fetch(getUrl()+'?action=getBookings').then(r=>r.json())
-      ]);
-      const dates = datesRes.dates || [];
-      if (dates.length) setCache(dates);
-      const bookedKeys = new Set([...(bookingRes.bookings||[]), ...localKeys]);
-      if (dates.length) {
-        _renderDatesListWithBookings(dates.sort((a,b)=>a.date.localeCompare(b.date)), el, bookedKeys);
-      } else {
-        el.innerHTML = '<div class="empty-hint">尚未新增任何日期</div>';
-      }
-    } catch(e) {
-      el.innerHTML = '<div class="empty-hint">尚未新增任何日期</div>';
-    }
+    spEl.innerHTML = specialDates.sort((a,b)=>a.date.localeCompare(b.date)).map(d => {
+      const closedSlots = d.closedSlots || [];
+      const tags = d.slots.map(s => {
+        const isBooked = localKeys.has(d.date+'|'+s);
+        const isClosed = closedSlots.includes(s);
+        let ts = '';
+        if (isBooked) ts='background:rgba(180,80,80,0.15);color:#c07080;border-color:rgba(180,80,80,0.3);';
+        else if (isClosed) ts='background:rgba(100,100,100,0.15);color:#888;border-color:rgba(100,100,100,0.3);text-decoration:line-through;';
+        const al = isClosed?'開':'關', ac = isClosed?'#4aaa7a':'#c07080';
+        return `<span class="stag" style="${ts}display:inline-flex;align-items:center;gap:4px;">
+          ${s}${isBooked?' 已約':isClosed?' 關閉':''}
+          ${isBooked
+            ? `<button onclick="cancelBooking('${d.date}','${s}')" style="background:none;border:none;cursor:pointer;color:#e07070;font-size:0.68rem;padding:0 2px;">✕</button>`
+            : `<button onclick="toggleSlot('${d.date}','${s}')" style="background:none;border:none;cursor:pointer;color:${ac};font-size:0.68rem;padding:0 2px;">${al}</button>`
+          }
+        </span>`;
+      }).join('');
+      return `<div class="di">
+        <div class="di-hdr">
+          <div class="di-name">📌 ${fmtDate(d.date)}</div>
+          <div class="di-btns">
+            <button class="tog-btn" onclick="toggleDate('${d.date}')">${d.active!==false?'暫停':'開啟'}</button>
+            <button class="del-btn" onclick="deleteDate('${d.date}')">刪除</button>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <span class="badge" style="background:${d.active!==false?'rgba(79,142,247,0.15)':'rgba(150,80,80,0.15)'};color:${d.active!==false?'var(--aa)':'#c07080'};">${d.active!==false?'開放中':'已暫停'}</span>
+          <div class="slot-tags">${tags}</div>
+        </div>
+      </div>`;
+    }).join('');
   }
+
+  // 背景更新已約狀態
+  fetch(getUrl()+'?action=getBookings').then(r=>r.json()).then(json=>{
+    if(!json.bookings) return;
+    let hasNew=false;
+    json.bookings.forEach(k=>{ if(!localKeys.has(k)){localKeys.add(k);hasNew=true;} });
+    if(hasNew) {
+      _renderAdminSaturdays(satDates, closedMap, el, localKeys);
+    }
+  }).catch(()=>{});
+}
+
+function _renderAdminSaturdays(satDates, closedMap, el, bookedKeys) {
+  el.innerHTML = satDates.map(dateStr => {
+    const closedSlots = closedMap[dateStr] || [];
+    const tags = SLOTS.map(s => {
+      const isBooked = bookedKeys.has(dateStr+'|'+s);
+      const isClosed = closedSlots.includes(s);
+      let ts = '';
+      if (isBooked) ts='background:rgba(180,80,80,0.15);color:#c07080;border-color:rgba(180,80,80,0.3);';
+      else if (isClosed) ts='background:rgba(100,100,100,0.15);color:#888;border-color:rgba(100,100,100,0.3);text-decoration:line-through;';
+      const al = isClosed?'開':'關', ac = isClosed?'#4aaa7a':'#c07080';
+      return `<span class="stag" style="${ts}display:inline-flex;align-items:center;gap:4px;">
+        ${s}${isBooked?' 已約':isClosed?' 關閉':''}
+        ${isBooked
+          ? `<button onclick="cancelBooking('${dateStr}','${s}')" style="background:none;border:none;cursor:pointer;color:#e07070;font-size:0.68rem;padding:0 2px;">✕</button>`
+          : `<button onclick="toggleSlot('${dateStr}','${s}')" style="background:none;border:none;cursor:pointer;color:${ac};font-size:0.68rem;padding:0 2px;">${al}</button>`
+        }
+      </span>`;
+    }).join('');
+    return `<div class="di">
+      <div class="di-hdr">
+        <div class="di-name">📅 ${fmtDate(dateStr)}</div>
+      </div>
+      <div class="slot-tags">${tags}</div>
+    </div>`;
+  }).join('');
 }
 
 function _renderDatesList(dates, el) {
@@ -646,16 +727,23 @@ function toggleDate(dateStr) {
 }
 
 function toggleSlot(dateStr, slot) {
+  // 從 Sheets 資料找此日期的設定，沒有就建立新的
   const dates = getCached();
-  const d = dates.find(x=>x.date===dateStr);
-  if(!d) return;
-  if(!d.closedSlots) d.closedSlots=[];
+  let d = dates.find(x => x.date === dateStr);
+  if (!d) {
+    d = { date: dateStr, slots: SLOTS, active: true, closedSlots: [] };
+    dates.push(d);
+  }
+  if (!d.closedSlots) d.closedSlots = [];
   const idx = d.closedSlots.indexOf(slot);
-  if(idx>=0) d.closedSlots.splice(idx,1); else d.closedSlots.push(slot);
+  if (idx >= 0) d.closedSlots.splice(idx, 1); else d.closedSlots.push(slot);
   setCache(dates);
   saveDates(dates);
-  const localKeys = new Set(loadBookings().map(b=>b.date+'|'+b.time));
-  _renderDatesListWithBookings(dates.sort((a,b)=>a.date.localeCompare(b.date)), document.getElementById('adminDatesList'), localKeys);
+  // 立即更新畫面
+  const closedMap = {};
+  dates.forEach(x => { if (x.closedSlots) closedMap[x.date] = x.closedSlots; });
+  const bk = new Set(loadBookings().map(b=>b.date+'|'+b.time));
+  _renderAdminSaturdays(getNext4Saturdays(), closedMap, document.getElementById('adminDatesList'), bk);
 }
 
 async function cancelBooking(dateStr, slot) {
@@ -692,46 +780,53 @@ function onQtyChange() {
 }
 
 async function renderFrontDates() {
-  const today=new Date().toISOString().split('T')[0];
-  const c=document.getElementById('dateSlotsContainer');
-  c.innerHTML='<div style="padding:22px;text-align:center;color:var(--muted);font-size:0.82rem;">⏳ 載入中…</div>';
+  const c = document.getElementById('dateSlotsContainer');
+  c.innerHTML = '<div style="padding:22px;text-align:center;color:var(--muted);font-size:0.82rem;">⏳ 載入中…</div>';
 
-  const allDates=await loadDates();
-  const dates=allDates.filter(d=>d.active!==false&&d.date>=today).sort((a,b)=>a.date.localeCompare(b.date));
+  const satDates = getNext4Saturdays();
+  const today = new Date().toISOString().split('T')[0];
 
-  if(!dates.length){
-    c.innerHTML='<div style="padding:22px;text-align:center;color:var(--muted);font-size:0.82rem;">目前尚無開放預約日期，請稍後再查看或 Line：@gay6872z</div>';
-    return;
-  }
+  // 讀取 Sheets（關閉時段 + 特殊日期）
+  const sheetsData = await loadDates();
+  const closedMap = {};
+  sheetsData.forEach(d => { if (d.closedSlots) closedMap[d.date] = d.closedSlots; });
 
-  const qty=parseInt(document.getElementById('fqty').value)||1;
-  const inputType=qty>=2?'checkbox':'radio';
+  // 特殊日期（非週六、未過期、開放中）
+  const specialDates = sheetsData
+    .filter(d => new Date(d.date+'T12:00:00').getDay() !== 6 && d.date >= today && d.active !== false)
+    .map(d => ({ date: d.date, slots: d.slots || SLOTS, closedSlots: d.closedSlots || [] }));
 
-  // 先用本機 bookings 立即顯示
-  let bookedKeys=new Set(loadBookings().map(b=>b.date+'|'+b.time));
-  _renderFrontSlots(dates, c, bookedKeys, inputType);
+  // 合併週六 + 特殊日期，按日期排序
+  const allDates = [
+    ...satDates.map(ds => ({ date: ds, slots: SLOTS, closedSlots: closedMap[ds] || [] })),
+    ...specialDates
+  ].sort((a,b) => a.date.localeCompare(b.date));
 
-  // 背景讀取 Sheets bookings 更新已約狀態
+  const qty = parseInt(document.getElementById('fqty').value) || 1;
+  const inputType = qty >= 2 ? 'checkbox' : 'radio';
+  let bookedKeys = new Set(loadBookings().map(b=>b.date+'|'+b.time));
+  _renderFrontSlots(allDates, c, bookedKeys, inputType);
+
   fetch(getUrl()+'?action=getBookings').then(r=>r.json()).then(json=>{
     if(!json.bookings) return;
     let hasNew=false;
     json.bookings.forEach(k=>{ if(!bookedKeys.has(k)){bookedKeys.add(k);hasNew=true;} });
-    if(hasNew) _renderFrontSlots(dates, c, bookedKeys, inputType);
+    if(hasNew) _renderFrontSlots(allDates, c, bookedKeys, inputType);
   }).catch(()=>{});
 }
 
-function _renderFrontSlots(dates, c, bookedKeys, inputType) {
-  c.innerHTML=dates.map((d,di)=>{
-    const closedSlots=new Set(d.closedSlots||[]);
+function _renderFrontSlots(allDates, c, bookedKeys, inputType) {
+  c.innerHTML = allDates.map((d, di) => {
+    const closedSlots = new Set(d.closedSlots || []);
     return `<div class="date-block">
       <div class="date-block-hd">📅 預約 ${fmtDate(d.date)}　<span style="font-size:0.72rem;color:var(--muted);font-weight:300;">（一個時段以一件為主）</span></div>
-      <div class="time-slots">${d.slots.map((t,ti)=>{
-        const isBooked=bookedKeys.has(d.date+'|'+t);
-        const isClosed=closedSlots.has(t);
-        const disabled=isBooked||isClosed;
-        const cls=isBooked?'booked':isClosed?'closed':'';
-        return `<div class="tsi${cls?' '+cls:''}">
-          <input type="${inputType}" ${inputType==='radio'?'name="bookSlot"':''} id="sl_${di}_${ti}" value="${d.date}|${t}" data-label="${fmtDate(d.date)} ${t}" data-date="${d.date}" data-time="${t}"${disabled?' disabled':''}>
+      <div class="time-slots">${d.slots.map((t, ti) => {
+        const isBooked = bookedKeys.has(d.date+'|'+t);
+        const isClosed = closedSlots.has(t);
+        const disabled = isBooked || isClosed;
+        const cls = isBooked ? 'booked' : isClosed ? 'closed' : '';
+        return `<div class="tsi${cls ? ' '+cls : ''}">
+          <input type="${inputType}" ${inputType==='radio'?'name="bookSlot"':''} id="sl_${di}_${ti}" value="${d.date}|${t}" data-label="${fmtDate(d.date)} ${t}" data-date="${d.date}" data-time="${t}"${disabled ? ' disabled' : ''}>
           <label for="sl_${di}_${ti}">${t}</label>
         </div>`;
       }).join('')}</div>
