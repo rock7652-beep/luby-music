@@ -373,14 +373,23 @@ async function loadDates(forceRemote=false) {
   return cached;
 }
 
-// 全部用 GET 請求，徹底解決 CORS 問題
 async function saveDates(dates) {
   setCache(dates);
   try {
-    const url = getUrl() + '?action=saveDates&data=' + encodeURIComponent(JSON.stringify(dates));
-    const res = await fetch(url);
-    const json = await res.json();
-    return json.status === 'ok';
+    // 用 XMLHttpRequest 取代 fetch，避免瀏覽器 CORS preflight 問題
+    return await new Promise((resolve) => {
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', getUrl(), true);
+      xhr.setRequestHeader('Content-Type', 'text/plain'); // 避免觸發 preflight
+      xhr.onload = function() {
+        try {
+          var json = JSON.parse(xhr.responseText);
+          resolve(json.status === 'ok');
+        } catch(e) { resolve(false); }
+      };
+      xhr.onerror = function() { resolve(false); };
+      xhr.send(JSON.stringify({ action: 'saveDates', dates: dates }));
+    });
   } catch(e) {
     console.error('saveDates:', e);
     return false;
@@ -731,18 +740,22 @@ document.getElementById('bookingForm').addEventListener('submit', async function
   const tplCustomer=cfg.tplCustomer||'template_9xsijum';
   const ownerEmail=cfg.ownerEmail||'lubymusic@hotmail.com';
 
-  // 1. 寫入 Sheets（GET 請求，無 CORS 問題）
+  // 1. 寫入 Sheets
   for(const s of selectedSlots){
     try {
-      const params = new URLSearchParams({
-        action: 'addBooking',
-        name, phone, email,
-        booking_date: s.dataset.label,
-        booking_date_key: s.dataset.date+'|'+s.dataset.time,
-        guitar_qty: qty+' 把',
-        notes
+      await new Promise((resolve) => {
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', sheetsUrl, true);
+        xhr.setRequestHeader('Content-Type', 'text/plain');
+        xhr.onload = resolve;
+        xhr.onerror = resolve;
+        xhr.send(JSON.stringify({
+          action: 'addBooking', name, phone, email,
+          booking_date: s.dataset.label,
+          booking_date_key: s.dataset.date+'|'+s.dataset.time,
+          guitar_qty: qty+' 把', notes
+        }));
       });
-      await fetch(sheetsUrl + '?' + params.toString());
     } catch(e){ console.error('addBooking:', e); }
   }
 
