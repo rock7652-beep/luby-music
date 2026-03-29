@@ -861,7 +861,11 @@ document.getElementById('bookingForm').addEventListener('submit', async function
   validations.forEach(([id, err, msg]) => {
     const el = document.getElementById(id);
     el.classList.toggle('has-error', err);
-    if (err) { el.querySelector('.ferr').textContent = msg; ok = false; }
+    if (err) {
+      const ferrEl = el.querySelector('.ferr');
+      if (ferrEl) ferrEl.textContent = msg;
+      ok = false;
+    }
   });
 
   const slotErr=document.getElementById('slotErr');
