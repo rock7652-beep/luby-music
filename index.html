@@ -890,10 +890,9 @@ document.getElementById('bookingForm').addEventListener('submit', async function
   const tplCustomer=cfg.tplCustomer||'template_9xsijum';
   const ownerEmail=cfg.ownerEmail||'lubymusic@hotmail.com';
 
-  // 1. 寫入 Sheets + 觸發寄信
+  // 1. 寫入 Sheets（no-cors POST）
   for(const s of selectedSlots){
     try {
-      // 先用 no-cors POST 寫入資料
       fetch(sheetsUrl, {
         method: 'POST',
         mode: 'no-cors',
@@ -905,17 +904,6 @@ document.getElementById('bookingForm').addEventListener('submit', async function
           guitar_qty: qty+' 把', notes
         })
       });
-      // 用 GET 觸發寄信（GET 沒有 CORS 問題，可以等待回應）
-      await new Promise(r => setTimeout(r, 1500)); // 等 POST 完成
-      const params = new URLSearchParams({
-        action: 'sendBookingEmail',
-        key: s.dataset.date+'|'+s.dataset.time,
-        name, phone, email,
-        booking_date: s.dataset.label,
-        guitar_qty: qty+' 把',
-        notes
-      });
-      await fetch(sheetsUrl + '?' + params.toString());
     } catch(e){ console.error('addBooking:', e); }
   }
 
@@ -924,8 +912,25 @@ document.getElementById('bookingForm').addEventListener('submit', async function
   selectedSlots.forEach(s=>bookings.push({date:s.dataset.date,time:s.dataset.time,name,phone,email,qty,notes,ts:Date.now()}));
   saveBookings(bookings);
 
-  // Email 已由 Apps Script 自動寄出（含取消連結）
-  let sent = true;
+  // 3. EmailJS 寄信（店家 + 客戶）
+  let sent = false;
+  try {
+    emailjs.init(pubKey);
+    const p = {
+      customer_name: name,
+      customer_phone: phone,
+      customer_email: email,
+      booking_date: slotLabels,
+      guitar_qty: qty + ' 把',
+      notes,
+      owner_email: ownerEmail
+    };
+    await Promise.all([
+      emailjs.send(serviceId, tplOwner, p),
+      emailjs.send(serviceId, tplCustomer, p)
+    ]);
+    sent = true;
+  } catch(e) { console.error('EmailJS:', e); }
 
   document.getElementById('bookingForm').style.display='none';
   document.getElementById('successScreen').style.display='block';
