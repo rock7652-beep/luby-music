@@ -402,7 +402,9 @@ function goAdmin() {
   document.getElementById('adminPage').classList.add('active');
   document.getElementById('frontPage').classList.remove('active');
 }
-function doLogin() {
+async function doLogin() {
+  // 先從 Sheets 同步最新密碼
+  await syncPassword();
   const cfg = loadCfg();
   if (document.getElementById('pwInput').value === (cfg.password || DEFAULT_PW)) {
     document.getElementById('loginOverlay').classList.remove('show');
@@ -569,10 +571,34 @@ function changePw() {
   if (p1!==p2){msg.style.color='#e07070';msg.textContent='兩次密碼不一致';return;}
   if (p1.length<4){msg.style.color='#e07070';msg.textContent='密碼至少 4 個字元';return;}
   const cfg=loadCfg(); cfg.password=p1; saveCfg(cfg);
+  // 同步密碼到 Sheets（存在特殊日期記錄裡）
+  savePassword(p1);
   document.getElementById('newPw1').value='';
   document.getElementById('newPw2').value='';
-  msg.style.color='#4aaa7a'; msg.textContent='✓ 密碼已更新';
+  msg.style.color='#4aaa7a'; msg.textContent='✓ 密碼已更新並同步';
   setTimeout(()=>msg.textContent='',2500);
+}
+
+function savePassword(pw) {
+  new Promise((resolve) => {
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', getUrl(), true);
+    xhr.setRequestHeader('Content-Type', 'text/plain');
+    xhr.onload = resolve; xhr.onerror = resolve;
+    xhr.send(JSON.stringify({ action: 'savePassword', password: pw }));
+  }).catch(()=>{});
+}
+
+async function syncPassword() {
+  try {
+    const res = await fetch(getUrl() + '?action=getPassword');
+    const json = await res.json();
+    if (json.password) {
+      const cfg = loadCfg();
+      cfg.password = json.password;
+      saveCfg(cfg);
+    }
+  } catch(e) {}
 }
 
 function toggleAllSlots() {
@@ -724,10 +750,22 @@ document.getElementById('bookingForm').addEventListener('submit', async function
   const consent=document.getElementById('fconsent').checked;
   let ok=true;
 
-  [['fg-name',!name],['fg-phone',!/^[0-9\-\+\s]{8,}$/.test(phone)],
-   ['fg-email',!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)],
-   ['fg-qty',!qty],['fg-consent',!consent]
-  ].forEach(([id,err])=>{document.getElementById(id).classList.toggle('has-error',err);if(err)ok=false;});
+  // 驗證
+  const phoneValid = /^09\d{8}$/.test(phone.replace(/[\s\-]/g,''));
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  const validations = [
+    ['fg-name', !name, '請填寫姓名'],
+    ['fg-phone', !phoneValid, '請輸入正確手機號碼（09 開頭，共 10 碼）'],
+    ['fg-email', !emailValid, '請輸入正確的 Email 格式'],
+    ['fg-qty', !qty, '請選擇件數'],
+    ['fg-consent', !consent, '請勾選同意'],
+  ];
+  validations.forEach(([id, err, msg]) => {
+    const el = document.getElementById(id);
+    el.classList.toggle('has-error', err);
+    if (err) { el.querySelector('.ferr').textContent = msg; ok = false; }
+  });
 
   const slotErr=document.getElementById('slotErr');
   const isMulti=qty>=2;
