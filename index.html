@@ -713,8 +713,7 @@ function deleteDate(dateStr) {
   const dates = getCached().filter(d=>d.date!==dateStr);
   setCache(dates);
   saveDates(dates);
-  const localKeys = new Set(loadBookings().map(b=>b.date+'|'+b.time));
-  _renderDatesListWithBookings(dates.sort((a,b)=>a.date.localeCompare(b.date)), document.getElementById('adminDatesList'), localKeys);
+  renderAdminDates();
 }
 
 function toggleDate(dateStr) {
@@ -723,16 +722,14 @@ function toggleDate(dateStr) {
   if(d) d.active = d.active===false ? true : false;
   setCache(dates);
   saveDates(dates);
-  const localKeys = new Set(loadBookings().map(b=>b.date+'|'+b.time));
-  _renderDatesListWithBookings(dates.sort((a,b)=>a.date.localeCompare(b.date)), document.getElementById('adminDatesList'), localKeys);
+  renderAdminDates();
 }
 
 function toggleSlot(dateStr, slot) {
-  // 從 Sheets 資料找此日期的設定，沒有就建立新的
   const dates = getCached();
   let d = dates.find(x => x.date === dateStr);
   if (!d) {
-    d = { date: dateStr, slots: SLOTS, active: true, closedSlots: [] };
+    d = { date: dateStr, slots: SAT_SLOTS, active: true, closedSlots: [] };
     dates.push(d);
   }
   if (!d.closedSlots) d.closedSlots = [];
@@ -740,11 +737,7 @@ function toggleSlot(dateStr, slot) {
   if (idx >= 0) d.closedSlots.splice(idx, 1); else d.closedSlots.push(slot);
   setCache(dates);
   saveDates(dates);
-  // 立即更新畫面
-  const closedMap = {};
-  dates.forEach(x => { if (x.closedSlots) closedMap[x.date] = x.closedSlots; });
-  const bk = new Set(loadBookings().map(b=>b.date+'|'+b.time));
-  _renderAdminSaturdays(getNext4Saturdays(), closedMap, document.getElementById('adminDatesList'), bk);
+  renderAdminDates();
 }
 
 async function cancelBooking(dateStr, slot) {
@@ -920,11 +913,12 @@ document.getElementById('bookingForm').addEventListener('submit', async function
   let sent = false;
   try {
     emailjs.init(pubKey);
-    // 產生取消連結
-    const cancelUrl = SHEETS_URL +
-      '?action=cancelPage' +
+    // 取消連結指向我們自己的網站（不需要 Google 登入）
+    const cancelUrl = 'https://rock7652-beep.github.io/luby-music/' +
+      '?cancel=1' +
       '&key=' + encodeURIComponent(selectedSlots.map(s=>s.dataset.date+'|'+s.dataset.time).join(',')) +
-      '&email=' + encodeURIComponent(email);
+      '&email=' + encodeURIComponent(email) +
+      '&name=' + encodeURIComponent(name);
     const p = {
       customer_name: name,
       customer_phone: phone,
@@ -953,7 +947,62 @@ document.getElementById('bookingForm').addEventListener('submit', async function
 });
 
 // 初始化
-renderFrontDates();
+(async function init() {
+  // 檢查是否為取消預約連結
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('cancel') === '1') {
+    const key = params.get('key') || '';
+    const email = params.get('email') || '';
+    const name = params.get('name') || '您';
+    // 隱藏前台表單，顯示取消確認頁
+    document.getElementById('frontPage').innerHTML = `
+      <div style="max-width:480px;margin:60px auto;padding:24px;text-align:center;">
+        <div style="font-size:2rem;margin-bottom:16px;">🎸</div>
+        <h2 style="color:var(--gold);font-size:1.3rem;margin-bottom:8px;">取消預約確認</h2>
+        <p style="color:var(--muted);margin-bottom:24px;">${name} 您好，確定要取消以下預約嗎？</p>
+        <div style="background:var(--card);border:1px solid var(--br);border-radius:4px;padding:20px;margin-bottom:24px;">
+          <div style="font-size:1rem;color:var(--text);font-weight:500;">
+            ${key.split(',').map(k => {
+              const parts = k.split('|');
+              if (parts.length >= 2) {
+                const d = parts[0]; const t = parts[1];
+                const dt = new Date(d+'T12:00:00');
+                const dw = ['日','一','二','三','四','五','六'][dt.getDay()];
+                const m = dt.getMonth()+1; const day = dt.getDate();
+                return `📅 ${m}月${day}日（${dw}）${t}`;
+              }
+              return k;
+            }).join('<br>')}
+          </div>
+        </div>
+        <button id="confirmCancelBtn" style="width:100%;padding:14px;background:#c0392b;color:white;border:none;border-radius:4px;font-size:1rem;cursor:pointer;margin-bottom:12px;">確認取消預約</button>
+        <a href="https://rock7652-beep.github.io/luby-music/" style="display:block;color:var(--muted);font-size:0.85rem;text-decoration:none;">不取消，返回預約頁面</a>
+      </div>`;
+
+    document.getElementById('confirmCancelBtn').addEventListener('click', async function() {
+      this.disabled = true;
+      this.textContent = '取消中…';
+      try {
+        // 用 GET 呼叫 Apps Script 取消（不需要登入）
+        const keys = key.split(',');
+        for (const k of keys) {
+          await fetch(SHEETS_URL + '?action=cancelBooking&key=' + encodeURIComponent(k));
+        }
+        // 通知店家（用 Apps Script GET）
+        await fetch(SHEETS_URL + '?action=notifyCancel&key=' + encodeURIComponent(key) + '&email=' + encodeURIComponent(email) + '&name=' + encodeURIComponent(name));
+      } catch(e) { console.error(e); }
+      document.getElementById('frontPage').innerHTML = `
+        <div style="max-width:480px;margin:60px auto;padding:24px;text-align:center;">
+          <div style="font-size:2rem;margin-bottom:16px;">✓</div>
+          <h2 style="color:#2d6a4f;font-size:1.3rem;margin-bottom:8px;">預約已取消</h2>
+          <p style="color:var(--muted);margin-bottom:24px;">您的預約已成功取消，時段已自動釋放。</p>
+          <a href="https://rock7652-beep.github.io/luby-music/" style="display:inline-block;padding:14px 32px;background:var(--dark);color:var(--gold);border-radius:4px;text-decoration:none;">重新預約</a>
+        </div>`;
+    });
+    return;
+  }
+  renderFrontDates();
+})();
 </script>
 </body>
 </html>
