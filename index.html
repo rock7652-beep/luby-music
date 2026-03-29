@@ -914,14 +914,8 @@ document.getElementById('bookingForm').addEventListener('submit', async function
   selectedSlots.forEach(s=>bookings.push({date:s.dataset.date,time:s.dataset.time,name,phone,email,qty,notes,ts:Date.now()}));
   saveBookings(bookings);
 
-  // 3. Email
-  let sent=false;
-  try {
-    emailjs.init(pubKey);
-    const p={customer_name:name,customer_phone:phone,customer_email:email,booking_date:slotLabels,guitar_qty:qty+' 把',notes,owner_email:ownerEmail};
-    await Promise.all([emailjs.send(serviceId,tplOwner,p),emailjs.send(serviceId,tplCustomer,p)]);
-    sent=true;
-  } catch(e){console.error('EmailJS:',e);}
+  // Email 已由 Apps Script 自動寄出（含取消連結）
+  let sent = true;
 
   document.getElementById('bookingForm').style.display='none';
   document.getElementById('successScreen').style.display='block';
