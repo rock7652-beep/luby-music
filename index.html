@@ -352,7 +352,7 @@ footer{text-align:center;margin-top:32px;font-size:0.7rem;color:var(--muted);let
 // ============================================================
 const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbymjVzz8j1GHEJCc1fl6vn4ae4xq2bQ-Y3MG1pYuh8f15YT-XvQ3dTZ2aVwiYQYeeP5og/exec';
 const SLOTS = ['10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'];
-const SAT_SLOTS = ['10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00']; // 週六預設時段
+const SAT_SLOTS = ['10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00'];
 const DEFAULT_PW = 'luby2024';
 
 // ============================================================
@@ -362,58 +362,53 @@ const loadCfg = () => { try { return JSON.parse(localStorage.getItem('luby_confi
 const saveCfg = c => localStorage.setItem('luby_config', JSON.stringify(c));
 const loadBookings = () => { try { return JSON.parse(localStorage.getItem('luby_bookings')) || []; } catch { return []; } };
 const saveBookings = b => localStorage.setItem('luby_bookings', JSON.stringify(b));
-
 function getUrl() { return loadCfg().sheetsUrl || SHEETS_URL; }
 function getCached() { try { return JSON.parse(localStorage.getItem('luby_dates_cache')) || []; } catch { return []; } }
-function setCache(dates) { localStorage.setItem('luby_dates_cache', JSON.stringify(dates)); localStorage.setItem('luby_dates_cache_ts', Date.now()); }
-function isCacheFresh(ms=300000) { return (Date.now() - (parseInt(localStorage.getItem('luby_dates_cache_ts'))||0)) < ms; }
+function setCache(d) { localStorage.setItem('luby_dates_cache', JSON.stringify(d)); localStorage.setItem('luby_dates_cache_ts', Date.now()); }
 
-// 自動產生未來 4 個週六的日期字串
+// 自動產生未來 4 個週六
 function getNext4Saturdays() {
   const result = [];
-  const today = new Date();
-  today.setHours(0,0,0,0);
-  const d = new Date(today);
-  // 找下一個週六（包含今天如果今天是週六）
-  const dow = d.getDay(); // 0=日, 6=六
-  const daysToSat = dow === 6 ? 0 : (6 - dow);
-  d.setDate(d.getDate() + daysToSat);
+  const d = new Date();
+  d.setHours(0,0,0,0);
+  const dow = d.getDay();
+  d.setDate(d.getDate() + (dow === 6 ? 0 : 6 - dow));
   for (let i = 0; i < 4; i++) {
-    const ds = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-    result.push(ds);
+    result.push(d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'));
     d.setDate(d.getDate() + 7);
   }
   return result;
 }
 
+// 讀取日期：快取優先，背景更新
 async function loadDates() {
   const cached = getCached();
+  // 有快取先用，背景靜默更新
+  if (cached.length) {
+    fetch(getUrl() + '?action=getDates').then(r=>r.json()).then(j=>{
+      if (j.dates && j.dates.length) setCache(j.dates);
+    }).catch(()=>{});
+    return cached;
+  }
+  // 沒快取才等待
   try {
     const res = await fetch(getUrl() + '?action=getDates');
     const json = await res.json();
-    if (json.dates && json.dates.length > 0) {
-      setCache(json.dates);
-      return json.dates;
-    }
-    if (cached.length > 0) return cached;
-    return [];
-  } catch(e) {
-    return cached;
-  }
+    if (json.dates && json.dates.length) { setCache(json.dates); return json.dates; }
+  } catch(e) {}
+  return [];
 }
 
-async function saveDates(dates) {
-  setCache(dates); // 立即更新本機快取
-  // 背景同步 Sheets，不阻塞 UI
+// 儲存日期：立即存快取，背景同步
+function saveDates(dates) {
+  setCache(dates);
   new Promise((resolve) => {
     var xhr = new XMLHttpRequest();
     xhr.open('POST', getUrl(), true);
     xhr.setRequestHeader('Content-Type', 'text/plain');
-    xhr.onload = resolve;
-    xhr.onerror = resolve;
-    xhr.send(JSON.stringify({ action: 'saveDates', dates: dates }));
-  }).catch(e => console.error('saveDates bg:', e));
-  return true; // 立即回傳，不等待
+    xhr.onload = resolve; xhr.onerror = resolve;
+    xhr.send(JSON.stringify({ action: 'saveDates', dates }));
+  }).catch(()=>{});
 }
 
 // ============================================================
@@ -427,7 +422,6 @@ function goAdmin() {
   document.getElementById('frontPage').classList.remove('active');
 }
 async function doLogin() {
-  // 先從 Sheets 同步最新密碼
   await syncPassword();
   const cfg = loadCfg();
   if (document.getElementById('pwInput').value === (cfg.password || DEFAULT_PW)) {
@@ -448,9 +442,8 @@ function goFront() {
 // ============================================================
 function fmtDate(ds) {
   const p = ds.split('-');
-  const y=parseInt(p[0]),m=parseInt(p[1]),d=parseInt(p[2]);
-  const dw=['日','一','二','三','四','五','六'][new Date(y,m-1,d).getDay()];
-  return `${m}月${d}日（${dw}）`;
+  const dw = ['日','一','二','三','四','五','六'][new Date(parseInt(p[0]),parseInt(p[1])-1,parseInt(p[2])).getDay()];
+  return `${parseInt(p[1])}月${parseInt(p[2])}日（${dw}）`;
 }
 
 // ============================================================
@@ -459,150 +452,97 @@ function fmtDate(ds) {
 async function renderAdmin() {
   const cfg = loadCfg();
   document.getElementById('cfgPK').value = cfg.pubKey || 'RaamsiaDHLjtIj7bK';
-  document.getElementById('cfgSID').value = cfg.serviceId || 'lubymusic@hotmail.com';
+  document.getElementById('cfgSID').value = cfg.serviceId || 'service_jbj19zq';
   document.getElementById('cfgTO').value = cfg.tplOwner || 'template_11tk9tg';
   document.getElementById('cfgTC').value = cfg.tplCustomer || 'template_9xsijum';
-  document.getElementById('cfgOE').value = cfg.ownerEmail || 'lubymusic@hotmail.com';
+  document.getElementById('cfgOE').value = cfg.ownerEmail || 'rock7652@gmail.com';
   document.getElementById('cfgGS').value = cfg.sheetsUrl || SHEETS_URL;
   const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate()+1);
-  const tStr = tomorrow.toISOString().split('T')[0];
-  document.getElementById('newDateFrom').min = tStr;
-  document.getElementById('newDateTo').min = tStr;
+  document.getElementById('newDateFrom').min = tomorrow.toISOString().split('T')[0];
+  document.getElementById('newDateTo').min = tomorrow.toISOString().split('T')[0];
   document.getElementById('newSlotCbs').innerHTML = SLOTS.map(t =>
-    `<div class="slcb"><input type="checkbox" id="ns_${t.replace(':','')}" value="${t}" checked><label for="ns_${t.replace(':','')}">${t}</label></div>`
+    `<div class="slcb"><input type="checkbox" id="ns_${t.replace(':','')}" value="${t}" checked><label for="ns_${t.replace(':','')}">  ${t}</label></div>`
   ).join('');
   await renderAdminDates();
 }
 
 async function renderAdminDates() {
-  const el = document.getElementById('adminDatesList');
   const satDates = getNext4Saturdays();
-  const localKeys = new Set(loadBookings().map(b=>b.date+'|'+b.time));
+  const today = new Date().toISOString().split('T')[0];
 
-  // 從 Sheets 讀取設定
+  // 讀取 Sheets 設定（快取優先）
   const sheetsData = await loadDates();
   const closedMap = {};
-  sheetsData.forEach(d => { if (d.closedSlots) closedMap[d.date] = d.closedSlots; });
+  sheetsData.forEach(d => { if (d.closedSlots && d.closedSlots.length) closedMap[d.date] = d.closedSlots; });
 
-  // 特殊日期 = Sheets 裡非週六的日期
-  const today = new Date().toISOString().split('T')[0];
+  // 特殊日期（非週六、未過期）
   const specialDates = sheetsData.filter(d => {
     const dow = new Date(d.date+'T12:00:00').getDay();
-    return dow !== 6 && d.date >= today; // 非週六且未過期
+    return dow !== 6 && d.date >= today;
   });
 
-  // 渲染週六時段
-  _renderAdminSaturdays(satDates, closedMap, el, localKeys);
+  // 讀取已預約（本機 + 背景更新遠端）
+  let bookedKeys = new Set(loadBookings().map(b=>b.date+'|'+b.time));
 
-  // 渲染特殊日期列表
-  const spEl = document.getElementById('adminSpecialList');
-  if (!specialDates.length) {
-    spEl.innerHTML = '<div class="empty-hint">尚未新增特殊日期</div>';
-  } else {
-    spEl.innerHTML = specialDates.sort((a,b)=>a.date.localeCompare(b.date)).map(d => {
-      const closedSlots = d.closedSlots || [];
-      const tags = d.slots.map(s => {
-        const isBooked = localKeys.has(d.date+'|'+s);
-        const isClosed = closedSlots.includes(s);
-        let ts = '';
-        if (isBooked) ts='background:rgba(180,80,80,0.15);color:#c07080;border-color:rgba(180,80,80,0.3);';
-        else if (isClosed) ts='background:rgba(100,100,100,0.15);color:#888;border-color:rgba(100,100,100,0.3);text-decoration:line-through;';
-        const al = isClosed?'開':'關', ac = isClosed?'#4aaa7a':'#c07080';
-        return `<span class="stag" style="${ts}display:inline-flex;align-items:center;gap:4px;">
-          ${s}${isBooked?' 已約':isClosed?' 關閉':''}
-          ${isBooked
-            ? `<button onclick="cancelBooking('${d.date}','${s}')" style="background:none;border:none;cursor:pointer;color:#e07070;font-size:0.68rem;padding:0 2px;">✕</button>`
-            : `<button onclick="toggleSlot('${d.date}','${s}')" style="background:none;border:none;cursor:pointer;color:${ac};font-size:0.68rem;padding:0 2px;">${al}</button>`
-          }
-        </span>`;
-      }).join('');
-      return `<div class="di">
-        <div class="di-hdr">
-          <div class="di-name">📌 ${fmtDate(d.date)}</div>
-          <div class="di-btns">
-            <button class="tog-btn" onclick="toggleDate('${d.date}')">${d.active!==false?'暫停':'開啟'}</button>
-            <button class="del-btn" onclick="deleteDate('${d.date}')">刪除</button>
-          </div>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-          <span class="badge" style="background:${d.active!==false?'rgba(79,142,247,0.15)':'rgba(150,80,80,0.15)'};color:${d.active!==false?'var(--aa)':'#c07080'};">${d.active!==false?'開放中':'已暫停'}</span>
-          <div class="slot-tags">${tags}</div>
-        </div>
-      </div>`;
-    }).join('');
-  }
+  // 立即渲染
+  _renderSaturdays(satDates, closedMap, bookedKeys);
+  _renderSpecialDates(specialDates, bookedKeys);
 
-  // 背景更新已約狀態
+  // 背景從 Sheets 更新已約狀態
   fetch(getUrl()+'?action=getBookings').then(r=>r.json()).then(json=>{
-    if(!json.bookings) return;
-    let hasNew=false;
-    json.bookings.forEach(k=>{ if(!localKeys.has(k)){localKeys.add(k);hasNew=true;} });
-    if(hasNew) {
-      _renderAdminSaturdays(satDates, closedMap, el, localKeys);
+    if (!json.bookings) return;
+    let hasNew = false;
+    json.bookings.forEach(k=>{ if(!bookedKeys.has(k)){bookedKeys.add(k);hasNew=true;} });
+    if (hasNew) {
+      _renderSaturdays(satDates, closedMap, bookedKeys);
+      _renderSpecialDates(specialDates, bookedKeys);
     }
   }).catch(()=>{});
 }
 
-function _renderAdminSaturdays(satDates, closedMap, el, bookedKeys) {
-  el.innerHTML = satDates.map(dateStr => {
-    const closedSlots = closedMap[dateStr] || [];
+function _renderSaturdays(satDates, closedMap, bookedKeys) {
+  const el = document.getElementById('adminDatesList');
+  el.innerHTML = satDates.map(ds => {
+    const closedSlots = closedMap[ds] || [];
     const tags = SAT_SLOTS.map(s => {
-      const isBooked = bookedKeys.has(dateStr+'|'+s);
+      const isBooked = bookedKeys.has(ds+'|'+s);
       const isClosed = closedSlots.includes(s);
       let ts = '';
       if (isBooked) ts='background:rgba(180,80,80,0.15);color:#c07080;border-color:rgba(180,80,80,0.3);';
       else if (isClosed) ts='background:rgba(100,100,100,0.15);color:#888;border-color:rgba(100,100,100,0.3);text-decoration:line-through;';
       const al = isClosed?'開':'關', ac = isClosed?'#4aaa7a':'#c07080';
-      return `<span class="stag" style="${ts}display:inline-flex;align-items:center;gap:4px;">
-        ${s}${isBooked?' 已約':isClosed?' 關閉':''}
+      return `<span class="stag" style="${ts}display:inline-flex;align-items:center;gap:4px;">${s}${isBooked?' 已約':isClosed?' 關閉':''}
         ${isBooked
-          ? `<button onclick="cancelBooking('${dateStr}','${s}')" style="background:none;border:none;cursor:pointer;color:#e07070;font-size:0.68rem;padding:0 2px;">✕</button>`
-          : `<button onclick="toggleSlot('${dateStr}','${s}')" style="background:none;border:none;cursor:pointer;color:${ac};font-size:0.68rem;padding:0 2px;">${al}</button>`
-        }
-      </span>`;
+          ? `<button onclick="cancelBooking('${ds}','${s}')" style="background:none;border:none;cursor:pointer;color:#e07070;font-size:0.68rem;padding:0 2px;">✕</button>`
+          : `<button onclick="toggleSlot('${ds}','${s}')" style="background:none;border:none;cursor:pointer;color:${ac};font-size:0.68rem;padding:0 2px;">${al}</button>`
+        }</span>`;
     }).join('');
-    return `<div class="di">
-      <div class="di-hdr">
-        <div class="di-name">📅 ${fmtDate(dateStr)}</div>
-      </div>
-      <div class="slot-tags">${tags}</div>
-    </div>`;
+    return `<div class="di"><div class="di-hdr"><div class="di-name">📅 ${fmtDate(ds)}</div></div><div class="slot-tags">${tags}</div></div>`;
   }).join('');
 }
 
-function _renderDatesList(dates, el) {
-  _renderDatesListWithBookings(dates, el, []);
-}
-
-function _renderDatesListWithBookings(dates, el, remoteBookingKeys) {
-  const sorted = [...dates].sort((a,b)=>a.date.localeCompare(b.date));
-  if (!sorted.length) { el.innerHTML = '<div class="empty-hint">尚未新增任何日期</div>'; return; }
-  // 合併本機和遠端預約紀錄
-  const localBookings = loadBookings();
-  const allBookedKeys = new Set([
-    ...remoteBookingKeys,
-    ...localBookings.map(b => b.date+'|'+b.time)
-  ]);
-  el.innerHTML = sorted.map(d => {
+function _renderSpecialDates(specialDates, bookedKeys) {
+  const spEl = document.getElementById('adminSpecialList');
+  if (!specialDates.length) { spEl.innerHTML = '<div class="empty-hint">尚未新增特殊日期</div>'; return; }
+  spEl.innerHTML = specialDates.sort((a,b)=>a.date.localeCompare(b.date)).map(d => {
+    const closedSlots = d.closedSlots || [];
     const act = d.active !== false;
-    const tags = d.slots.length ? d.slots.map(s => {
-      const isBooked = allBookedKeys.has(d.date+'|'+s);
-      const isClosed = (d.closedSlots||[]).includes(s);
+    const tags = (d.slots || SAT_SLOTS).map(s => {
+      const isBooked = bookedKeys.has(d.date+'|'+s);
+      const isClosed = closedSlots.includes(s);
       let ts = '';
       if (isBooked) ts='background:rgba(180,80,80,0.15);color:#c07080;border-color:rgba(180,80,80,0.3);';
       else if (isClosed) ts='background:rgba(100,100,100,0.15);color:#888;border-color:rgba(100,100,100,0.3);text-decoration:line-through;';
       const al = isClosed?'開':'關', ac = isClosed?'#4aaa7a':'#c07080';
-      return `<span class="stag" style="${ts}display:inline-flex;align-items:center;gap:4px;">
-        ${s}${isBooked?' 已約':isClosed?' 關閉':''}
+      return `<span class="stag" style="${ts}display:inline-flex;align-items:center;gap:4px;">${s}${isBooked?' 已約':isClosed?' 關閉':''}
         ${isBooked
           ? `<button onclick="cancelBooking('${d.date}','${s}')" style="background:none;border:none;cursor:pointer;color:#e07070;font-size:0.68rem;padding:0 2px;">✕</button>`
           : `<button onclick="toggleSlot('${d.date}','${s}')" style="background:none;border:none;cursor:pointer;color:${ac};font-size:0.68rem;padding:0 2px;">${al}</button>`
-        }
-      </span>`;
-    }).join('') : '<span style="font-size:0.72rem;color:#555e7a;font-style:italic;">未設定時段</span>';
+        }</span>`;
+    }).join('');
     return `<div class="di">
       <div class="di-hdr">
-        <div class="di-name">📅 ${fmtDate(d.date)}</div>
+        <div class="di-name">📌 ${fmtDate(d.date)}</div>
         <div class="di-btns">
           <button class="tog-btn" onclick="toggleDate('${d.date}')">${act?'暫停':'開啟'}</button>
           <button class="del-btn" onclick="deleteDate('${d.date}')">刪除</button>
@@ -644,7 +584,6 @@ function changePw() {
   if (p1!==p2){msg.style.color='#e07070';msg.textContent='兩次密碼不一致';return;}
   if (p1.length<4){msg.style.color='#e07070';msg.textContent='密碼至少 4 個字元';return;}
   const cfg=loadCfg(); cfg.password=p1; saveCfg(cfg);
-  // 同步密碼到 Sheets（存在特殊日期記錄裡）
   savePassword(p1);
   document.getElementById('newPw1').value='';
   document.getElementById('newPw2').value='';
@@ -666,11 +605,8 @@ async function syncPassword() {
   try {
     const res = await fetch(getUrl() + '?action=getPassword');
     const json = await res.json();
-    // 只有 Sheets 有密碼時才覆蓋本機
     if (json.password && json.password.length >= 4) {
-      const cfg = loadCfg();
-      cfg.password = json.password;
-      saveCfg(cfg);
+      const cfg = loadCfg(); cfg.password = json.password; saveCfg(cfg);
     }
   } catch(e) {}
 }
@@ -688,7 +624,8 @@ async function addDate() {
   if (!from){alert('請選擇起始日期');return;}
   if (to<from){alert('結束日期不能早於起始日期');return;}
   const slots=[...document.querySelectorAll('#newSlotCbs input:checked')].map(c=>c.value);
-  const dates=getCached(); // 直接用快取，不等 Sheets
+  if (!slots.length){alert('請選擇至少一個時段');return;}
+  const dates=getCached();
   let added=0;
   let cur=new Date(from+'T12:00:00');
   const end=new Date(to+'T12:00:00');
@@ -703,15 +640,13 @@ async function addDate() {
   const btn=document.getElementById('addDateBtn');
   btn.textContent=`✓ 已新增 ${added} 天`; btn.style.background='#2d6a4f';
   setTimeout(()=>{btn.textContent='新增日期';btn.style.background='';},2200);
-  setCache(dates);
-  saveDates(dates); // 背景同步 Sheets
+  saveDates(dates);
   await renderAdminDates();
 }
 
 function deleteDate(dateStr) {
   if(!confirm('確定刪除此日期？'))return;
   const dates = getCached().filter(d=>d.date!==dateStr);
-  setCache(dates);
   saveDates(dates);
   renderAdminDates();
 }
@@ -720,7 +655,6 @@ function toggleDate(dateStr) {
   const dates = getCached();
   const d = dates.find(x=>x.date===dateStr);
   if(d) d.active = d.active===false ? true : false;
-  setCache(dates);
   saveDates(dates);
   renderAdminDates();
 }
@@ -735,7 +669,6 @@ function toggleSlot(dateStr, slot) {
   if (!d.closedSlots) d.closedSlots = [];
   const idx = d.closedSlots.indexOf(slot);
   if (idx >= 0) d.closedSlots.splice(idx, 1); else d.closedSlots.push(slot);
-  setCache(dates);
   saveDates(dates);
   renderAdminDates();
 }
@@ -744,7 +677,7 @@ async function cancelBooking(dateStr, slot) {
   const key=dateStr+'|'+slot;
   if(!confirm(`確定取消「${fmtDate(dateStr)} ${slot}」的預約並釋放時段？`))return;
   try {
-    await fetch(getUrl()+'?action=cancelBooking&key='+encodeURIComponent(key),{mode:'no-cors'});
+    await fetch(getUrl()+'?action=cancelBooking&key='+encodeURIComponent(key));
   } catch(e){}
   const bookings=loadBookings().filter(b=>!(b.date===dateStr&&b.time===slot));
   saveBookings(bookings);
@@ -775,12 +708,10 @@ function onQtyChange() {
 
 async function renderFrontDates() {
   const c = document.getElementById('dateSlotsContainer');
-  c.innerHTML = '<div style="padding:22px;text-align:center;color:var(--muted);font-size:0.82rem;">⏳ 載入中…</div>';
-
   const satDates = getNext4Saturdays();
   const today = new Date().toISOString().split('T')[0];
 
-  // 讀取 Sheets（關閉時段 + 特殊日期）
+  // 讀取設定（快取優先，極快）
   const sheetsData = await loadDates();
   const closedMap = {};
   sheetsData.forEach(d => { if (d.closedSlots) closedMap[d.date] = d.closedSlots; });
@@ -788,9 +719,9 @@ async function renderFrontDates() {
   // 特殊日期（非週六、未過期、開放中）
   const specialDates = sheetsData
     .filter(d => new Date(d.date+'T12:00:00').getDay() !== 6 && d.date >= today && d.active !== false)
-    .map(d => ({ date: d.date, slots: d.slots || SLOTS, closedSlots: d.closedSlots || [] }));
+    .map(d => ({ date: d.date, slots: d.slots || SAT_SLOTS, closedSlots: d.closedSlots || [] }));
 
-  // 合併週六 + 特殊日期，按日期排序
+  // 合併並排序
   const allDates = [
     ...satDates.map(ds => ({ date: ds, slots: SAT_SLOTS, closedSlots: closedMap[ds] || [] })),
     ...specialDates
@@ -799,8 +730,11 @@ async function renderFrontDates() {
   const qty = parseInt(document.getElementById('fqty').value) || 1;
   const inputType = qty >= 2 ? 'checkbox' : 'radio';
   let bookedKeys = new Set(loadBookings().map(b=>b.date+'|'+b.time));
+
+  // 立即顯示
   _renderFrontSlots(allDates, c, bookedKeys, inputType);
 
+  // 背景更新已約
   fetch(getUrl()+'?action=getBookings').then(r=>r.json()).then(json=>{
     if(!json.bookings) return;
     let hasNew=false;
@@ -810,6 +744,10 @@ async function renderFrontDates() {
 }
 
 function _renderFrontSlots(allDates, c, bookedKeys, inputType) {
+  if (!allDates.length) {
+    c.innerHTML='<div style="padding:22px;text-align:center;color:var(--muted);font-size:0.82rem;">目前尚無開放預約日期，請稍後再查看或 Line：@gay6872z</div>';
+    return;
+  }
   c.innerHTML = allDates.map((d, di) => {
     const closedSlots = new Set(d.closedSlots || []);
     return `<div class="date-block">
@@ -819,8 +757,8 @@ function _renderFrontSlots(allDates, c, bookedKeys, inputType) {
         const isClosed = closedSlots.has(t);
         const disabled = isBooked || isClosed;
         const cls = isBooked ? 'booked' : isClosed ? 'closed' : '';
-        return `<div class="tsi${cls ? ' '+cls : ''}">
-          <input type="${inputType}" ${inputType==='radio'?'name="bookSlot"':''} id="sl_${di}_${ti}" value="${d.date}|${t}" data-label="${fmtDate(d.date)} ${t}" data-date="${d.date}" data-time="${t}"${disabled ? ' disabled' : ''}>
+        return `<div class="tsi${cls?' '+cls:''}">
+          <input type="${inputType}" ${inputType==='radio'?'name="bookSlot"':''} id="sl_${di}_${ti}" value="${d.date}|${t}" data-label="${fmtDate(d.date)} ${t}" data-date="${d.date}" data-time="${t}"${disabled?' disabled':''}>
           <label for="sl_${di}_${ti}">${t}</label>
         </div>`;
       }).join('')}</div>
@@ -840,25 +778,15 @@ document.getElementById('bookingForm').addEventListener('submit', async function
   const consent=document.getElementById('fconsent').checked;
   let ok=true;
 
-  // 驗證
   const phoneValid = /^09\d{8}$/.test(phone.replace(/[\s\-]/g,''));
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-  const validations = [
-    ['fg-name', !name, '請填寫姓名'],
-    ['fg-phone', !phoneValid, '請輸入正確手機號碼（09 開頭，共 10 碼）'],
-    ['fg-email', !emailValid, '請輸入正確的 Email 格式'],
-    ['fg-qty', !qty, '請選擇件數'],
-    ['fg-consent', !consent, '請勾選同意'],
-  ];
-  validations.forEach(([id, err, msg]) => {
-    const el = document.getElementById(id);
-    el.classList.toggle('has-error', err);
-    if (err) {
-      const ferrEl = el.querySelector('.ferr');
-      if (ferrEl) ferrEl.textContent = msg;
-      ok = false;
-    }
+  [['fg-name',!name,'請填寫姓名'],['fg-phone',!phoneValid,'請輸入正確手機號碼（09 開頭，共 10 碼）'],
+   ['fg-email',!emailValid,'請輸入正確的 Email 格式'],['fg-qty',!qty,'請選擇件數'],['fg-consent',!consent,'請勾選同意']
+  ].forEach(([id,err,msg])=>{
+    const el=document.getElementById(id);
+    el.classList.toggle('has-error',err);
+    if(err){const fe=el.querySelector('.ferr');if(fe)fe.textContent=msg;ok=false;}
   });
 
   const slotErr=document.getElementById('slotErr');
@@ -882,26 +810,21 @@ document.getElementById('bookingForm').addEventListener('submit', async function
   const cfg=loadCfg();
   const sheetsUrl=cfg.sheetsUrl||SHEETS_URL;
   const pubKey=cfg.pubKey||'RaamsiaDHLjtIj7bK';
-  const serviceId=cfg.serviceId||'lubymusic@hotmail.com';
+  const serviceId=cfg.serviceId||'service_jbj19zq';
   const tplOwner=cfg.tplOwner||'template_11tk9tg';
   const tplCustomer=cfg.tplCustomer||'template_9xsijum';
-  const ownerEmail=cfg.ownerEmail||'lubymusic@hotmail.com';
+  const ownerEmail=cfg.ownerEmail||'rock7652@gmail.com';
 
-  // 1. 寫入 Sheets（no-cors POST）
+  // 1. 寫入 Sheets
   for(const s of selectedSlots){
-    try {
-      fetch(sheetsUrl, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'text/plain' },
-        body: JSON.stringify({
-          action: 'addBooking', name, phone, email,
-          booking_date: s.dataset.label,
-          booking_date_key: s.dataset.date+'|'+s.dataset.time,
-          guitar_qty: qty+' 把', notes
-        })
-      });
-    } catch(e){ console.error('addBooking:', e); }
+    fetch(sheetsUrl, {
+      method:'POST', mode:'no-cors',
+      headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify({action:'addBooking',name,phone,email,
+        booking_date:s.dataset.label,
+        booking_date_key:s.dataset.date+'|'+s.dataset.time,
+        guitar_qty:qty+' 把',notes})
+    }).catch(()=>{});
   }
 
   // 2. 本機備份
@@ -909,25 +832,15 @@ document.getElementById('bookingForm').addEventListener('submit', async function
   selectedSlots.forEach(s=>bookings.push({date:s.dataset.date,time:s.dataset.time,name,phone,email,qty,notes,ts:Date.now()}));
   saveBookings(bookings);
 
-  // 3. EmailJS 寄信（店家 + 客戶）
-  let sent = false;
+  // 3. EmailJS 寄信
+  let sent=false;
   try {
     emailjs.init(pubKey);
-    const p = {
-      customer_name: name,
-      customer_phone: phone,
-      customer_email: email,
-      booking_date: slotLabels,
-      guitar_qty: qty + ' 把',
-      notes,
-      owner_email: ownerEmail
-    };
-    await Promise.all([
-      emailjs.send(serviceId, tplOwner, p),
-      emailjs.send(serviceId, tplCustomer, p)
-    ]);
-    sent = true;
-  } catch(e) { console.error('EmailJS:', e); }
+    const p={customer_name:name,customer_phone:phone,customer_email:email,
+      booking_date:slotLabels,guitar_qty:qty+' 把',notes,owner_email:ownerEmail};
+    await Promise.all([emailjs.send(serviceId,tplOwner,p),emailjs.send(serviceId,tplCustomer,p)]);
+    sent=true;
+  } catch(e){console.error('EmailJS:',e);}
 
   document.getElementById('bookingForm').style.display='none';
   document.getElementById('successScreen').style.display='block';
@@ -936,66 +849,12 @@ document.getElementById('bookingForm').addEventListener('submit', async function
     預約時段：<strong>${slotLabels}</strong><br>
     送修件數：<strong>${qty} 把</strong><br><br>
     ${sent?`確認信已寄至 <strong>${email}</strong><br>`:''}
-    我們將盡快與您確認，如有疑問請 <a href="https://line.me/R/ti/p/@gay6872z" target="_blank" style="color:var(--gold);">Line：@gay6872z</a>`;
+    如有疑問請 <a href="https://line.me/R/ti/p/@gay6872z" target="_blank" style="color:var(--gold);">Line：@gay6872z</a>`;
 });
 
 // 初始化
-(async function init() {
-  // 檢查是否為取消預約連結
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('cancel') === '1') {
-    const key = params.get('key') || '';
-    const email = params.get('email') || '';
-    const name = params.get('name') || '您';
-    // 隱藏前台表單，顯示取消確認頁
-    document.getElementById('frontPage').innerHTML = `
-      <div style="max-width:480px;margin:60px auto;padding:24px;text-align:center;">
-        <div style="font-size:2rem;margin-bottom:16px;">🎸</div>
-        <h2 style="color:var(--gold);font-size:1.3rem;margin-bottom:8px;">取消預約確認</h2>
-        <p style="color:var(--muted);margin-bottom:24px;">${name} 您好，確定要取消以下預約嗎？</p>
-        <div style="background:var(--card);border:1px solid var(--br);border-radius:4px;padding:20px;margin-bottom:24px;">
-          <div style="font-size:1rem;color:var(--text);font-weight:500;">
-            ${key.split(',').map(k => {
-              const parts = k.split('|');
-              if (parts.length >= 2) {
-                const d = parts[0]; const t = parts[1];
-                const dt = new Date(d+'T12:00:00');
-                const dw = ['日','一','二','三','四','五','六'][dt.getDay()];
-                const m = dt.getMonth()+1; const day = dt.getDate();
-                return `📅 ${m}月${day}日（${dw}）${t}`;
-              }
-              return k;
-            }).join('<br>')}
-          </div>
-        </div>
-        <button id="confirmCancelBtn" style="width:100%;padding:14px;background:#c0392b;color:white;border:none;border-radius:4px;font-size:1rem;cursor:pointer;margin-bottom:12px;">確認取消預約</button>
-        <a href="https://rock7652-beep.github.io/luby-music/" style="display:block;color:var(--muted);font-size:0.85rem;text-decoration:none;">不取消，返回預約頁面</a>
-      </div>`;
+renderFrontDates();
 
-    document.getElementById('confirmCancelBtn').addEventListener('click', async function() {
-      this.disabled = true;
-      this.textContent = '取消中…';
-      try {
-        // 用 GET 呼叫 Apps Script 取消（不需要登入）
-        const keys = key.split(',');
-        for (const k of keys) {
-          await fetch(SHEETS_URL + '?action=cancelBooking&key=' + encodeURIComponent(k));
-        }
-        // 通知店家（用 Apps Script GET）
-        await fetch(SHEETS_URL + '?action=notifyCancel&key=' + encodeURIComponent(key) + '&email=' + encodeURIComponent(email) + '&name=' + encodeURIComponent(name));
-      } catch(e) { console.error(e); }
-      document.getElementById('frontPage').innerHTML = `
-        <div style="max-width:480px;margin:60px auto;padding:24px;text-align:center;">
-          <div style="font-size:2rem;margin-bottom:16px;">✓</div>
-          <h2 style="color:#2d6a4f;font-size:1.3rem;margin-bottom:8px;">預約已取消</h2>
-          <p style="color:var(--muted);margin-bottom:24px;">您的預約已成功取消，時段已自動釋放。</p>
-          <a href="https://rock7652-beep.github.io/luby-music/" style="display:inline-block;padding:14px 32px;background:var(--dark);color:var(--gold);border-radius:4px;text-decoration:none;">重新預約</a>
-        </div>`;
-    });
-    return;
-  }
-  renderFrontDates();
-})();
 </script>
 </body>
 </html>
