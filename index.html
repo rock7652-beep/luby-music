@@ -461,7 +461,7 @@ async function renderAdmin() {
   document.getElementById('newDateFrom').min = tomorrow.toISOString().split('T')[0];
   document.getElementById('newDateTo').min = tomorrow.toISOString().split('T')[0];
   document.getElementById('newSlotCbs').innerHTML = SLOTS.map(t =>
-    `<div class="slcb"><input type="checkbox" id="ns_${t.replace(':','')}" value="${t}" checked><label for="ns_${t.replace(':','')}">  ${t}</label></div>`
+    `<div class="slcb"><input type="checkbox" id="ns_${t.replace(':','')}" value="${t}" checked><label for="ns_${t.replace(':','')}"> ${t}</label></div>`
   ).join('');
   await renderAdminDates();
 }
@@ -638,9 +638,18 @@ async function addDate() {
   document.getElementById('newDateFrom').value='';
   document.getElementById('newDateTo').value='';
   const btn=document.getElementById('addDateBtn');
-  btn.textContent=`✓ 已新增 ${added} 天`; btn.style.background='#2d6a4f';
+  btn.disabled=true; btn.textContent='儲存中…';
+  setCache(dates);
+  // 等待 Sheets 確實存入
+  await new Promise((resolve) => {
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', getUrl(), true);
+    xhr.setRequestHeader('Content-Type', 'text/plain');
+    xhr.onload = resolve; xhr.onerror = resolve;
+    xhr.send(JSON.stringify({ action: 'saveDates', dates }));
+  });
+  btn.disabled=false; btn.textContent=`✓ 已新增 ${added} 天`; btn.style.background='#2d6a4f';
   setTimeout(()=>{btn.textContent='新增日期';btn.style.background='';},2200);
-  saveDates(dates);
   await renderAdminDates();
 }
 
