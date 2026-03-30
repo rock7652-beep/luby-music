@@ -423,17 +423,28 @@ function goAdmin() {
   document.getElementById('frontPage').classList.remove('active');
 }
 async function doLogin() {
-  const btn = document.querySelector('.login-btn');
-  btn.disabled = true; btn.textContent = '登入中…';
-  await syncPassword();
   const cfg = loadCfg();
-  if (document.getElementById('pwInput').value === (cfg.password || DEFAULT_PW)) {
+  const inputPw = document.getElementById('pwInput').value;
+  // 先用本機密碼驗證，背景同步最新密碼
+  if (inputPw === (cfg.password || DEFAULT_PW)) {
+    document.getElementById('loginOverlay').classList.remove('show');
+    renderAdmin();
+    // 背景同步密碼（不影響登入速度）
+    syncPassword();
+    return;
+  }
+  // 本機驗證失敗，嘗試從 Sheets 拉最新密碼再驗證一次
+  const btn = document.querySelector('.login-btn');
+  btn.disabled = true; btn.textContent = '驗證中…';
+  await syncPassword();
+  btn.disabled = false; btn.textContent = '進入後台';
+  const cfg2 = loadCfg();
+  if (inputPw === (cfg2.password || DEFAULT_PW)) {
     document.getElementById('loginOverlay').classList.remove('show');
     renderAdmin();
   } else {
     document.getElementById('loginErr').textContent = '密碼錯誤';
   }
-  btn.disabled = false; btn.textContent = '進入後台';
 }
 function goFront() {
   document.getElementById('frontPage').classList.add('active');
