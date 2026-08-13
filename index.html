@@ -5,6 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>陸比音樂｜吉他保養預約</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://script.google.com">
+<link rel="preconnect" href="https://script.googleusercontent.com">
+<script>
+// 在瀏覽器解析版面時就先喚醒 Apps Script，縮短首次開啟的等待時間。
+window.__lubyDatesPrefetch = fetch('https://script.google.com/macros/s/AKfycbwRicgFrAKQIdnxeAi6knZWRBWkOEflf0RHS16eCxbS0-Ca-loDwvRPtxowqGgW3ybyJA/exec?action=getDates&_=' + Date.now())
+  .then(function(response) { return response.ok ? response.json() : null; })
+  .catch(function() { return null; });
+</script>
 <style>
 :root {
   --ink:#28231f;--warm:#352e29;--gold:#9b8067;--cream:#f4f0e9;
@@ -58,6 +66,9 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .tsi.booked label::after{content:'已約';font-size:0.62rem;color:#b8a898;}
 .tsi.closed label{background:#f6f4f1;color:#c8c1ba;cursor:not-allowed;}
 .tsi.closed label::after{content:'關閉';font-size:0.62rem;color:#ccc;}
+.date-block.loading{opacity:.72;}
+.date-block.loading .tsi label{color:#aaa39b;background:#f8f6f2;cursor:default;}
+.slots-loading-note{font-size:.72rem;color:var(--muted);margin-top:10px;text-align:center;letter-spacing:.06em;}
 @media(max-width:520px){.time-slots{grid-template-columns:repeat(2,1fr)}.tsi label{min-height:48px;font-size:.86rem}}
 .fee-table{width:100%;border-collapse:collapse;font-size:0.76rem;margin-top:6px;}
 .fee-table{border-radius:9px;overflow:hidden;border-style:hidden;box-shadow:0 0 0 1px var(--border);}
@@ -177,20 +188,20 @@ footer{text-align:center;margin-top:34px;font-size:.7rem;color:var(--muted);lett
         <div class="sec-label">保養費用說明</div>
         <table class="fee-table">
           <tr><th>樂器</th><th>小保養</th><th>大保養</th><th>琴弦（另計）</th></tr>
-          <tr><td>🎸 吉他</td><td>$500</td><td>$800–$1,000</td><td>六條 $220–$760</td></tr>
-          <tr><td>🎵 烏克麗麗</td><td>$500</td><td>$800</td><td>四條 $200–$530</td></tr>
-          <tr><td>⚡ 電吉他</td><td>$600</td><td>$1,500</td><td>六條 $180–$540</td></tr>
-          <tr><td>🎵 電貝斯</td><td>$600</td><td>$1,500</td><td>四條 $600</td></tr>
+          <tr><td>吉他</td><td>$500</td><td>$800–$1,000</td><td>六條 $220–$760</td></tr>
+          <tr><td>烏克麗麗</td><td>$500</td><td>$800</td><td>四條 $200–$530</td></tr>
+          <tr><td>電吉他</td><td>$600</td><td>$1,500</td><td>六條 $180–$540</td></tr>
+          <tr><td>電貝斯</td><td>$600</td><td>$1,500</td><td>四條 $600</td></tr>
         </table>
         <div style="margin-top:9px;font-size:0.73rem;color:var(--muted);line-height:1.7;">
-          ❗ 保養須同時更換琴弦，自備琴弦酌收 $100–$150 換弦工本費。通常以小保養收件，Fret 生鏽/指板霉裂/較多灰塵則以大保養收件，以現場評估為主。
+          保養須同時更換琴弦，自備琴弦酌收 $100–$150 換弦工本費。通常以小保養收件，Fret 生鏽/指板霉裂/較多灰塵則以大保養收件，以現場評估為主。
         </div>
       </div>
 
       <div class="form-sec">
         <div class="sec-label">預約須知</div>
         <div class="notice-box">
-          <div class="nt">📌 重要事項</div>
+          <div class="nt">重要事項</div>
           未預約/平日仍可收件，以現場順序施作，通常隔日取件，件數多則 +1 工作天（不含週日）。<br>
           保養約 1 小時，請準時送件。<strong>若需送兩件，請預約兩個時段</strong>（一個時段以一件為主）。<br>
           最佳保養週期：2–3 個月一次。Line 諮詢：<a href="https://line.me/R/ti/p/@gay6872z" target="_blank" style="color:var(--gold);font-weight:500;text-decoration:none;border-bottom:1px solid var(--gold);">@gay6872z</a>
@@ -232,7 +243,7 @@ footer{text-align:center;margin-top:34px;font-size:.7rem;color:var(--muted);lett
           <div class="ferr">請選擇件數</div>
         </div>
         <div id="multiSlotHint" style="display:none;margin-top:6px;padding:9px 12px;background:#fffbf0;border:1px solid #e8d89a;border-radius:1px;font-size:0.76rem;color:#7a6020;line-height:1.7;">
-          ⚠️ 送修 2 把以上請複選對應數量的時段（每把各需一個時段）
+          送修 2 把以上請複選對應數量的時段（每把各需一個時段）
         </div>
       </div>
 
@@ -240,7 +251,7 @@ footer{text-align:center;margin-top:34px;font-size:.7rem;color:var(--muted);lett
         <div class="sec-label" id="slotSectionLabel">選擇預約時段</div>
         <div class="fg" id="fg-slot">
           <div id="dateSlotsContainer" class="date-slots-wrap">
-            <div style="padding:22px;text-align:center;color:var(--muted);font-size:0.82rem;">⏳ 載入中…</div>
+            <div style="padding:22px;text-align:center;color:var(--muted);font-size:0.82rem;">正在確認可預約時段…</div>
           </div>
           <div class="ferr" id="slotErr">請選擇預約時段</div>
         </div>
@@ -295,7 +306,7 @@ footer{text-align:center;margin-top:34px;font-size:.7rem;color:var(--muted);lett
       <div class="cff"><label>Google Sheets 網址</label><input type="text" id="cfgGS" placeholder="https://script.google.com/..."></div>
     </div>
     <button class="save-cfg-btn" onclick="saveConfig()">儲存設定</button>
-    <div class="cfg-ok" id="cfgOk">✓ 設定已儲存</div>
+    <div class="cfg-ok" id="cfgOk">設定已儲存</div>
     <div class="cfg-note">Template 變數：{{customer_name}} {{customer_phone}} {{customer_email}} {{booking_date}} {{guitar_qty}} {{notes}}</div>
   </div>
 
@@ -306,14 +317,14 @@ footer{text-align:center;margin-top:34px;font-size:.7rem;color:var(--muted);lett
         <label>新密碼</label>
         <div style="position:relative;">
           <input type="password" id="newPw1" placeholder="輸入新密碼" style="padding-right:36px;">
-          <button type="button" onclick="togglePwVis('newPw1','eye1')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#6a73a0;padding:0;line-height:1;" id="eye1">👁</button>
+          <button type="button" onclick="togglePwVis('newPw1','eye1')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#6a73a0;padding:0;line-height:1;font-size:.7rem;" id="eye1">顯示</button>
         </div>
       </div>
       <div class="cff" style="flex:1;min-width:160px;">
         <label>確認新密碼</label>
         <div style="position:relative;">
           <input type="password" id="newPw2" placeholder="再次輸入" style="padding-right:36px;">
-          <button type="button" onclick="togglePwVis('newPw2','eye2')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#6a73a0;padding:0;line-height:1;" id="eye2">👁</button>
+          <button type="button" onclick="togglePwVis('newPw2','eye2')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#6a73a0;padding:0;line-height:1;font-size:.7rem;" id="eye2">顯示</button>
         </div>
       </div>
       <button class="add-btn" onclick="changePw()" style="background:#2d6a4f;">更新密碼</button>
@@ -322,9 +333,9 @@ footer{text-align:center;margin-top:34px;font-size:.7rem;color:var(--muted);lett
   </div>
 
   <div class="acard">
-    <div class="acard-title">📅 自動週六時段管理</div>
+    <div class="acard-title">自動週六時段管理</div>
     <div style="font-size:0.72rem;color:#6a73a0;margin-bottom:16px;">系統自動產生未來 4 個週六，點「關」可關閉特定時段。</div>
-    <div class="dates-list" id="adminDatesList"><div class="empty-hint">⏳ 載入中…</div></div>
+    <div class="dates-list" id="adminDatesList"><div class="empty-hint">載入中…</div></div>
   </div>
 
   <div class="acard">
@@ -343,7 +354,7 @@ footer{text-align:center;margin-top:34px;font-size:.7rem;color:var(--muted);lett
   </div>
 
   <div class="acard">
-    <div class="acard-title">📌 特殊日期列表</div>
+    <div class="acard-title">特殊日期列表</div>
     <div class="dates-list" id="adminSpecialList"><div class="empty-hint">尚未新增特殊日期</div></div>
   </div>
 </div>
@@ -415,6 +426,18 @@ function getNext4Saturdays() {
 }
 
 // 讀取日期：快取優先，背景更新
+async function fetchDatesRemote() {
+  const configuredUrl = getUrl();
+  if (configuredUrl === SHEETS_URL && window.__lubyDatesPrefetch) {
+    const prefetched = window.__lubyDatesPrefetch;
+    window.__lubyDatesPrefetch = null;
+    const json = await prefetched;
+    if (json) return json;
+  }
+  const res = await fetch(configuredUrl + '?action=getDates&_=' + Date.now());
+  return res.json();
+}
+
 async function loadDates({ refreshRemote = true, onRemoteUpdate = null } = {}) {
   const cached = normalizeDates(getCached());
   if (JSON.stringify(cached) !== JSON.stringify(getCached())) setCache(cached);
@@ -422,7 +445,7 @@ async function loadDates({ refreshRemote = true, onRemoteUpdate = null } = {}) {
   if (cached.length) {
     if (refreshRemote) {
       const requestVersion = datesMutationVersion;
-      fetch(getUrl() + '?action=getDates&_=' + Date.now()).then(r=>r.json()).then(j=>{
+      fetchDatesRemote().then(j=>{
         // 本次頁面只要有管理員操作，就不再接受較慢的遠端資料覆蓋本機最新狀態。
         if (localDateSessionDirty || datesSaveInFlight || pendingDatesSnapshot || requestVersion !== datesMutationVersion) return;
         if (j.dates && j.dates.length) {
@@ -436,8 +459,7 @@ async function loadDates({ refreshRemote = true, onRemoteUpdate = null } = {}) {
   }
   // 沒快取才等待
   try {
-    const res = await fetch(getUrl() + '?action=getDates&_=' + Date.now());
-    const json = await res.json();
+    const json = await fetchDatesRemote();
     if (json.dates && json.dates.length) {
       const remoteDates = normalizeDates(json.dates);
       setCache(remoteDates);
@@ -618,11 +640,11 @@ function _renderSaturdays(satDates, closedMap, bookedKeys) {
       const al = isClosed?'開':'關', ac = isClosed?'#4aaa7a':'#c07080';
       return `<span class="stag" style="${ts}display:inline-flex;align-items:center;gap:4px;">${s}${isBooked?' 已約':isClosed?' 關閉':''}
         ${isBooked
-          ? `<button onclick="cancelBooking('${ds}','${s}')" style="background:none;border:none;cursor:pointer;color:#e07070;font-size:0.68rem;padding:0 2px;">✕</button>`
-          : `<button onclick="toggleSlot('${ds}','${s}')" style="background:none;border:none;cursor:pointer;color:${ac};font-size:0.68rem;padding:0 2px;">${al}${isSaving?' <span aria-label="背景同步中，仍可繼續點擊" style="opacity:.65;">↻</span>':''}</button>`
+          ? `<button onclick="cancelBooking('${ds}','${s}')" style="background:none;border:none;cursor:pointer;color:#e07070;font-size:0.68rem;padding:0 2px;">取消</button>`
+          : `<button onclick="toggleSlot('${ds}','${s}')" style="background:none;border:none;cursor:pointer;color:${ac};font-size:0.68rem;padding:0 2px;">${al}${isSaving?' <span aria-label="背景同步中，仍可繼續點擊" style="opacity:.65;"> 同步中</span>':''}</button>`
         }</span>`;
     }).join('');
-    return `<div class="di"><div class="di-hdr"><div class="di-name">📅 ${fmtDate(ds)}</div></div><div class="slot-tags">${tags}</div></div>`;
+    return `<div class="di"><div class="di-hdr"><div class="di-name">${fmtDate(ds)}</div></div><div class="slot-tags">${tags}</div></div>`;
   }).join('');
 }
 
@@ -642,13 +664,13 @@ function _renderSpecialDates(specialDates, bookedKeys) {
       const al = isClosed?'開':'關', ac = isClosed?'#4aaa7a':'#c07080';
       return `<span class="stag" style="${ts}display:inline-flex;align-items:center;gap:4px;">${s}${isBooked?' 已約':isClosed?' 關閉':''}
         ${isBooked
-          ? `<button onclick="cancelBooking('${d.date}','${s}')" style="background:none;border:none;cursor:pointer;color:#e07070;font-size:0.68rem;padding:0 2px;">✕</button>`
-          : `<button onclick="toggleSlot('${d.date}','${s}')" style="background:none;border:none;cursor:pointer;color:${ac};font-size:0.68rem;padding:0 2px;">${al}${isSaving?' <span aria-label="背景同步中，仍可繼續點擊" style="opacity:.65;">↻</span>':''}</button>`
+          ? `<button onclick="cancelBooking('${d.date}','${s}')" style="background:none;border:none;cursor:pointer;color:#e07070;font-size:0.68rem;padding:0 2px;">取消</button>`
+          : `<button onclick="toggleSlot('${d.date}','${s}')" style="background:none;border:none;cursor:pointer;color:${ac};font-size:0.68rem;padding:0 2px;">${al}${isSaving?' <span aria-label="背景同步中，仍可繼續點擊" style="opacity:.65;"> 同步中</span>':''}</button>`
         }</span>`;
     }).join('');
     return `<div class="di">
       <div class="di-hdr">
-        <div class="di-name">📌 ${fmtDate(d.date)}</div>
+        <div class="di-name">${fmtDate(d.date)}</div>
         <div class="di-btns">
           <button class="tog-btn" onclick="toggleDate('${d.date}')">${act?'暫停':'開啟'}</button>
           <button class="del-btn" onclick="deleteDate('${d.date}')">刪除</button>
@@ -679,7 +701,7 @@ function togglePwVis(inputId, btnId) {
   const input = document.getElementById(inputId);
   const btn = document.getElementById(btnId);
   input.type = input.type==='password' ? 'text' : 'password';
-  btn.textContent = input.type==='password' ? '👁' : '🙈';
+  btn.textContent = input.type==='password' ? '顯示' : '隱藏';
 }
 
 function changePw() {
@@ -693,7 +715,7 @@ function changePw() {
   savePassword(p1);
   document.getElementById('newPw1').value='';
   document.getElementById('newPw2').value='';
-  msg.style.color='#4aaa7a'; msg.textContent='✓ 密碼已更新並同步';
+  msg.style.color='#4aaa7a'; msg.textContent='密碼已更新並同步';
   setTimeout(()=>msg.textContent='',2500);
 }
 
@@ -762,7 +784,7 @@ async function addDate() {
   const btn=document.getElementById('addDateBtn');
   btn.disabled=true; btn.textContent='儲存中…';
   queueDatesSave(dates);
-  btn.disabled=false; btn.textContent=`✓ 已新增 ${added} 天`; btn.style.background='#2d6a4f';
+  btn.disabled=false; btn.textContent=`已新增 ${added} 天`; btn.style.background='#2d6a4f';
   setTimeout(()=>{btn.textContent='新增日期';btn.style.background='';},2200);
   await renderAdminDates(false);
 }
@@ -859,7 +881,7 @@ async function cancelBooking(dateStr, slot) {
   const bookings=loadBookings().filter(b=>!(b.date===dateStr&&b.time===slot));
   saveBookings(bookings);
   await renderAdminDates();
-  alert(`✓ 已釋放「${fmtDate(dateStr)} ${slot}」時段`);
+  alert(`已釋放「${fmtDate(dateStr)} ${slot}」時段`);
 }
 
 // ============================================================
@@ -887,6 +909,9 @@ async function renderFrontDates() {
   const c = document.getElementById('dateSlotsContainer');
   const satDates = getNext4Saturdays();
   const today = new Date().toISOString().split('T')[0];
+
+  // 新裝置尚無快取時，先畫出日期與時段骨架，避免只看到空白載入訊息。
+  if (!normalizeDates(getCached()).length) renderFrontLoadingSlots(satDates, c);
 
   // 讀取設定（快取優先，極快）
   const sheetsData = await loadDates();
@@ -920,6 +945,16 @@ async function renderFrontDates() {
   }).catch(()=>{});
 }
 
+function renderFrontLoadingSlots(satDates, c) {
+  c.innerHTML = satDates.map(ds => `<div class="date-block loading">
+    <div class="date-block-hd">預約 ${fmtDate(ds)}　<span style="font-size:0.72rem;color:var(--muted);font-weight:300;">（正在確認）</span></div>
+    <div class="time-slots">${SAT_SLOTS.map(t => `<div class="tsi">
+      <input type="radio" disabled>
+      <label>${t}</label>
+    </div>`).join('')}</div>
+  </div>`).join('') + '<div class="slots-loading-note">正在確認最新可預約狀態，請稍候</div>';
+}
+
 function _renderFrontSlots(allDates, c, bookedKeys, inputType) {
   if (!allDates.length) {
     c.innerHTML='<div style="padding:22px;text-align:center;color:var(--muted);font-size:0.82rem;">目前尚無開放預約日期，請稍後再查看或 Line：@gay6872z</div>';
@@ -928,7 +963,7 @@ function _renderFrontSlots(allDates, c, bookedKeys, inputType) {
   c.innerHTML = allDates.map((d, di) => {
     const closedSlots = new Set(d.closedSlots || []);
     return `<div class="date-block">
-      <div class="date-block-hd">📅 預約 ${fmtDate(d.date)}　<span style="font-size:0.72rem;color:var(--muted);font-weight:300;">（一個時段以一件為主）</span></div>
+      <div class="date-block-hd">預約 ${fmtDate(d.date)}　<span style="font-size:0.72rem;color:var(--muted);font-weight:300;">（一個時段以一件為主）</span></div>
       <div class="time-slots">${d.slots.map((t, ti) => {
         const isBooked = bookedKeys.has(d.date+'|'+t);
         const isClosed = closedSlots.has(t);
