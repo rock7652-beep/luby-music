@@ -402,17 +402,28 @@ async function loadDates() {
   return [];
 }
 
-// 儲存日期：用 GET 請求，可靠且無 CORS 問題
+// 儲存日期：和「新增特殊日期」使用相同的 POST 格式寫入 Apps Script。
 async function saveDates(dates) {
+  const previousDates = getCached();
   datesMutationVersion++;
   setCache(dates);
   try {
-    const data = encodeURIComponent(JSON.stringify(dates));
-    const res = await fetch(getUrl() + '?action=saveDates&data=' + data + '&_=' + Date.now());
-    if (!res.ok) throw new Error('HTTP ' + res.status);
+    await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', getUrl(), true);
+      xhr.setRequestHeader('Content-Type', 'text/plain');
+      xhr.timeout = 20000;
+      xhr.onload = () => xhr.status >= 200 && xhr.status < 400
+        ? resolve()
+        : reject(new Error('HTTP ' + xhr.status));
+      xhr.onerror = () => reject(new Error('網路連線失敗'));
+      xhr.ontimeout = () => reject(new Error('儲存逾時'));
+      xhr.send(JSON.stringify({ action: 'saveDates', dates }));
+    });
     return true;
   } catch(e) {
     console.error('saveDates:', e);
+    setCache(previousDates);
     return false;
   }
 }
