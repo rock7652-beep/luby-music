@@ -93,7 +93,7 @@ footer{text-align:center;margin-top:34px;font-size:.7rem;color:var(--muted);lett
 
 /* ADMIN */
 #adminPage{background:var(--ab);min-height:100vh;color:#e0e4f0;}
-.aw{max-width:740px;margin:0 auto;padding:36px 18px 56px;}
+.aw{max-width:740px;margin:0 auto;padding:36px 18px 56px;display:flex;flex-direction:column;}
 .ahdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:10px;}
 .atitle{font-family:'Noto Serif TC',serif;font-size:1.3rem;color:#e0e4f0;letter-spacing:0.15em;}
 .atitle span{color:var(--aa);}
@@ -137,6 +137,28 @@ footer{text-align:center;margin-top:34px;font-size:.7rem;color:var(--muted);lett
 .save-cfg-btn:hover{background:#3a8a64;}
 .cfg-ok{font-size:0.73rem;color:#4aaa7a;margin-top:7px;display:none;}
 .cfg-note{font-size:0.7rem;color:#4a5370;margin-top:9px;line-height:1.65;}
+.ahdr{order:0;}
+.admin-slots-card{order:1;}
+.admin-add-date-card{order:2;}
+.admin-special-card{order:3;}
+.advanced-card{order:4;}
+.advanced-card.password-card{order:5;}
+.advanced-card.collapsed{padding-bottom:4px;}
+.advanced-card.collapsed > :not(.acard-title){display:none!important;}
+.advanced-card .acard-title{cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
+.advanced-card .acard-title::after{content:'收合';font-size:.68rem;letter-spacing:.06em;color:#6a73a0;font-weight:400;}
+.advanced-card.collapsed .acard-title::after{content:'展開';color:var(--aa);}
+@media(max-width:520px){
+  .aw{padding:22px 14px 48px;overflow-x:hidden;}
+  .ahdr{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;margin-bottom:20px;}
+  .atitle{min-width:0;font-size:1.05rem;letter-spacing:.07em;white-space:nowrap;}
+  .back-btn{padding:8px 10px;font-size:.7rem;white-space:nowrap;}
+  .acard{padding:20px 16px;}
+  .acard-title{letter-spacing:.12em;}
+  .add-form .af,.add-form input[type=date]{width:100%;}
+  .add-btn{min-height:42px;}
+  .tog-btn,.del-btn{min-height:32px;}
+}
 #loginOverlay{position:fixed;inset:0;background:var(--ab);z-index:999;display:none;align-items:center;justify-content:center;}
 #loginOverlay.show{display:flex;}
 .lbox{background:var(--ac);border:1px solid var(--abr);border-radius:10px;padding:36px 32px;width:300px;text-align:center;}
@@ -297,23 +319,23 @@ footer{text-align:center;margin-top:34px;font-size:.7rem;color:var(--muted);lett
     <button class="back-btn" onclick="goFront()">← 返回預約頁面</button>
   </div>
 
-  <div class="acard">
-    <div class="acard-title">📧 EmailJS 通知設定</div>
+  <div class="acard advanced-card collapsed">
+    <div class="acard-title" role="button" tabindex="0" onclick="toggleAdvancedCard(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleAdvancedCard(this)}">進階設定：通知與資料連線</div>
     <div class="cfg-grid">
-      <div class="cff"><label>Public Key</label><input type="text" id="cfgPK" placeholder="YOUR_PUBLIC_KEY"></div>
-      <div class="cff"><label>Service ID</label><input type="text" id="cfgSID" placeholder="service_xxxxxxx"></div>
-      <div class="cff"><label>店家通知 Template ID</label><input type="text" id="cfgTO" placeholder="template_xxxxxxx"></div>
-      <div class="cff"><label>客戶確認信 Template ID</label><input type="text" id="cfgTC" placeholder="template_xxxxxxx"></div>
+      <div class="cff"><label>Public Key</label><input type="password" id="cfgPK" placeholder="YOUR_PUBLIC_KEY"></div>
+      <div class="cff"><label>Service ID</label><input type="password" id="cfgSID" placeholder="service_xxxxxxx"></div>
+      <div class="cff"><label>店家通知 Template ID</label><input type="password" id="cfgTO" placeholder="template_xxxxxxx"></div>
+      <div class="cff"><label>客戶確認信 Template ID</label><input type="password" id="cfgTC" placeholder="template_xxxxxxx"></div>
       <div class="cff"><label>店家收件信箱</label><input type="email" id="cfgOE" placeholder="lubymusic@hotmail.com"></div>
-      <div class="cff"><label>Google Sheets 網址</label><input type="text" id="cfgGS" placeholder="https://script.google.com/..."></div>
+      <div class="cff"><label>Google Sheets 網址</label><input type="password" id="cfgGS" placeholder="https://script.google.com/..."></div>
     </div>
     <button class="save-cfg-btn" onclick="saveConfig()">儲存設定</button>
     <div class="cfg-ok" id="cfgOk">設定已儲存</div>
-    <div class="cfg-note">Template 變數：{{customer_name}} {{customer_phone}} {{customer_email}} {{booking_date}} {{guitar_qty}} {{notes}}</div>
+    <div class="cfg-note">這些是系統連線資料，日常開關時段不需要修改。</div>
   </div>
 
-  <div class="acard">
-    <div class="acard-title">🔑 修改後台密碼</div>
+  <div class="acard advanced-card password-card collapsed">
+    <div class="acard-title" role="button" tabindex="0" onclick="toggleAdvancedCard(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleAdvancedCard(this)}">進階設定：修改後台密碼</div>
     <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;">
       <div class="cff" style="flex:1;min-width:160px;">
         <label>新密碼</label>
@@ -334,14 +356,14 @@ footer{text-align:center;margin-top:34px;font-size:.7rem;color:var(--muted);lett
     <div id="pwMsg" style="font-size:0.73rem;margin-top:8px;min-height:16px;"></div>
   </div>
 
-  <div class="acard">
+  <div class="acard admin-slots-card">
     <div class="acard-title">自動週六時段管理</div>
     <div style="font-size:0.72rem;color:#6a73a0;margin-bottom:16px;">系統自動產生未來 4 個週六，點「關」可關閉特定時段。</div>
     <div class="dates-list" id="adminDatesList"><div class="empty-hint">載入中…</div></div>
   </div>
 
-  <div class="acard">
-    <div class="acard-title">➕ 新增特殊日期（平日／週日）</div>
+  <div class="acard admin-add-date-card">
+    <div class="acard-title">新增特殊日期（平日／週日）</div>
     <div style="font-size:0.72rem;color:#6a73a0;margin-bottom:12px;">額外開放非週六的日期，例如週日或平日特殊場次。</div>
     <div class="add-form">
       <div class="af"><label>起始日期</label><input type="date" id="newDateFrom"></div>
@@ -355,7 +377,7 @@ footer{text-align:center;margin-top:34px;font-size:.7rem;color:var(--muted);lett
     <div class="slotcbs" id="newSlotCbs"></div>
   </div>
 
-  <div class="acard">
+  <div class="acard admin-special-card">
     <div class="acard-title">特殊日期列表</div>
     <div class="dates-list" id="adminSpecialList"><div class="empty-hint">尚未新增特殊日期</div></div>
   </div>
@@ -684,6 +706,11 @@ function _renderSpecialDates(specialDates, bookedKeys) {
       </div>
     </div>`;
   }).join('');
+}
+
+function toggleAdvancedCard(titleEl) {
+  const card = titleEl.closest('.advanced-card');
+  if (card) card.classList.toggle('collapsed');
 }
 
 function saveConfig() {
