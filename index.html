@@ -367,6 +367,9 @@ function getCached() { try { return JSON.parse(localStorage.getItem('luby_dates_
 function setCache(d) { localStorage.setItem('luby_dates_cache', JSON.stringify(d)); localStorage.setItem('luby_dates_cache_ts', Date.now()); }
 // 每次管理員修改時遞增，避免較早發出的背景讀取覆蓋剛儲存的新狀態。
 let datesMutationVersion = 0;
+let datesSaveTimer = null;
+let datesSaveInFlight = false;
+let pendingDatesSnapshot = null;
 
 // 自動產生未來 4 個週六
 function getNext4Saturdays() {
@@ -389,7 +392,7 @@ async function loadDates() {
   if (cached.length) {
     const requestVersion = datesMutationVersion;
     fetch(getUrl() + '?action=getDates&_=' + Date.now()).then(r=>r.json()).then(j=>{
-      if (requestVersion === datesMutationVersion && j.dates && j.dates.length) setCache(j.dates);
+      if (!datesSaveInFlight && !pendingDatesSnapshot && requestVersion === datesMutationVersion && j.dates && j.dates.length) setCache(j.dates);
     }).catch(()=>{});
     return cached;
   }
@@ -420,6 +423,42 @@ async function saveDates(dates) {
     console.error('saveDates:', e);
     setCache(previousDates);
     return false;
+  }
+}
+
+// 時段按鈕採即時畫面更新，連續操作會合併成一次遠端寫入。
+function queueDatesSave(dates) {
+  datesMutationVersion++;
+  setCache(dates);
+  pendingDatesSnapshot = JSON.parse(JSON.stringify(dates));
+  clearTimeout(datesSaveTimer);
+  datesSaveTimer = setTimeout(flushDatesSave, 400);
+}
+
+async function flushDatesSave() {
+  if (datesSaveInFlight || !pendingDatesSnapshot) return;
+  const snapshot = pendingDatesSnapshot;
+  pendingDatesSnapshot = null;
+  datesSaveInFlight = true;
+  try {
+    await fetch(getUrl(), {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ action: 'saveDates', dates: snapshot })
+    });
+  } catch(e) {
+    console.error('flushDatesSave:', e);
+    // 保留最新畫面狀態並排入一次重試，避免短暫斷線就遺失操作。
+    if (!pendingDatesSnapshot) pendingDatesSnapshot = snapshot;
+    clearTimeout(datesSaveTimer);
+    datesSaveTimer = setTimeout(flushDatesSave, 1500);
+  } finally {
+    datesSaveInFlight = false;
+    if (pendingDatesSnapshot) {
+      clearTimeout(datesSaveTimer);
+      datesSaveTimer = setTimeout(flushDatesSave, 400);
+    }
   }
 }
 
@@ -728,8 +767,7 @@ async function toggleSlot(dateStr, slot) {
   if (!d.closedSlots) d.closedSlots = [];
   const idx = d.closedSlots.indexOf(slot);
   if (idx >= 0) d.closedSlots.splice(idx, 1); else d.closedSlots.push(slot);
-  const saved = await saveDates(dates);
-  if (!saved) alert('儲存失敗，請確認網路後再試一次');
+  queueDatesSave(dates);
   await renderAdminDates();
 }
 
