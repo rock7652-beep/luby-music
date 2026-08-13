@@ -285,7 +285,7 @@ footer{text-align:center;margin-top:34px;font-size:.7rem;color:var(--muted);lett
       <div class="success-msg" id="successMsg"></div>
     </div>
   </div>
-  <footer>© 陸比音樂 Luby Music Studio<br><span class="admin-link" onclick="goAdmin()">店家管理後台</span></footer>
+  <footer>© 陸比音樂 Luby Music</footer>
 </div>
 </div>
 
@@ -1066,8 +1066,10 @@ document.getElementById('bookingForm').addEventListener('submit', async function
     如有疑問請 <a href="https://line.me/R/ti/p/@gay6872z" target="_blank" style="color:var(--gold);">Line：@gay6872z</a>`;
 });
 
-// 初始化
-renderFrontDates();
+// 初始化：獨立 /admin/ 網址直接進入後台登入；一般網址維持顧客預約頁。
+const isStandaloneAdmin = /\/admin\/?$/.test(window.location.pathname) || new URLSearchParams(window.location.search).get('admin') === '1';
+if (isStandaloneAdmin) goAdmin();
+else renderFrontDates();
 
 </script>
 </body>
