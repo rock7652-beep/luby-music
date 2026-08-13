@@ -1,12 +1,16 @@
 import crypto from 'node:crypto';
 
-const COOKIE = 'luby_admin_session';
-const SESSION_SECONDS = 60 * 60 * 8;
-const BOOTSTRAP_PASSWORD = '7ecb62b6ef24dfeabd37538b0df3c55c:3317c3ab9789210840f4218c4ea14e89beb4877c4e05ad8b8116ecd52e2cf5ca';
+const COOKIE = '__Host-luby_admin_session';
+const SESSION_SECONDS = 60 * 60 * 2;
+const LOCK_WINDOW_MS = 15 * 60 * 1000;
+const MAX_ATTEMPTS = 5;
 const attempts = new Map();
 
 function json(res, status, body) {
-  res.setHeader('Cache-Control', 'no-store');
+  res.setHeader('Cache-Control', 'no-store, max-age=0');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
   return res.status(status).json(body);
 }
 
@@ -17,6 +21,12 @@ function parseCookies(req) {
   }));
 }
 
+function safeEqual(a, b) {
+  const aa = Buffer.from(String(a));
+  const bb = Buffer.from(String(b));
+  return aa.length === bb.length && crypto.timingSafeEqual(aa, bb);
+}
+
 function sign(value, secret) {
   return crypto.createHmac('sha256', secret).update(value).digest('base64url');
 }
@@ -24,62 +34,84 @@ function sign(value, secret) {
 function validSession(req, secret) {
   const raw = parseCookies(req)[COOKIE];
   if (!raw) return false;
-  const [expires, signature] = raw.split('.');
-  if (!expires || !signature || Number(expires) < Math.floor(Date.now() / 1000)) return false;
-  const expected = sign(expires, secret);
-  if (signature.length !== expected.length) return false;
-  return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected));
+  const [expires, nonce, signature] = raw.split('.');
+  if (!expires || !nonce || !signature || Number(expires) < Math.floor(Date.now() / 1000)) return false;
+  const expected = sign(expires + '.' + nonce, secret);
+  return safeEqual(signature, expected);
 }
 
-function sameText(a, b) {
-  const aa = Buffer.from(String(a));
-  const bb = Buffer.from(String(b));
-  return aa.length === bb.length && crypto.timingSafeEqual(aa, bb);
+function validOrigin(req) {
+  const origin = String(req.headers.origin || '');
+  const host = String(req.headers['x-forwarded-host'] || req.headers.host || '').split(',')[0].trim();
+  if (!origin || !host) return false;
+  try { return new URL(origin).host === host; } catch { return false; }
 }
 
-function validPassword(input, configured) {
-  if (configured) return sameText(input, configured);
-  const [salt, expected] = BOOTSTRAP_PASSWORD.split(':');
+function validPassword(input, configuredHash) {
+  const [salt, expected] = String(configuredHash || '').split(':');
+  if (!salt || !expected || !/^[a-f0-9]{64}$/i.test(expected)) return false;
   const actual = crypto.scryptSync(String(input), salt, 32).toString('hex');
-  return sameText(actual, expected);
+  return safeEqual(actual, expected.toLowerCase());
+}
+
+function clearCookie(res) {
+  res.setHeader('Set-Cookie', COOKIE + '=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0');
 }
 
 export default async function handler(req, res) {
-  const password = process.env.ADMIN_PASSWORD || '';
-  const secret = process.env.ADMIN_SESSION_SECRET || process.env.APPS_SCRIPT_TOKEN || '';
-  if (!secret || secret.length < 24) {
+  const passwordHash = process.env.ADMIN_PASSWORD_HASH || '';
+  const secret = process.env.ADMIN_SESSION_SECRET || '';
+
+  // 專用密碼雜湊與 Session 金鑰缺一不可；不得沿用其他服務的密鑰。
+  if (!passwordHash || !secret || secret.length < 32) {
     return json(res, 503, { ok: false, error: '後台安全設定尚未完成' });
   }
 
   if (req.method === 'GET') {
-    return json(res, validSession(req, secret) ? 200 : 401, { ok: validSession(req, secret) });
+    const ok = validSession(req, secret);
+    if (!ok) clearCookie(res);
+    return json(res, ok ? 200 : 401, { ok, expiresInSeconds: ok ? SESSION_SECONDS : 0 });
   }
+
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'GET, POST');
     return json(res, 405, { ok: false, error: 'Method not allowed' });
   }
 
+  if (!validOrigin(req)) {
+    return json(res, 403, { ok: false, error: '來源驗證失敗' });
+  }
+
   let body = req.body || {};
   if (typeof body === 'string') { try { body = JSON.parse(body); } catch { body = {}; } }
+
   if (body.action === 'logout') {
-    res.setHeader('Set-Cookie', `${COOKIE}=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0`);
+    clearCookie(res);
     return json(res, 200, { ok: true });
   }
 
-  const ip = String(req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '').split(',')[0].trim();
+  const ip = String(req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '').split(',')[0].trim() || 'unknown';
   const now = Date.now();
-  const record = attempts.get(ip) || { count: 0, reset: now + 15 * 60 * 1000 };
-  if (now > record.reset) { record.count = 0; record.reset = now + 15 * 60 * 1000; }
-  if (record.count >= 8) return json(res, 429, { ok: false, error: '嘗試次數過多，請 15 分鐘後再試' });
+  let record = attempts.get(ip) || { count: 0, reset: now + LOCK_WINDOW_MS };
+  if (now > record.reset) record = { count: 0, reset: now + LOCK_WINDOW_MS };
 
-  if (!validPassword(body.password || '', password)) {
+  if (record.count >= MAX_ATTEMPTS) {
+    const retryAfter = Math.max(1, Math.ceil((record.reset - now) / 1000));
+    res.setHeader('Retry-After', String(retryAfter));
+    return json(res, 429, { ok: false, error: '嘗試次數過多，請稍後再試' });
+  }
+
+  if (!validPassword(body.password || '', passwordHash)) {
     record.count += 1;
     attempts.set(ip, record);
+    await new Promise(resolve => setTimeout(resolve, 350 + crypto.randomInt(0, 250)));
     return json(res, 401, { ok: false, error: '密碼錯誤' });
   }
 
   attempts.delete(ip);
   const expires = Math.floor(Date.now() / 1000) + SESSION_SECONDS;
-  res.setHeader('Set-Cookie', `${COOKIE}=${expires}.${sign(String(expires), secret)}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=${SESSION_SECONDS}`);
-  return json(res, 200, { ok: true });
+  const nonce = crypto.randomBytes(18).toString('base64url');
+  const value = expires + '.' + nonce;
+  res.setHeader('Set-Cookie', COOKIE + '=' + value + '.' + sign(value, secret) + '; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=' + SESSION_SECONDS);
+  return json(res, 200, { ok: true, expiresInSeconds: SESSION_SECONDS });
 }
