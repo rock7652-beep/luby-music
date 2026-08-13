@@ -402,23 +402,18 @@ async function loadDates() {
   return [];
 }
 
-// 儲存日期：和「新增特殊日期」使用相同的 POST 格式寫入 Apps Script。
+// 儲存日期：使用 Safari 可送出的 no-cors POST。
+// Apps Script 會跨網域重新導向；Safari 的 XHR 無法讀取回應，即使後端已收到也會回報失敗。
 async function saveDates(dates) {
   const previousDates = getCached();
   datesMutationVersion++;
   setCache(dates);
   try {
-    await new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.open('POST', getUrl(), true);
-      xhr.setRequestHeader('Content-Type', 'text/plain');
-      xhr.timeout = 20000;
-      xhr.onload = () => xhr.status >= 200 && xhr.status < 400
-        ? resolve()
-        : reject(new Error('HTTP ' + xhr.status));
-      xhr.onerror = () => reject(new Error('網路連線失敗'));
-      xhr.ontimeout = () => reject(new Error('儲存逾時'));
-      xhr.send(JSON.stringify({ action: 'saveDates', dates }));
+    await fetch(getUrl(), {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ action: 'saveDates', dates })
     });
     return true;
   } catch(e) {
