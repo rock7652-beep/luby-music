@@ -615,7 +615,7 @@ function _renderSaturdays(satDates, closedMap, bookedKeys) {
       return `<span class="stag" style="${ts}display:inline-flex;align-items:center;gap:4px;">${s}${isBooked?' 已約':isClosed?' 關閉':''}
         ${isBooked
           ? `<button onclick="cancelBooking('${ds}','${s}')" style="background:none;border:none;cursor:pointer;color:#e07070;font-size:0.68rem;padding:0 2px;">✕</button>`
-          : `<button ${isSaving?'disabled':''} onclick="toggleSlot('${ds}','${s}')" style="background:none;border:none;cursor:${isSaving?'wait':'pointer'};color:${ac};font-size:0.68rem;padding:0 2px;">${isSaving?'儲存中…':al}</button>`
+          : `<button ${isSaving?'disabled':''} onclick="toggleSlot('${ds}','${s}')" style="background:none;border:none;cursor:${isSaving?'wait':'pointer'};color:${ac};font-size:0.68rem;padding:0 2px;">${al}${isSaving?' <span aria-label="背景同步中" style="opacity:.65;">↻</span>':''}</button>`
         }</span>`;
     }).join('');
     return `<div class="di"><div class="di-hdr"><div class="di-name">📅 ${fmtDate(ds)}</div></div><div class="slot-tags">${tags}</div></div>`;
@@ -639,7 +639,7 @@ function _renderSpecialDates(specialDates, bookedKeys) {
       return `<span class="stag" style="${ts}display:inline-flex;align-items:center;gap:4px;">${s}${isBooked?' 已約':isClosed?' 關閉':''}
         ${isBooked
           ? `<button onclick="cancelBooking('${d.date}','${s}')" style="background:none;border:none;cursor:pointer;color:#e07070;font-size:0.68rem;padding:0 2px;">✕</button>`
-          : `<button ${isSaving?'disabled':''} onclick="toggleSlot('${d.date}','${s}')" style="background:none;border:none;cursor:${isSaving?'wait':'pointer'};color:${ac};font-size:0.68rem;padding:0 2px;">${isSaving?'儲存中…':al}</button>`
+          : `<button ${isSaving?'disabled':''} onclick="toggleSlot('${d.date}','${s}')" style="background:none;border:none;cursor:${isSaving?'wait':'pointer'};color:${ac};font-size:0.68rem;padding:0 2px;">${al}${isSaving?' <span aria-label="背景同步中" style="opacity:.65;">↻</span>':''}</button>`
         }</span>`;
     }).join('');
     return `<div class="di">
