@@ -350,7 +350,7 @@ footer{text-align:center;margin-top:32px;font-size:0.7rem;color:var(--muted);let
 // ============================================================
 // 設定
 // ============================================================
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbymjVzz8j1GHEJCc1fl6vn4ae4xq2bQ-Y3MG1pYuh8f15YT-XvQ3dTZ2aVwiYQYeeP5og/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwRicgFrAKQIdnxeAi6knZWRBWkOEflf0RHS16eCxbS0-Ca-loDwvRPtxowqGgW3ybyJA/exec';
 const SLOTS = ['10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'];
 const SAT_SLOTS = ['10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00'];
 const DEFAULT_PW = 'luby2024';
@@ -372,6 +372,7 @@ let datesSaveInFlight = false;
 let pendingDatesSnapshot = null;
 let localDateSessionDirty = false;
 let adminRenderVersion = 0;
+const pendingSlotKeys = new Set();
 
 // Google Sheet 曾累積同日期重複列；前後台一律先整理成「每日期唯一」。
 function normalizeDates(dates) {
@@ -602,6 +603,7 @@ function _renderSaturdays(satDates, closedMap, bookedKeys) {
     const tags = SAT_SLOTS.map(s => {
       const isBooked = bookedKeys.has(ds+'|'+s);
       const isClosed = closedSlots.includes(s);
+      const isSaving = pendingSlotKeys.has(ds+'|'+s);
       let ts = '';
       if (isBooked) ts='background:rgba(180,80,80,0.15);color:#c07080;border-color:rgba(180,80,80,0.3);';
       else if (isClosed) ts='background:rgba(100,100,100,0.15);color:#888;border-color:rgba(100,100,100,0.3);text-decoration:line-through;';
@@ -609,7 +611,7 @@ function _renderSaturdays(satDates, closedMap, bookedKeys) {
       return `<span class="stag" style="${ts}display:inline-flex;align-items:center;gap:4px;">${s}${isBooked?' 已約':isClosed?' 關閉':''}
         ${isBooked
           ? `<button onclick="cancelBooking('${ds}','${s}')" style="background:none;border:none;cursor:pointer;color:#e07070;font-size:0.68rem;padding:0 2px;">✕</button>`
-          : `<button onclick="toggleSlot('${ds}','${s}')" style="background:none;border:none;cursor:pointer;color:${ac};font-size:0.68rem;padding:0 2px;">${al}</button>`
+          : `<button ${isSaving?'disabled':''} onclick="toggleSlot('${ds}','${s}')" style="background:none;border:none;cursor:${isSaving?'wait':'pointer'};color:${ac};font-size:0.68rem;padding:0 2px;">${isSaving?'儲存中…':al}</button>`
         }</span>`;
     }).join('');
     return `<div class="di"><div class="di-hdr"><div class="di-name">📅 ${fmtDate(ds)}</div></div><div class="slot-tags">${tags}</div></div>`;
@@ -625,6 +627,7 @@ function _renderSpecialDates(specialDates, bookedKeys) {
     const tags = (d.slots || SAT_SLOTS).map(s => {
       const isBooked = bookedKeys.has(d.date+'|'+s);
       const isClosed = closedSlots.includes(s);
+      const isSaving = pendingSlotKeys.has(d.date+'|'+s);
       let ts = '';
       if (isBooked) ts='background:rgba(180,80,80,0.15);color:#c07080;border-color:rgba(180,80,80,0.3);';
       else if (isClosed) ts='background:rgba(100,100,100,0.15);color:#888;border-color:rgba(100,100,100,0.3);text-decoration:line-through;';
@@ -632,7 +635,7 @@ function _renderSpecialDates(specialDates, bookedKeys) {
       return `<span class="stag" style="${ts}display:inline-flex;align-items:center;gap:4px;">${s}${isBooked?' 已約':isClosed?' 關閉':''}
         ${isBooked
           ? `<button onclick="cancelBooking('${d.date}','${s}')" style="background:none;border:none;cursor:pointer;color:#e07070;font-size:0.68rem;padding:0 2px;">✕</button>`
-          : `<button onclick="toggleSlot('${d.date}','${s}')" style="background:none;border:none;cursor:pointer;color:${ac};font-size:0.68rem;padding:0 2px;">${al}</button>`
+          : `<button ${isSaving?'disabled':''} onclick="toggleSlot('${d.date}','${s}')" style="background:none;border:none;cursor:${isSaving?'wait':'pointer'};color:${ac};font-size:0.68rem;padding:0 2px;">${isSaving?'儲存中…':al}</button>`
         }</span>`;
     }).join('');
     return `<div class="di">
@@ -772,7 +775,10 @@ async function toggleDate(dateStr) {
 }
 
 async function toggleSlot(dateStr, slot) {
-  const dates = getCached();
+  const key = dateStr+'|'+slot;
+  if (pendingSlotKeys.has(key)) return;
+
+  const dates = normalizeDates(getCached());
   let d = dates.find(x => x.date === dateStr);
   if (!d) {
     d = { date: dateStr, slots: SAT_SLOTS, active: true, closedSlots: [] };
@@ -780,9 +786,41 @@ async function toggleSlot(dateStr, slot) {
   }
   if (!d.closedSlots) d.closedSlots = [];
   const idx = d.closedSlots.indexOf(slot);
-  if (idx >= 0) d.closedSlots.splice(idx, 1); else d.closedSlots.push(slot);
-  queueDatesSave(dates);
+  const targetState = idx >= 0 ? 'open' : 'closed';
+  if (targetState === 'open') d.closedSlots.splice(idx, 1); else d.closedSlots.push(slot);
+
+  // 立即反映點擊，但同一時段在伺服器確認前禁止再次點擊。
+  localDateSessionDirty = true;
+  datesMutationVersion++;
+  pendingSlotKeys.add(key);
+  setCache(normalizeDates(dates));
   await renderAdminDates(false);
+
+  const operationId = 'slot_' + Date.now() + '_' + Math.random().toString(36).slice(2,10);
+  try {
+    const url = getUrl() + '?action=setSlotStateV2' +
+      '&date=' + encodeURIComponent(dateStr) +
+      '&slot=' + encodeURIComponent(slot) +
+      '&state=' + encodeURIComponent(targetState) +
+      '&operationId=' + encodeURIComponent(operationId) +
+      '&_=' + Date.now();
+    const res = await fetch(url);
+    const json = await res.json();
+    if (!json.ok || json.date !== dateStr || json.slot !== slot || json.state !== targetState) {
+      throw new Error(json.message || '伺服器未確認此時段');
+    }
+  } catch (err) {
+    console.error('toggleSlot:', err);
+    try {
+      const res = await fetch(getUrl() + '?action=getDates&_=' + Date.now());
+      const json = await res.json();
+      if (json.dates) setCache(normalizeDates(json.dates));
+    } catch (_) {}
+    alert('此時段儲存失敗，畫面已恢復後端狀態，請再試一次');
+  } finally {
+    pendingSlotKeys.delete(key);
+    await renderAdminDates(false);
+  }
 }
 
 async function cancelBooking(dateStr, slot) {
