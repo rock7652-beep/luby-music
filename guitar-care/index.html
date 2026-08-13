@@ -100,6 +100,9 @@ footer{text-align:center;margin-top:34px;font-size:.7rem;color:var(--muted);lett
 .atitle span{color:var(--aa);}
 .back-btn{padding:7px 16px;background:transparent;border:1px solid var(--abr);color:#aab;border-radius:4px;cursor:pointer;font-size:0.78rem;transition:all 0.2s;}
 .back-btn:hover{border-color:var(--aa);color:var(--aa);}
+.ahdr-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;}
+.logout-btn{padding:7px 16px;background:rgba(192,112,128,.08);border:1px solid rgba(192,112,128,.45);color:#d28b9a;border-radius:4px;cursor:pointer;font-size:.78rem;transition:all .2s;}
+.logout-btn:hover{background:rgba(192,112,128,.16);border-color:#d28b9a;}
 .acard{width:100%;max-width:100%;min-width:0;background:var(--ac);border:1px solid var(--abr);border-radius:8px;padding:24px;margin-bottom:18px;overflow:hidden;}
 .acard-title{font-size:0.75rem;font-weight:500;color:var(--aa);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:18px;}
 .add-form{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;}
@@ -318,7 +321,10 @@ footer{text-align:center;margin-top:34px;font-size:.7rem;color:var(--muted);lett
 <div class="aw">
   <div class="ahdr">
     <div class="atitle">陸比音樂 <span>後台管理</span></div>
-    <button class="back-btn" onclick="goFront()">← 返回預約頁面</button>
+    <div class="ahdr-actions">
+      <button class="back-btn" onclick="goFront()">← 返回預約頁面</button>
+      <button class="logout-btn" onclick="logoutAdmin()">安全登出</button>
+    </div>
   </div>
 
   <div class="acard advanced-card collapsed">
@@ -522,29 +528,76 @@ function goAdmin() {
   document.getElementById('frontPage').classList.remove('active');
   checkAdminSession();
 }
+let adminSessionTimer = null;
+
+function showAdminLogin(message) {
+  clearInterval(adminSessionTimer);
+  adminSessionTimer = null;
+  document.getElementById('loginOverlay').classList.add('show');
+  document.getElementById('pwInput').value = '';
+  document.getElementById('loginErr').textContent = message || '';
+}
+
+function startAdminSessionChecks() {
+  clearInterval(adminSessionTimer);
+  adminSessionTimer = setInterval(async function() {
+    try {
+      const res = await fetch('/api/admin-auth', { cache: 'no-store', credentials: 'same-origin' });
+      if (!res.ok) showAdminLogin('登入已逾時，請重新登入');
+    } catch (_) {
+      showAdminLogin('暫時無法確認登入狀態，請重新登入');
+    }
+  }, 5 * 60 * 1000);
+}
+
 async function checkAdminSession() {
+  const err = document.getElementById('loginErr');
   try {
     const res = await fetch('/api/admin-auth', { cache: 'no-store', credentials: 'same-origin' });
-    if (res.ok) {
-      document.getElementById('loginOverlay').classList.remove('show');
-      renderAdmin();
+    const json = await res.json().catch(()=>({}));
+    if (!res.ok) {
+      if (res.status === 503) err.textContent = json.error || '後台安全設定尚未完成';
+      return;
     }
-  } catch(e) {}
+    document.getElementById('loginOverlay').classList.remove('show');
+    startAdminSessionChecks();
+    renderAdmin();
+  } catch(e) {
+    err.textContent = '暫時無法連線登入服務';
+  }
 }
+
 async function doLogin() {
   const inputPw = document.getElementById('pwInput').value;
   const btn = document.querySelector('.login-btn');
   const err = document.getElementById('loginErr');
+  if (!inputPw) { err.textContent = '請輸入管理密碼'; return; }
   btn.disabled = true; btn.textContent = '驗證中…'; err.textContent = '';
   try {
     const res = await fetch('/api/admin-auth', { method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ password: inputPw }) });
     const json = await res.json().catch(()=>({}));
     if (!res.ok) throw new Error(json.error || '登入失敗');
+    document.getElementById('pwInput').value = '';
     document.getElementById('loginOverlay').classList.remove('show');
+    startAdminSessionChecks();
     renderAdmin();
   } catch(e) { err.textContent = e.message || '登入失敗'; }
   finally { btn.disabled = false; btn.textContent = '進入後台'; }
 }
+
+async function logoutAdmin() {
+  try {
+    await fetch('/api/admin-auth', { method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ action:'logout' }) });
+  } catch (_) {}
+  showAdminLogin('已安全登出');
+}
+
+document.addEventListener('visibilitychange', function() {
+  if (!document.hidden && document.body.classList.contains('admin-view') && !document.getElementById('loginOverlay').classList.contains('show')) {
+    checkAdminSession();
+  }
+});
+
 function goFront() {
   document.body.classList.remove('admin-view');
   document.getElementById('frontPage').classList.add('active');
