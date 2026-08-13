@@ -77,7 +77,10 @@ export default async function handler(req, res) {
     try { json = JSON.parse(text); }
     catch { return res.status(502).json({ ok: false, error: 'Apps Script 回應非 JSON：' + text.slice(0, 200) }); }
 
-    if (!upstream.ok || !json.ok) {
+    // Apps Script 的既有正式版本以 { status: 'ok' } 表示成功；
+    // 新版也可能回傳 { ok: true }。兩種格式都接受，避免成功資料被誤報失敗。
+    const accepted = json.ok === true || json.status === 'ok';
+    if (!upstream.ok || !accepted) {
       let errMsg;
       if (json.error) {
         errMsg = json.error;
