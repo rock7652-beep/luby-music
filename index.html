@@ -371,6 +371,7 @@ let datesSaveTimer = null;
 let datesSaveInFlight = false;
 let pendingDatesSnapshot = null;
 let localDateSessionDirty = false;
+let adminRenderVersion = 0;
 
 // Google Sheet 曾累積同日期重複列；前後台一律先整理成「每日期唯一」。
 function normalizeDates(dates) {
@@ -552,14 +553,18 @@ async function renderAdmin() {
 }
 
 async function renderAdminDates(refreshRemote = true) {
+  const renderVersion = ++adminRenderVersion;
   const satDates = getNext4Saturdays();
   const today = new Date().toISOString().split('T')[0];
 
   // 讀取 Sheets 設定（快取優先）
   const sheetsData = await loadDates({
     refreshRemote,
-    onRemoteUpdate: () => renderAdminDates(false)
+    onRemoteUpdate: () => {
+      if (renderVersion === adminRenderVersion) renderAdminDates(false);
+    }
   });
+  if (renderVersion !== adminRenderVersion) return;
   const closedMap = {};
   sheetsData.forEach(d => { if (d.closedSlots && d.closedSlots.length) closedMap[d.date] = d.closedSlots; });
 
@@ -578,6 +583,8 @@ async function renderAdminDates(refreshRemote = true) {
 
   // 背景從 Sheets 更新已約狀態
   fetch(getUrl()+'?action=getBookings').then(r=>r.json()).then(json=>{
+    // 較早一次畫面的預約請求即使較晚回來，也不得重新畫掉最新時段狀態。
+    if (renderVersion !== adminRenderVersion) return;
     if (!json.bookings) return;
     let hasNew = false;
     json.bookings.forEach(k=>{ if(!bookedKeys.has(k)){bookedKeys.add(k);hasNew=true;} });
