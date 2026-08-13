@@ -365,6 +365,8 @@ const saveBookings = b => localStorage.setItem('luby_bookings', JSON.stringify(b
 function getUrl() { return loadCfg().sheetsUrl || SHEETS_URL; }
 function getCached() { try { return JSON.parse(localStorage.getItem('luby_dates_cache')) || []; } catch { return []; } }
 function setCache(d) { localStorage.setItem('luby_dates_cache', JSON.stringify(d)); localStorage.setItem('luby_dates_cache_ts', Date.now()); }
+// 每次管理員修改時遞增，避免較早發出的背景讀取覆蓋剛儲存的新狀態。
+let datesMutationVersion = 0;
 
 // 自動產生未來 4 個週六
 function getNext4Saturdays() {
@@ -385,14 +387,15 @@ async function loadDates() {
   const cached = getCached();
   // 有快取先用，背景靜默更新
   if (cached.length) {
-    fetch(getUrl() + '?action=getDates').then(r=>r.json()).then(j=>{
-      if (j.dates && j.dates.length) setCache(j.dates);
+    const requestVersion = datesMutationVersion;
+    fetch(getUrl() + '?action=getDates&_=' + Date.now()).then(r=>r.json()).then(j=>{
+      if (requestVersion === datesMutationVersion && j.dates && j.dates.length) setCache(j.dates);
     }).catch(()=>{});
     return cached;
   }
   // 沒快取才等待
   try {
-    const res = await fetch(getUrl() + '?action=getDates');
+    const res = await fetch(getUrl() + '?action=getDates&_=' + Date.now());
     const json = await res.json();
     if (json.dates && json.dates.length) { setCache(json.dates); return json.dates; }
   } catch(e) {}
@@ -401,10 +404,12 @@ async function loadDates() {
 
 // 儲存日期：用 GET 請求，可靠且無 CORS 問題
 async function saveDates(dates) {
+  datesMutationVersion++;
   setCache(dates);
   try {
     const data = encodeURIComponent(JSON.stringify(dates));
-    await fetch(getUrl() + '?action=saveDates&data=' + data);
+    const res = await fetch(getUrl() + '?action=saveDates&data=' + data + '&_=' + Date.now());
+    if (!res.ok) throw new Error('HTTP ' + res.status);
     return true;
   } catch(e) {
     console.error('saveDates:', e);
@@ -675,15 +680,16 @@ function deleteDate(dateStr) {
   renderAdminDates();
 }
 
-function toggleDate(dateStr) {
+async function toggleDate(dateStr) {
   const dates = getCached();
   const d = dates.find(x=>x.date===dateStr);
   if(d) d.active = d.active===false ? true : false;
-  saveDates(dates);
-  renderAdminDates();
+  const saved = await saveDates(dates);
+  if (!saved) alert('儲存失敗，請確認網路後再試一次');
+  await renderAdminDates();
 }
 
-function toggleSlot(dateStr, slot) {
+async function toggleSlot(dateStr, slot) {
   const dates = getCached();
   let d = dates.find(x => x.date === dateStr);
   if (!d) {
@@ -693,8 +699,9 @@ function toggleSlot(dateStr, slot) {
   if (!d.closedSlots) d.closedSlots = [];
   const idx = d.closedSlots.indexOf(slot);
   if (idx >= 0) d.closedSlots.splice(idx, 1); else d.closedSlots.push(slot);
-  saveDates(dates);
-  renderAdminDates();
+  const saved = await saveDates(dates);
+  if (!saved) alert('儲存失敗，請確認網路後再試一次');
+  await renderAdminDates();
 }
 
 async function cancelBooking(dateStr, slot) {
