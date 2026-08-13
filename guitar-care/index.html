@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://script.googleusercontent.com">
 <script>
 // 在瀏覽器解析版面時就先喚醒 Apps Script，縮短首次開啟的等待時間。
-window.__lubyDatesPrefetch = fetch('https://script.google.com/macros/s/AKfycbwRicgFrAKQIdnxeAi6knZWRBWkOEflf0RHS16eCxbS0-Ca-loDwvRPtxowqGgW3ybyJA/exec?action=getDates&_=' + Date.now())
+window.__lubyDatesPrefetch = fetch('/api/guitar-dates')
   .then(function(response) { return response.ok ? response.json() : null; })
   .catch(function() { return null; });
 </script>
@@ -23,6 +23,7 @@ window.__lubyDatesPrefetch = fetch('https://script.google.com/macros/s/AKfycbwRi
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--paper);color:var(--ink);font-family:'Noto Sans TC',sans-serif;font-weight:300;min-height:100vh;-webkit-font-smoothing:antialiased;}
 body::before{content:'';position:fixed;inset:0;background:radial-gradient(circle at 50% 0%,rgba(255,255,255,.92),transparent 42%);pointer-events:none;z-index:0;}
+body.admin-view::before{display:none;}
 .page{display:none;}.page.active{display:block;}
 
 /* FRONT */
@@ -537,6 +538,7 @@ async function flushDatesSave() {
 // 路由
 // ============================================================
 function goAdmin() {
+  document.body.classList.add('admin-view');
   document.getElementById('loginOverlay').classList.add('show');
   document.getElementById('pwInput').value = '';
   document.getElementById('loginErr').textContent = '';
@@ -575,6 +577,7 @@ async function doLogin() {
   }
 }
 function goFront() {
+  document.body.classList.remove('admin-view');
   document.getElementById('frontPage').classList.add('active');
   document.getElementById('adminPage').classList.remove('active');
   renderFrontDates();
