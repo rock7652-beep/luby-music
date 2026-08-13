@@ -2,1104 +2,1034 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>陸比音樂｜吉他保養預約</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="preconnect" href="https://script.google.com">
-<link rel="preconnect" href="https://script.googleusercontent.com">
-<script>
-// 在瀏覽器解析版面時就先喚醒 Apps Script，縮短首次開啟的等待時間。
-window.__lubyDatesPrefetch = fetch('https://script.google.com/macros/s/AKfycbwRicgFrAKQIdnxeAi6knZWRBWkOEflf0RHS16eCxbS0-Ca-loDwvRPtxowqGgW3ybyJA/exec?action=getDates&_=' + Date.now())
-  .then(function(response) { return response.ok ? response.json() : null; })
-  .catch(function() { return null; });
-</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="description" content="Lubymusic 吉他課程報名">
+<link rel="icon" href="/favicon.ico">
+<title>Lubymusic｜課程報名</title>
 <style>
-:root {
-  --ink:#28231f;--warm:#352e29;--gold:#9b8067;--cream:#f4f0e9;
-  --paper:#f8f6f1;--muted:#817970;--border:#ded8cf;--error:#b9564e;
-  --surface:#fffdfa;--surface-soft:#f2eee7;--success:#47705b;
-  --ab:#1a1f2e;--ac:#242938;--abr:#353b52;--aa:#4f8ef7;
-}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--paper);color:var(--ink);font-family:'Noto Sans TC',sans-serif;font-weight:300;min-height:100vh;-webkit-font-smoothing:antialiased;}
-body::before{content:'';position:fixed;inset:0;background:radial-gradient(circle at 50% 0%,rgba(255,255,255,.92),transparent 42%);pointer-events:none;z-index:0;}
-.page{display:none;}.page.active{display:block;}
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@200;300;400;500;600&family=Noto+Sans+TC:wght@100;200;300;400;500&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+html{font-size:16px;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;}
+body{font-family:'Noto Sans TC','Helvetica Neue',sans-serif;background:#FAF9F6;color:#2C2C2C;font-weight:300;letter-spacing:0.02em;line-height:1.9;}
+button{border:none;cursor:pointer;font-family:inherit;background:none;letter-spacing:0.02em;}
+input,select,textarea{font-family:inherit;font-size:1rem;letter-spacing:0.02em;}
+a{text-decoration:none;color:inherit;}
 
-/* FRONT */
-#frontPage{position:relative;z-index:1;}
-.container{max-width:720px;margin:0 auto;padding:72px 22px 80px;}
-header{text-align:center;margin-bottom:48px;animation:fadeDown 0.8s ease both;}
-.brand-ornament{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:18px;}
-.ornament-line{flex:1;max-width:82px;height:1px;background:linear-gradient(90deg,transparent,var(--border));}
-.ornament-line.r{background:linear-gradient(90deg,var(--border),transparent);}
-.brand-name{font-family:'Noto Serif TC',serif;font-size:2rem;font-weight:600;color:var(--warm);letter-spacing:0.2em;margin:0 0 7px .2em;}
-.brand-sub{font-family:'Cormorant Garamond',serif;font-size:.82rem;color:var(--muted);letter-spacing:.36em;text-transform:uppercase;}
-.page-title{margin-top:28px;font-family:'Noto Serif TC',serif;font-size:1.05rem;font-weight:400;color:var(--warm);letter-spacing:0.18em;display:inline-block;}
-.page-title::before,.page-title::after{content:'—';color:var(--border);margin:0 11px;}
-.form-card{background:rgba(255,253,250,.9);border:1px solid var(--border);border-radius:14px;padding:44px 42px 34px;box-shadow:0 18px 60px rgba(65,53,42,.06);backdrop-filter:blur(8px);animation:fadeUp 0.9s ease 0.2s both;}
-@media(max-width:520px){.container{padding:46px 15px 58px}.form-card{padding:28px 18px 22px;border-radius:12px}.brand-name{font-size:1.65rem}.brand-ornament svg{width:36px;height:36px}.page-title{font-size:.92rem}.page-title::before,.page-title::after{margin:0 6px}}
-.sec-label{font-family:'Noto Serif TC',serif;font-size:.8rem;font-weight:600;color:var(--warm);letter-spacing:.18em;margin-bottom:18px;padding-bottom:11px;border-bottom:1px solid var(--border);}
-.form-sec{margin-bottom:36px;}
-.fg{margin-bottom:16px;}
-label{display:block;font-size:0.78rem;color:var(--muted);letter-spacing:0.06em;margin-bottom:8px;}
-label .req{color:var(--gold);margin-left:2px;}
-input[type=text],input[type=tel],input[type=email],select,textarea{width:100%;min-height:46px;padding:11px 14px;border:1px solid var(--border);border-radius:7px;background:var(--surface);font-family:'Noto Sans TC',sans-serif;font-size:.88rem;font-weight:300;color:var(--ink);outline:none;transition:border-color .2s,box-shadow .2s,background .2s;-webkit-appearance:none;}
-input[type=text]:focus,input[type=tel]:focus,input[type=email]:focus,select:focus,textarea:focus{border-color:var(--gold);background:white;box-shadow:0 0 0 3px rgba(155,128,103,.1);}
-input::placeholder,textarea::placeholder{color:#c5bab0;}
-textarea{resize:vertical;min-height:76px;line-height:1.7;}
-select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23b8892a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;padding-right:34px;cursor:pointer;}
-.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-@media(max-width:440px){.field-row{grid-template-columns:1fr;}}
-.ferr{font-size:0.72rem;color:var(--error);margin-top:4px;display:none;}
-.fg.has-error input,.fg.has-error select,.fg.has-error textarea{border-color:var(--error);}
-.fg.has-error .ferr{display:block;}
-.date-slots-wrap{display:flex;flex-direction:column;gap:14px;}
-.date-block{border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--surface);}
-.date-block-hd{background:var(--surface-soft);padding:12px 15px;font-family:'Noto Serif TC',serif;font-size:.84rem;color:var(--warm);font-weight:600;letter-spacing:.08em;}
-.time-slots{display:grid;grid-template-columns:repeat(4,1fr);padding:10px;gap:7px;}
-.tsi input{position:absolute;opacity:0;width:0;height:0;}
-.tsi label{display:flex;min-height:44px;align-items:center;justify-content:center;padding:9px 4px;border:1px solid var(--border);border-radius:7px;font-size:.82rem;color:var(--warm);cursor:pointer;transition:all .18s;user-select:none;flex-direction:column;gap:1px;background:var(--surface);}
-.tsi input:checked+label{background:var(--warm);border-color:var(--warm);color:white;box-shadow:0 4px 12px rgba(53,46,41,.13);}
-.tsi label:hover{background:var(--cream);border-color:#c8bbae;}
-.tsi input:focus-visible+label{outline:2px solid var(--gold);outline-offset:2px;}
-.tsi.booked label{background:#f1eee9;color:#b9b1a8;cursor:not-allowed;}
-.tsi.booked label::after{content:'已約';font-size:0.62rem;color:#b8a898;}
-.tsi.closed label{background:#f6f4f1;color:#c8c1ba;cursor:not-allowed;}
-.tsi.closed label::after{content:'關閉';font-size:0.62rem;color:#ccc;}
-.date-block.loading{opacity:.72;}
-.date-block.loading .tsi label{color:#aaa39b;background:#f8f6f2;cursor:default;}
-.slots-loading-note{font-size:.72rem;color:var(--muted);margin-top:10px;text-align:center;letter-spacing:.06em;}
-@media(max-width:520px){.time-slots{grid-template-columns:repeat(2,1fr)}.tsi label{min-height:48px;font-size:.86rem}}
-.fee-table{width:100%;border-collapse:collapse;font-size:0.76rem;margin-top:6px;}
-.fee-table{border-radius:9px;overflow:hidden;border-style:hidden;box-shadow:0 0 0 1px var(--border);}
-.fee-table th{background:var(--surface-soft);color:var(--warm);font-weight:600;padding:9px 10px;text-align:left;border:1px solid var(--border);font-family:'Noto Serif TC',serif;}
-.fee-table td{padding:9px 10px;border:1px solid var(--border);color:var(--ink);line-height:1.55;background:var(--surface);}
-.fee-table tr:nth-child(even) td{background:#fbf9f5;}
-@media(max-width:520px){.fee-table{font-size:.7rem}.fee-table th,.fee-table td{padding:8px 6px}}
-.notice-box{background:var(--surface-soft);border:1px solid var(--border);border-radius:9px;padding:16px 17px;margin-bottom:22px;font-size:.78rem;color:#655d55;line-height:1.9;}
-.notice-box .nt{font-weight:600;color:var(--warm);letter-spacing:.12em;margin-bottom:6px;font-family:'Noto Serif TC',serif;}
-.submit-btn{width:100%;min-height:52px;padding:14px;background:var(--warm);color:white;border:none;border-radius:8px;font-family:'Noto Serif TC',serif;font-size:.93rem;font-weight:600;letter-spacing:.24em;cursor:pointer;transition:transform .2s,background .2s,box-shadow .2s;box-shadow:0 8px 22px rgba(53,46,41,.13);}
-.submit-btn:hover{background:#4a4039;transform:translateY(-1px);}
-.submit-btn:active{transform:translateY(0);}
-.submit-btn:disabled{opacity:0.5;cursor:not-allowed;}
-.success-screen{display:none;text-align:center;padding:40px 16px;animation:fadeUp 0.6s ease both;}
-.success-icon{width:56px;height:56px;margin:0 auto 18px;background:#f0f9f4;border-radius:50%;display:flex;align-items:center;justify-content:center;}
-.success-title{font-family:'Noto Serif TC',serif;font-size:1.2rem;font-weight:700;color:var(--warm);letter-spacing:0.15em;margin-bottom:9px;}
-.success-msg{font-size:0.84rem;color:var(--muted);line-height:1.9;}
-footer{text-align:center;margin-top:34px;font-size:.7rem;color:var(--muted);letter-spacing:.1em;opacity:.72;animation:fadeUp 1s ease .5s both;}
-.admin-link{display:inline-block;margin-top:8px;font-size:0.68rem;color:#bbb;opacity:0.35;cursor:pointer;transition:opacity 0.2s;}
-.admin-link:hover{opacity:0.8;}
-.spinner{display:inline-block;width:13px;height:13px;border:2px solid rgba(245,240,232,0.3);border-top-color:var(--cream);border-radius:50%;animation:spin 0.8s linear infinite;vertical-align:middle;margin-right:5px;}
-
-/* ADMIN */
-#adminPage{background:var(--ab);min-height:100vh;color:#e0e4f0;width:100%;max-width:100vw;overflow-x:hidden;}
-.aw{width:100%;max-width:740px;min-width:0;margin:0 auto;padding:36px 18px 56px;display:flex;flex-direction:column;}
-.ahdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:10px;}
-.atitle{font-family:'Noto Serif TC',serif;font-size:1.3rem;color:#e0e4f0;letter-spacing:0.15em;}
-.atitle span{color:var(--aa);}
-.back-btn{padding:7px 16px;background:transparent;border:1px solid var(--abr);color:#aab;border-radius:4px;cursor:pointer;font-size:0.78rem;transition:all 0.2s;}
-.back-btn:hover{border-color:var(--aa);color:var(--aa);}
-.acard{width:100%;max-width:100%;min-width:0;background:var(--ac);border:1px solid var(--abr);border-radius:8px;padding:24px;margin-bottom:18px;overflow:hidden;}
-.acard-title{font-size:0.75rem;font-weight:500;color:var(--aa);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:18px;}
-.add-form{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;}
-.add-form .af{display:flex;flex-direction:column;gap:5px;}
-.add-form label{font-size:0.72rem;color:#8a93b0;letter-spacing:0.1em;}
-.add-form input[type=date]{background:#1a1f2e;border:1px solid var(--abr);color:#e0e4f0;padding:8px 11px;border-radius:4px;font-size:0.83rem;outline:none;font-family:'Noto Sans TC',sans-serif;width:155px;}
-.add-form input[type=date]:focus{border-color:var(--aa);}
-.add-btn{padding:8px 20px;background:var(--aa);color:white;border:none;border-radius:4px;font-size:0.83rem;cursor:pointer;letter-spacing:0.08em;transition:all 0.2s;white-space:nowrap;}
-.add-btn:hover{background:#6ba3ff;}
-.slotcbs{display:flex;flex-wrap:wrap;gap:7px;margin-top:13px;}
-.slcb{position:relative;}
-.slcb input{position:absolute;opacity:0;}
-.slcb label{display:inline-flex;align-items:center;padding:5px 13px;border:1px solid var(--abr);border-radius:20px;font-size:0.78rem;color:#8a93b0;cursor:pointer;transition:all 0.2s;user-select:none;}
-.slcb input:checked+label{border-color:var(--aa);color:var(--aa);background:rgba(79,142,247,0.1);}
-.slcb-title{font-size:0.7rem;color:#6a73a0;letter-spacing:0.1em;margin-bottom:5px;margin-top:14px;}
-.dates-list{display:flex;flex-direction:column;gap:10px;}
-.di{background:#1e2438;border:1px solid var(--abr);border-radius:6px;padding:14px 16px;}
-.di-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;flex-wrap:wrap;gap:6px;}
-.di-name{font-family:'Noto Serif TC',serif;font-size:0.92rem;color:#d0d8f0;letter-spacing:0.1em;}
-.di-btns{display:flex;gap:6px;}
-.tog-btn{padding:4px 11px;background:transparent;border:1px solid var(--abr);color:#8a93b0;border-radius:4px;font-size:0.73rem;cursor:pointer;transition:all 0.2s;}
-.tog-btn:hover{border-color:#aaa;color:#ccc;}
-.del-btn{padding:4px 11px;background:transparent;border:1px solid #553040;color:#c07080;border-radius:4px;font-size:0.73rem;cursor:pointer;transition:all 0.2s;}
-.del-btn:hover{background:#553040;color:#ff8fa0;}
-.slot-tags{display:flex;max-width:100%;min-width:0;flex-wrap:wrap;gap:5px;align-items:center;}
-.stag{max-width:100%;font-size:0.72rem;padding:3px 10px;border-radius:10px;background:rgba(79,142,247,0.12);color:var(--aa);border:1px solid rgba(79,142,247,0.22);white-space:nowrap;}
-.badge{font-size:0.7rem;padding:2px 9px;border-radius:9px;}
-.empty-hint{text-align:center;color:#4a5370;padding:20px;font-size:0.82rem;}
-.cfg-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
-@media(max-width:480px){.cfg-grid{grid-template-columns:1fr;}}
-.cff{display:flex;min-width:0;max-width:100%;flex-direction:column;gap:5px;}
-.cff label{font-size:0.7rem;color:#8a93b0;letter-spacing:0.1em;}
-.cff input{width:100%;min-width:0;max-width:100%;background:#1a1f2e;border:1px solid var(--abr);color:#e0e4f0;padding:8px 11px;border-radius:4px;font-size:0.8rem;outline:none;font-family:'Noto Sans TC',sans-serif;}
-.cff input:focus{border-color:var(--aa);}
-.save-cfg-btn{margin-top:12px;padding:8px 20px;background:#2d6a4f;color:white;border:none;border-radius:4px;font-size:0.8rem;cursor:pointer;letter-spacing:0.1em;transition:all 0.2s;}
-.save-cfg-btn:hover{background:#3a8a64;}
-.cfg-ok{font-size:0.73rem;color:#4aaa7a;margin-top:7px;display:none;}
-.cfg-note{font-size:0.7rem;color:#4a5370;margin-top:9px;line-height:1.65;}
-.ahdr{order:0;}
-.admin-slots-card{order:1;}
-.admin-add-date-card{order:2;}
-.admin-special-card{order:3;}
-.advanced-card{order:4;}
-.advanced-card.password-card{order:5;}
-.advanced-card.collapsed{padding-bottom:4px;}
-.advanced-card.collapsed > :not(.acard-title){display:none!important;}
-.advanced-card .acard-title{cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
-.advanced-card .acard-title::after{content:'收合';font-size:.68rem;letter-spacing:.06em;color:#6a73a0;font-weight:400;}
-.advanced-card.collapsed .acard-title::after{content:'展開';color:var(--aa);}
-@media(max-width:520px){
-  .aw{padding:22px 14px 48px;overflow-x:hidden;}
-  .ahdr{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;margin-bottom:20px;}
-  .atitle{min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;font-size:1.05rem;letter-spacing:.04em;white-space:nowrap;}
-  .back-btn{padding:8px 10px;font-size:.7rem;white-space:nowrap;}
-  .acard{padding:20px 16px;}
-  .acard-title{letter-spacing:.12em;}
-  .add-form .af,.add-form input[type=date]{width:100%;}
-  .add-btn{min-height:42px;}
-  .tog-btn,.del-btn{min-height:32px;}
-  .slot-tags{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;}
-  .stag{width:100%;justify-content:center;text-align:center;}
+:root{
+  --black:#1A1A1A;--white:#FFFFFF;--cream:#FAF9F6;--warm:#EFECE5;--warm-2:#E2DED6;
+  --border:#B8B2A5;--border-light:#CDC7BA;--gray:#777;--gray-light:#AAA;
+  --brown:#5A4F3F;--brown-light:#7A6E5D;--green-soft:#3F5538;--green-bg:#E5EBE2;
+  --line-green:#06C755;--bank-blue:#1B4F7C;
 }
-#loginOverlay{position:fixed;inset:0;background:var(--ab);z-index:999;display:none;align-items:center;justify-content:center;}
-#loginOverlay.show{display:flex;}
-.lbox{background:var(--ac);border:1px solid var(--abr);border-radius:10px;padding:36px 32px;width:300px;text-align:center;}
-.ltitle{font-family:'Noto Serif TC',serif;font-size:1.05rem;color:#d0d8f0;letter-spacing:0.15em;margin-bottom:4px;}
-.lsub{font-size:0.72rem;color:#5a6880;margin-bottom:20px;letter-spacing:0.1em;}
-.lbox input[type=password]{background:#1a1f2e;border:1px solid var(--abr);color:#e0e4f0;padding:10px 13px;border-radius:4px;font-size:0.86rem;outline:none;width:100%;margin-bottom:10px;font-family:'Noto Sans TC',sans-serif;}
-.lbox input[type=password]:focus{border-color:var(--aa);}
-.login-btn{width:100%;padding:10px;background:var(--aa);color:white;border:none;border-radius:4px;font-size:0.86rem;cursor:pointer;letter-spacing:0.12em;font-family:'Noto Serif TC',serif;transition:all 0.2s;}
-.login-btn:hover{background:#6ba3ff;}
-.lerr{font-size:0.72rem;color:#e07070;margin-top:7px;min-height:16px;}
-@keyframes fadeDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
-@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-@keyframes spin{to{transform:rotate(360deg)}}
+
+.app{max-width:540px;margin:0 auto;min-height:100vh;}
+.page{display:none;min-height:100vh;animation:fade .4s ease;}
+.page.active{display:block;}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.pg-header{padding:64px 32px 0;}
+.pg-title{font-family:'Noto Serif TC',serif;font-weight:300;font-size:1.45rem;letter-spacing:0.06em;line-height:1.6;}
+.pg-desc{color:var(--gray);font-size:0.85rem;margin-top:8px;line-height:2;}
+.body{padding:32px;}
+.spacer{height:24px;}.spacer-s{height:12px;}
+
+.tabs{display:flex;background:var(--warm);border-radius:10px;padding:4px;margin-bottom:28px;}
+.tab{flex:1;padding:12px 0;text-align:center;font-size:0.84rem;color:var(--gray);border-radius:8px;transition:all .25s;cursor:pointer;}
+.tab.active{background:#fff;color:var(--black);box-shadow:0 1px 3px rgba(0,0,0,0.06);}
+
+.fg{margin-bottom:24px;}
+.fg label{display:block;font-size:0.82rem;color:var(--gray);margin-bottom:8px;font-weight:400;}
+.fg .req{color:#c44;font-size:0.78rem;}
+.fg .opt{color:var(--gray-light);font-size:0.75rem;margin-left:6px;}
+.fg input,.fg select,.fg textarea{
+  width:100%;padding:14px 16px;background:#fff;border:1px solid var(--border);
+  border-radius:8px;color:var(--black);font-weight:300;transition:border-color .25s;
+}
+.fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--brown-light);}
+.fg input::placeholder,.fg textarea::placeholder{color:#C5C0B8;font-weight:200;}
+.fg select{cursor:pointer;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23333' d='M6 8L0 0h12z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;padding-right:40px;}
+.fg textarea{min-height:80px;resize:vertical;}
+.fg .hint{font-size:0.74rem;color:var(--gray-light);margin-top:6px;}
+
+.btn-primary{display:block;width:100%;padding:17px 0;background:var(--black);color:#fff;font-size:0.9rem;font-weight:400;letter-spacing:0.1em;text-align:center;border-radius:10px;transition:background .25s;}
+.btn-primary:hover{background:#444;}
+.btn-primary:disabled{background:#bbb;cursor:not-allowed;}
+.btn-outline{display:block;width:100%;padding:15px 0;background:transparent;border:1.5px solid var(--border);color:var(--black);font-size:0.84rem;font-weight:400;letter-spacing:0.06em;text-align:center;border-radius:10px;transition:border-color .25s;}
+.btn-outline:hover{border-color:var(--black);}
+
+.mode-sub{margin-bottom:20px;font-size:0.84rem;color:var(--gray);}
+
+.class-card{background:#fff;border:1px solid var(--border-light);border-radius:12px;padding:20px;margin-bottom:24px;}
+.class-card .cc-name{font-family:'Noto Serif TC',serif;font-weight:400;font-size:1.05rem;color:var(--black);margin-bottom:6px;}
+.class-card .cc-meta{font-size:0.8rem;color:var(--gray);margin-bottom:14px;line-height:1.9;}
+.class-card .cc-price{display:flex;justify-content:space-between;align-items:baseline;padding-top:14px;border-top:1px dashed var(--border-light);}
+.class-card .cc-price-label{font-size:0.8rem;color:var(--gray);}
+.class-card .cc-price-orig{font-size:0.85rem;color:var(--gray-light);text-decoration:line-through;margin-right:8px;}
+.class-card .cc-price-final{font-family:'Noto Serif TC',serif;font-size:1.25rem;color:var(--black);font-weight:500;}
+.class-card .cc-discount{font-size:0.74rem;color:var(--green-soft);background:var(--green-bg);padding:3px 8px;border-radius:4px;margin-left:8px;}
+
+.bank-box{background:var(--warm);border-radius:12px;padding:20px;margin-bottom:24px;}
+.bank-box .bb-title{font-size:0.78rem;color:var(--bank-blue);font-weight:500;margin-bottom:12px;letter-spacing:0.05em;}
+.bank-box .bb-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:0.85rem;}
+.bank-box .bb-row .bb-k{color:var(--gray);}
+.bank-box .bb-row .bb-v{color:var(--black);font-weight:400;}
+.bank-box .bb-copy{font-size:0.7rem;color:var(--brown);cursor:pointer;margin-left:6px;padding:2px 6px;border:1px solid var(--border);border-radius:4px;}
+.bank-box .bb-amount{font-family:'Noto Serif TC',serif;font-size:1.1rem;color:var(--black);}
+
+.quiz-progress{display:flex;gap:8px;margin-bottom:32px;}
+.qp-bar{flex:1;height:3px;background:var(--border-light);border-radius:2px;}
+.qp-bar.done{background:var(--black);}
+.qp-bar.current{background:var(--brown);}
+.quiz-q{font-family:'Noto Serif TC',serif;font-weight:300;font-size:1.15rem;color:var(--black);margin-bottom:24px;line-height:1.6;}
+.quiz-opts{display:flex;flex-direction:column;gap:8px;}
+.quiz-opt{display:flex;align-items:center;gap:12px;padding:16px 18px;background:#fff;border:1px solid var(--border);border-radius:8px;text-align:left;font-size:0.88rem;color:var(--black);transition:border-color .25s;cursor:pointer;}
+.quiz-opt:hover{border-color:var(--brown-light);}
+
+.success-icon{width:64px;height:64px;border-radius:50%;background:var(--green-bg);display:flex;align-items:center;justify-content:center;margin:0 auto 24px;}
+.success-icon svg{width:32px;height:32px;stroke:var(--green-soft);stroke-width:2;fill:none;}
+.success-title{text-align:center;font-family:'Noto Serif TC',serif;font-weight:300;font-size:1.4rem;letter-spacing:0.06em;margin-bottom:12px;}
+.success-desc{text-align:center;color:var(--gray);font-size:0.85rem;line-height:2;margin-bottom:32px;}
+
+.line-card{background:#fff;border:1.5px solid var(--line-green);border-radius:12px;padding:24px;text-align:center;margin-bottom:16px;}
+.line-card .lc-title{font-size:0.9rem;color:var(--black);margin-bottom:6px;font-weight:400;}
+.line-card .lc-desc{font-size:0.78rem;color:var(--gray);margin-bottom:16px;line-height:1.9;}
+.line-card .lc-id{font-family:'Noto Serif TC',serif;font-size:1.15rem;color:var(--line-green);margin-bottom:16px;letter-spacing:0.05em;}
+.btn-line{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px 0;background:var(--line-green);color:#fff;font-size:0.9rem;font-weight:500;letter-spacing:0.05em;border-radius:10px;transition:background .25s;}
+.btn-line:hover{background:#05B14E;}
+.btn-line svg{width:20px;height:20px;fill:#fff;}
+
+.alert{padding:12px 16px;background:#FFF4E5;border-left:3px solid #E89B3C;color:#7A5A2C;font-size:0.82rem;border-radius:4px;margin-bottom:16px;display:none;}
+.alert.show{display:block;}
+
+.empty{padding:40px 0;text-align:center;color:var(--gray-light);font-size:0.85rem;}
+
+@media(max-width:480px){
+  .pg-header{padding-left:24px;padding-right:24px;}
+  .body{padding:24px;}
+}
+
+/* ============================================================
+ * UI v2 補強（不覆蓋 JS 會用到的 .cc-* / .bb-* / .qp-* / .quiz-* / .tab[data-*]）
+ * 1) 對比度提升  2) Hero  3) Role tabs  4) Form intro
+ * 5) Price emotion / 早鳥強化  6) Trust line  7) Success next
+ * ============================================================ */
+
+:root{
+  /* 提升對比度：再次調深，讓字、邊框、底線都更清楚 */
+  --gray:#3F3B33;
+  --gray-2:#564F44;
+  --gray-light:#6E6657;
+  --early:#9B3F12;
+  --early-bg:#F8E5D2;
+}
+/* 輸入框 / 下拉選單 / textarea 邊框統一調深 */
+.fg input,.fg select,.fg textarea{border-color:#9C9484;color:#1A1A1A;}
+.fg input::placeholder,.fg textarea::placeholder{color:#6E6657;}
+/* 下拉選單分組（週一 / 週二 …）顯眼化 */
+.fg select optgroup{font-weight:700;color:#000;font-style:normal;font-size:1rem;background:#EBE6DA;letter-spacing:0.06em;}
+.fg select option{color:#1A1A1A;font-weight:400;padding:6px 0;}
+
+/* ---------- Custom Dropdown（自製下拉，星期分組可完全控制樣式） ---------- */
+.cd{position:relative;width:100%;}
+.cd-trigger{
+  width:100%;padding:14px 16px;background:#fff;border:1px solid #9C9484;
+  border-radius:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;
+  font-size:1rem;color:#1A1A1A;font-weight:300;transition:border-color .2s, box-shadow .2s;
+  letter-spacing:0.02em;line-height:1.5;
+}
+.cd-trigger:hover{border-color:var(--brown-light);}
+.cd.open .cd-trigger{border-color:#1A1A1A;box-shadow:0 0 0 3px rgba(122,110,93,0.18);}
+.cd-trigger .cd-label{flex:1;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:10px;}
+.cd-trigger.placeholder .cd-label{color:#7A736A;}
+.cd-trigger .cd-arrow{flex-shrink:0;color:#1A1A1A;font-size:0.7rem;transition:transform .25s;}
+.cd.open .cd-trigger .cd-arrow{transform:rotate(180deg);}
+.cd-panel{
+  display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:200;
+  background:#fff;border:1px solid #9C9484;border-radius:10px;
+  box-shadow:0 12px 32px rgba(0,0,0,0.14);
+  max-height:360px;overflow-y:auto;padding:4px 0;
+}
+.cd.open .cd-panel{display:block;animation:cdFade .18s ease;}
+@keyframes cdFade{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);}}
+.cd-day{
+  padding:11px 18px;background:#1A1A1A;color:#fff;
+  font-weight:700;font-size:1rem;letter-spacing:0.16em;
+  margin:6px 0 2px;text-align:center;
+}
+.cd-day:first-child{margin-top:0;}
+.cd-day.summer{background:#5A4F3F;}
+.cd-opt{
+  padding:12px 18px;cursor:pointer;font-size:0.93rem;color:#1A1A1A;
+  display:flex;align-items:center;gap:12px;border-top:1px solid #F0EBE0;line-height:1.5;
+}
+.cd-opt:hover{background:#F5F1E7;}
+.cd-opt.selected{background:#EBE2D0;font-weight:500;}
+.cd-opt + .cd-day{margin-top:8px;}
+.cd-opt .cd-time{color:#5A4F3F;font-weight:600;font-variant-numeric:tabular-nums;min-width:48px;}
+.cd-opt .cd-name{flex:1;}
+.cd-opt .cd-tea{color:#5F5A52;font-size:0.82rem;flex-shrink:0;}
+html{scroll-behavior:smooth;}
+
+/* hint / placeholder / desc 等小字統一拉深 */
+.fg .hint{color:var(--gray-2);font-size:0.78rem;}
+.fg input::placeholder,.fg textarea::placeholder{color:#A39E94;}
+.fg label{color:var(--black);font-weight:400;}
+.pg-desc{color:var(--gray);}
+
+/* focus state 更明確 */
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--black);box-shadow:0 0 0 3px rgba(122,110,93,0.12);}
+
+/* ---------- Hero ---------- */
+.hero{padding:60px 32px 28px;text-align:center;}
+.hero-eyebrow{display:inline-block;font-size:0.7rem;letter-spacing:0.32em;color:var(--brown);margin-bottom:18px;}
+.hero-eyebrow::before,.hero-eyebrow::after{content:"";display:inline-block;width:18px;height:1px;background:var(--brown-light);vertical-align:middle;margin:0 10px 3px;opacity:.6;}
+.hero-title{font-family:'Noto Serif TC',serif;font-weight:300;font-size:1.55rem;line-height:1.8;color:var(--black);letter-spacing:0.06em;margin-bottom:18px;}
+.hero-sub{font-size:0.92rem;line-height:2;color:var(--gray);margin-bottom:24px;}
+.hero-cta{display:flex;flex-direction:column;gap:10px;align-items:center;margin-bottom:18px;}
+.hero-cta .btn-line{font-size:0.9rem;}
+.hero-scroll{font-size:0.82rem;color:var(--gray-2);padding:6px 0;text-decoration:underline;text-underline-offset:4px;text-decoration-color:var(--border);}
+.hero-scroll:hover{color:var(--black);}
+.hero-divider{max-width:80px;height:1px;background:var(--border);margin:18px auto 14px;}
+.hero-trust{font-size:0.74rem;color:var(--gray-2);letter-spacing:0.05em;line-height:1.95;}
+.hero-trust .dot{margin:0 8px;color:var(--border);}
+
+/* ---------- Role tabs（仍是 .tab[data-mode]，避免動 JS） ---------- */
+.tabs.role-tabs{display:grid;grid-template-columns:1fr 1fr;gap:10px;background:transparent;padding:0;margin-bottom:26px;}
+.tabs.role-tabs .tab{padding:18px 12px;background:#fff;border:1.5px solid var(--border-light);border-radius:12px;line-height:1.5;color:var(--gray);}
+.tabs.role-tabs .tab .role-name{display:block;font-size:0.95rem;color:var(--black);font-weight:400;margin-bottom:2px;letter-spacing:0.02em;}
+.tabs.role-tabs .tab .role-desc{display:block;font-size:0.74rem;color:var(--gray-2);font-weight:300;}
+.tabs.role-tabs .tab.active{border-color:var(--black);background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+.tabs.role-tabs .tab.active .role-name{font-weight:500;}
+
+/* ---------- Form intro ---------- */
+.form-intro{background:var(--warm);border-left:3px solid var(--brown-light);padding:14px 18px;border-radius:6px;font-size:0.86rem;line-height:1.95;color:var(--gray);margin-bottom:24px;}
+
+/* ---------- Price emotion / 早鳥強化 ---------- */
+.price-emotion{background:var(--early-bg);border-radius:10px;padding:18px 18px 16px;margin-bottom:18px;text-align:center;}
+.price-emotion .pe-text{font-family:'Noto Serif TC',serif;font-size:0.95rem;color:var(--black);line-height:2;margin-bottom:10px;}
+.price-emotion .pe-tag{display:inline-block;font-size:0.76rem;color:var(--early);letter-spacing:0.06em;font-weight:500;}
+
+/* 早鳥折扣 badge：原本太淡，加深 */
+.class-card .cc-discount{background:var(--early);color:#fff;font-weight:500;letter-spacing:0.04em;padding:3px 9px;}
+.class-card .cc-price-final{font-size:1.45rem;font-weight:500;}
+
+/* ---------- Trust line ---------- */
+.trust-line{display:flex;flex-direction:column;gap:10px;font-size:0.8rem;color:var(--gray-2);text-align:left;margin:8px 0 18px;line-height:1.85;background:#fff;border:1px solid var(--border-light);border-radius:10px;padding:14px 18px;}
+.trust-line .tl-row{display:flex;align-items:flex-start;gap:10px;}
+.trust-line svg{width:14px;height:14px;flex-shrink:0;color:var(--green-soft);margin-top:4px;}
+
+/* ---------- Success next ---------- */
+.success-next{background:var(--warm);border-radius:10px;padding:18px;text-align:center;font-size:0.88rem;color:var(--black);line-height:1.9;margin-bottom:22px;}
+.success-next .sn-strong{display:block;color:var(--black);font-weight:500;}
+.success-next .sn-time{display:block;color:var(--green-soft);font-weight:500;margin-top:6px;font-size:0.8rem;letter-spacing:0.03em;}
+
+/* ---------- Course type chooser (3 cards: 團體 / 個別 / 自組) ---------- */
+.tabs.course-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;background:transparent;padding:0;margin-bottom:24px;}
+.tabs.course-tabs .tab{padding:14px 6px;background:#fff;border:1.5px solid var(--border-light);border-radius:12px;line-height:1.5;color:var(--gray);}
+.tabs.course-tabs .tab .ct-name{display:block;font-size:0.9rem;color:var(--black);font-weight:400;}
+.tabs.course-tabs .tab .ct-desc{display:block;font-size:0.66rem;color:var(--gray-2);font-weight:300;margin-top:3px;letter-spacing:0;}
+.tabs.course-tabs .tab.active{border-color:var(--black);background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+.tabs.course-tabs .tab.active .ct-name{font-weight:500;}
+
+/* ---------- Course compare（3 種課程一覽，僅視覺輔助，無 JS） ---------- */
+.course-compare{background:#fff;border:1px solid var(--border-light);border-radius:12px;padding:18px 20px 14px;margin-bottom:14px;}
+.course-compare .ccmp-head{font-size:0.7rem;letter-spacing:0.24em;color:var(--brown);text-align:center;margin-bottom:14px;}
+.ccmp-row{display:grid;grid-template-columns:64px 1fr;gap:14px;align-items:baseline;padding:9px 0;font-size:0.84rem;line-height:1.7;}
+.ccmp-row + .ccmp-row{border-top:1px dashed var(--border-light);}
+.ccmp-tag{font-family:'Noto Serif TC',serif;font-weight:500;color:var(--black);font-size:0.92rem;letter-spacing:0.04em;}
+.ccmp-text{color:var(--gray);}
+
+/* ---------- Section divider（在表單區用一條細線提示「填寫區開始」） ---------- */
+.soft-divider{display:flex;align-items:center;gap:14px;margin:6px 0 20px;color:var(--gray-light);}
+.soft-divider::before,.soft-divider::after{content:"";flex:1;height:1px;background:var(--border-light);}
+.soft-divider span{font-size:0.7rem;letter-spacing:0.28em;}
+
+/* ---------- Chip group (radio / checkbox visual) ---------- */
+.chip-group{display:flex;flex-wrap:wrap;gap:8px;}
+.chip{position:relative;display:inline-flex;align-items:center;padding:10px 16px;background:#fff;border:1.5px solid var(--border);border-radius:24px;cursor:pointer;font-size:0.85rem;color:var(--black);transition:all .2s;user-select:none;}
+.chip:hover{border-color:var(--brown-light);}
+.chip input{position:absolute;opacity:0;pointer-events:none;width:0;height:0;}
+.chip.selected{background:var(--black);color:#fff;border-color:var(--black);}
+
+/* ---------- Custom body sections ---------- */
+.section-tip{background:var(--warm);border-radius:8px;padding:12px 16px;font-size:0.8rem;color:var(--gray);line-height:1.85;margin-bottom:20px;}
+
+/* mobile 微調 */
+@media(max-width:480px){
+  .hero{padding-left:24px;padding-right:24px;padding-top:48px;}
+  .hero-title{font-size:1.4rem;}
+  .tabs.course-tabs .tab .ct-name{font-size:0.84rem;}
+  .tabs.course-tabs .tab .ct-desc{font-size:0.62rem;}
+  .ccmp-row{grid-template-columns:58px 1fr;font-size:0.82rem;}
+}
 </style>
 </head>
 <body>
+<div class="app">
 
-<div id="loginOverlay">
-  <div class="lbox">
-    <div class="ltitle">陸比音樂</div>
-    <div class="lsub">店家管理後台</div>
-    <input type="password" id="pwInput" placeholder="請輸入管理密碼" onkeydown="if(event.key==='Enter')doLogin()">
-    <button class="login-btn" onclick="doLogin()">進入後台</button>
-    <div class="lerr" id="loginErr"></div>
-  </div>
-</div>
+<!-- ============ PAGE: FORM ============ -->
+<div class="page active" id="page-form">
 
-<!-- FRONT PAGE -->
-<div id="frontPage" class="page active">
-<div class="container">
-  <header>
-    <div class="brand-ornament">
-      <div class="ornament-line"></div>
-      <svg width="42" height="48" viewBox="0 0 42 54" fill="none" aria-label="陸比音樂吉他標誌" role="img">
-        <path d="M24.4 4.5l4.3-1.3 1.4 4.4-3.7 2.6-7.1 18.6" stroke="#9b8067" stroke-width="1.45" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M18.1 26.8c-2.9-.8-5.7.2-7.1 2.7-1 1.8-.9 3.9.1 5.6-2.6 1.2-4.3 3.8-4.1 6.7.2 4.3 4 7.6 8.4 7.3 3.2-.2 5.8-2.3 6.7-5.1 2.7 1.2 5.9.7 8.1-1.5 3.1-3.1 3-8-.1-11-2.2-2.1-5.4-2.6-8-1.3-.8-1.6-2.2-2.8-4-3.4Z" stroke="#9b8067" stroke-width="1.45" stroke-linejoin="round"/>
-        <circle cx="19.4" cy="36.8" r="3.1" stroke="#9b8067" stroke-width="1.35"/>
-        <path d="M17.3 44.1l4.7-1.7M22.2 20.8l4.1 1.6M23.7 16.9l4.1 1.6" stroke="#9b8067" stroke-width="1.25" stroke-linecap="round"/>
-        <path d="M28.5 5.6l1.7-.5M29 7.2l1.7-.5" stroke="#9b8067" stroke-width="1.1" stroke-linecap="round"/>
-      </svg>
-      <div class="ornament-line r"></div>
+  <!-- ===== HERO ===== -->
+  <section class="hero">
+    <div class="hero-eyebrow">LUBYMUSIC</div>
+    <h1 class="hero-title">也許你不是想學吉他<br>只是想有一段屬於自己的時間</h1>
+    <p class="hero-sub">還不確定從哪裡開始也沒關係<br>我們陪你試試看第一步</p>
+    <div class="hero-cta">
+      <a class="btn-line" href="https://line.me/R/ti/p/@gay6872z" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.105.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>
+        先聊聊看 ｜ LINE 諮詢
+      </a>
+      <a class="hero-scroll" href="#regForm">已經想好了，往下填表 ↓</a>
     </div>
-    <div class="brand-name">陸比音樂</div>
-    <div class="brand-sub">Luby Music</div>
-    <div class="page-title">吉他保養預約</div>
-  </header>
+    <div class="hero-divider"></div>
+    <div class="hero-trust">
+      <span>名額有限</span><span class="dot">·</span><span>門市逐筆確認，填錯沒關係</span><span class="dot">·</span><span>1 小時內 LINE 回覆</span>
+    </div>
+  </section>
 
-  <div class="form-card" id="formCard">
-    <form id="bookingForm" novalidate>
-      <div class="form-sec">
-        <div class="sec-label">保養費用說明</div>
-        <table class="fee-table">
-          <tr><th>樂器</th><th>小保養</th><th>大保養</th><th>琴弦（另計）</th></tr>
-          <tr><td>吉他</td><td>$500</td><td>$800–$1,000</td><td>六條 $220–$760</td></tr>
-          <tr><td>烏克麗麗</td><td>$500</td><td>$800</td><td>四條 $200–$530</td></tr>
-          <tr><td>電吉他</td><td>$600</td><td>$1,500</td><td>六條 $180–$540</td></tr>
-          <tr><td>電貝斯</td><td>$600</td><td>$1,500</td><td>四條 $600</td></tr>
-        </table>
-        <div style="margin-top:9px;font-size:0.73rem;color:var(--muted);line-height:1.7;">
-          保養須同時更換琴弦，自備琴弦酌收 $100–$150 換弦工本費。通常以小保養收件，Fret 生鏽/指板霉裂/較多灰塵則以大保養收件，以現場評估為主。
+  <div class="pg-header" id="regForm">
+    <div class="pg-title">線上報名</div>
+    <p class="pg-desc">填寫資料 → 轉帳 → 留下末四碼，門市會與你確認。</p>
+  </div>
+  <div class="body">
+
+    <!-- ===== 三種課程一覽（純視覺輔助；不動 tab 邏輯） ===== -->
+    <div class="course-compare">
+      <div class="ccmp-head">三種上課方式　一眼看懂</div>
+      <div class="ccmp-row"><span class="ccmp-tag">團體班</span><span class="ccmp-text">固定時間，由門市安排同學</span></div>
+      <div class="ccmp-row"><span class="ccmp-tag">個別課</span><span class="ccmp-text">一對一，時間彈性</span></div>
+      <div class="ccmp-row"><span class="ccmp-tag">自組班</span><span class="ccmp-text">自己找同學，時間彈性</span></div>
+    </div>
+
+    <!-- ===== 課程類型 (group / private / custom) ===== -->
+    <div class="tabs course-tabs">
+      <div class="tab active" data-course="group" onclick="switchCourseType('group')">
+        <span class="ct-name">團體班</span>
+        <span class="ct-desc">固定時間 · 8 堂</span>
+      </div>
+      <div class="tab" data-course="private" onclick="switchCourseType('private')">
+        <span class="ct-name">個別課</span>
+        <span class="ct-desc">一對一 · 時間彈性</span>
+      </div>
+      <div class="tab" data-course="custom" onclick="switchCourseType('custom')">
+        <span class="ct-name">自組班</span>
+        <span class="ct-desc">自揪同學 · 彈性</span>
+      </div>
+    </div>
+
+    <p class="form-intro">不確定也沒關係。<br>先留下資料，門市會與你一起確認時間、程度，找到最合適的方式。</p>
+
+    <div class="alert" id="alertBox"></div>
+
+    <!-- 共用：姓名 / 電話 -->
+    <div class="fg"><label>姓名 <span class="req">*</span></label>
+      <input type="text" id="fName" placeholder="請填中文全名" autocomplete="name">
+    </div>
+    <div class="fg"><label>電話 <span class="req">*</span></label>
+      <input type="tel" id="fPhone" placeholder="0912345678" autocomplete="tel"
+        inputmode="numeric" maxlength="10" pattern="[0-9]{10}"
+        oninput="this.value=this.value.replace(/\D/g,'').slice(0,10)">
+    </div>
+
+    <!-- ============================================================
+         GROUP BODY：團體班專用流程（舊生續報 / 新生推薦 / 新生自選）
+         ============================================================ -->
+    <div id="groupBody">
+
+    <!-- 舊生 / 新生 -->
+    <div class="tabs role-tabs">
+      <div class="tab active" data-mode="returning" onclick="switchMode('returning')">
+        <span class="role-name">舊生續報</span>
+        <span class="role-desc">已經在 Lubymusic 上過課</span>
+      </div>
+      <div class="tab" data-mode="new" onclick="switchMode('new')">
+        <span class="role-name">新生報名</span>
+        <span class="role-desc">第一次來 Lubymusic</span>
+      </div>
+    </div>
+
+    <!-- 舊生：原時段與下一期班別 -->
+    <div id="returningSection">
+      <div class="fg"><label>原上課時段 <span class="req">*</span></label>
+        <select id="fOriginClass" onchange="onOriginClassPick(this.value)">
+          <option value="">請選擇你目前上課的班別</option>
+        </select>
+        <div class="hint">姓名與電話將由門市人工核對，找不到的班別也可以先聯絡 LINE。</div>
+      </div>
+      <div class="fg"><label>下一期班別 <span class="req">*</span></label>
+        <select id="fNextClass" onchange="onClassPick(this.value)">
+          <option value="">請選擇要續報的 09-10 月班別</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- 新生：選擇方式 -->
+    <div id="newSection" style="display:none;">
+      <div class="fg"><label>你想要怎麼選班？</label>
+        <div class="tabs" style="margin-bottom:0;">
+          <div class="tab active" data-pick="quiz" onclick="switchPickMode('quiz')">幫我推薦</div>
+          <div class="tab" data-pick="manual" onclick="switchPickMode('manual')">我自己選</div>
         </div>
       </div>
 
-      <div class="form-sec">
-        <div class="sec-label">預約須知</div>
-        <div class="notice-box">
-          <div class="nt">重要事項</div>
-          未預約/平日仍可收件，以現場順序施作，通常隔日取件，件數多則 +1 工作天（不含週日）。<br>
-          保養約 1 小時，請準時送件。<strong>若需送兩件，請預約兩個時段</strong>（一個時段以一件為主）。<br>
-          最佳保養週期：2–3 個月一次。Line 諮詢：<a href="https://line.me/R/ti/p/@gay6872z" target="_blank" style="color:var(--gold);font-weight:500;text-decoration:none;border-bottom:1px solid var(--gold);">@gay6872z</a>
-        </div>
-      </div>
+      <div id="quizArea"></div>
 
-      <div class="form-sec">
-        <div class="sec-label">客戶資訊</div>
-        <div class="field-row">
-          <div class="fg" id="fg-name">
-            <label>姓名 <span class="req">*</span></label>
-            <input type="text" id="fname" placeholder="您的姓名">
-            <div class="ferr">請填寫姓名</div>
-          </div>
-          <div class="fg" id="fg-phone">
-            <label>聯絡電話 <span class="req">*</span></label>
-            <input type="tel" id="fphone" placeholder="09xx-xxxxxx">
-            <div class="ferr">請填寫有效電話</div>
-          </div>
-        </div>
-        <div class="fg" id="fg-email">
-          <label>Email <span class="req">*</span> <span style="color:var(--muted);font-size:0.7rem;">（確認信將寄至此信箱）</span></label>
-          <input type="email" id="femail" placeholder="your@email.com">
-          <div class="ferr">請填寫有效 Email</div>
-        </div>
-      </div>
-
-      <div class="form-sec">
-        <div class="sec-label">送修件數</div>
-        <div class="fg" id="fg-qty">
-          <label>件數 <span class="req">*</span></label>
-          <select id="fqty" onchange="onQtyChange()">
-            <option value="">請選擇</option>
-            <option value="1">1 把</option>
-            <option value="2">2 把</option>
-            <option value="3">3 把</option>
-            <option value="4">4 把以上</option>
+      <div id="manualPickArea" style="display:none;">
+        <div class="fg"><label>選擇班別 <span class="req">*</span></label>
+          <select id="fManualClass" onchange="onClassPick(this.value)">
+            <option value="">請選擇班別</option>
           </select>
-          <div class="ferr">請選擇件數</div>
-        </div>
-        <div id="multiSlotHint" style="display:none;margin-top:6px;padding:9px 12px;background:#fffbf0;border:1px solid #e8d89a;border-radius:1px;font-size:0.76rem;color:#7a6020;line-height:1.7;">
-          送修 2 把以上請複選對應數量的時段（每把各需一個時段）
         </div>
       </div>
+    </div>
 
-      <div class="form-sec">
-        <div class="sec-label" id="slotSectionLabel">選擇預約時段</div>
-        <div class="fg" id="fg-slot">
-          <div id="dateSlotsContainer" class="date-slots-wrap">
-            <div style="padding:22px;text-align:center;color:var(--muted);font-size:0.82rem;">正在確認可預約時段…</div>
-          </div>
-          <div class="ferr" id="slotErr">請選擇預約時段</div>
+    <!-- 已選班別 -->
+    <div id="selectedClassBox"></div>
+
+    <!-- 轉帳資訊（選定班別後出現） -->
+    <div id="bankBox" style="display:none;">
+
+      <!-- 早鳥情緒文案 -->
+      <div class="price-emotion">
+        <div class="pe-text">趁現在，給自己一個開始的理由<br>少一點猶豫，多一點行動</div>
+        <div class="pe-tag">★ 即日起至 8/20 前報名 早鳥 95 折，系統自動計算 95 折</div>
+      </div>
+
+      <div class="bank-box">
+        <div class="bb-title">永豐銀行 對公帳戶 ｜ 轉帳資訊</div>
+        <div class="bb-row"><span class="bb-k">銀行代號</span><span class="bb-v">807 永豐銀行 <span class="bb-copy" onclick="copy('807')">複製</span></span></div>
+        <div class="bb-row"><span class="bb-k">帳號</span><span class="bb-v"><span id="bankAcct">19301800056627</span> <span class="bb-copy" onclick="copy(document.getElementById('bankAcct').textContent)">複製</span></span></div>
+        <div class="bb-row"><span class="bb-k">戶名</span><span class="bb-v">陸比音樂工作室</span></div>
+        <div class="bb-row" style="border-top:1px dashed var(--border);margin-top:8px;padding-top:14px;"><span class="bb-k">應繳金額</span><span class="bb-v bb-amount" id="bankAmount">—</span></div>
+      </div>
+
+      <div class="fg"><label>是否有吉他 <span class="req">*</span></label>
+        <div class="chip-group" id="cgHasGuitarG">
+          <label class="chip"><input type="radio" name="hasGuitarG" value="yes"><span>有（可帶來上課）</span></label>
+          <label class="chip"><input type="radio" name="hasGuitarG" value="no"><span>沒有（可先使用教室琴）</span></label>
+          <label class="chip"><input type="radio" name="hasGuitarG" value="interested"><span>想了解購買優惠</span></label>
         </div>
       </div>
 
-      <div class="form-sec">
-        <div class="sec-label">其他備註</div>
-        <textarea id="fnotes" placeholder="樂器現況、特殊需求、或其他問題…"></textarea>
+      <div class="fg"><label>轉帳末四碼 <span class="req">*</span></label>
+        <input type="tel" id="fLast4" maxlength="4" inputmode="numeric" pattern="[0-9]{4}" placeholder="請輸入轉帳帳號後四碼">
+        <div class="hint">門市會以此核對轉帳，請確認輸入正確。</div>
       </div>
 
-      <div class="fg" id="fg-consent" style="margin-bottom:20px;">
-        <label style="display:flex;align-items:flex-start;gap:9px;cursor:pointer;color:var(--ink);font-size:0.78rem;line-height:1.65;">
-          <input type="checkbox" id="fconsent" style="width:auto;margin-top:3px;flex-shrink:0;">
-          我已閱讀並同意依個人資料保護法提供個人資料，供陸比音樂用於預約確認及相關服務通知。
-        </label>
-        <div class="ferr">請勾選同意</div>
+      <div class="fg"><label>備註 <span class="opt">選填</span></label>
+        <textarea id="fNote" placeholder="任何想補充的事都可以寫，例如：希望同班的朋友姓名、想學的曲風…"></textarea>
       </div>
-      <button type="submit" class="submit-btn" id="submitBtn">送出預約申請</button>
-    </form>
-
-    <div class="success-screen" id="successScreen">
-      <div class="success-icon">
-        <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
-          <circle cx="16" cy="16" r="14" stroke="#2d6a4f" stroke-width="1.5"/>
-          <path d="M9 16.5l4.5 4.5 9-9" stroke="#2d6a4f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-      <div class="success-title">預約申請已送出！</div>
-      <div class="success-msg" id="successMsg"></div>
     </div>
-  </div>
-  <footer>© 陸比音樂 Luby Music</footer>
-</div>
-</div>
 
-<!-- ADMIN PAGE -->
-<div id="adminPage" class="page">
-<div class="aw">
-  <div class="ahdr">
-    <div class="atitle">陸比音樂 <span>後台管理</span></div>
-    <button class="back-btn" onclick="goFront()">← 返回預約頁面</button>
-  </div>
+    </div><!-- /#groupBody -->
 
-  <div class="acard advanced-card collapsed">
-    <div class="acard-title" role="button" tabindex="0" onclick="toggleAdvancedCard(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleAdvancedCard(this)}">進階設定：通知與資料連線</div>
-    <div class="cfg-grid">
-      <div class="cff"><label>Public Key</label><input type="password" id="cfgPK" placeholder="YOUR_PUBLIC_KEY"></div>
-      <div class="cff"><label>Service ID</label><input type="password" id="cfgSID" placeholder="service_xxxxxxx"></div>
-      <div class="cff"><label>店家通知 Template ID</label><input type="password" id="cfgTO" placeholder="template_xxxxxxx"></div>
-      <div class="cff"><label>客戶確認信 Template ID</label><input type="password" id="cfgTC" placeholder="template_xxxxxxx"></div>
-      <div class="cff"><label>店家收件信箱</label><input type="email" id="cfgOE" placeholder="lubymusic@hotmail.com"></div>
-      <div class="cff"><label>Google Sheets 網址</label><input type="password" id="cfgGS" placeholder="https://script.google.com/..."></div>
-    </div>
-    <button class="save-cfg-btn" onclick="saveConfig()">儲存設定</button>
-    <div class="cfg-ok" id="cfgOk">設定已儲存</div>
-    <div class="cfg-note">這些是系統連線資料，日常開關時段不需要修改。</div>
-  </div>
+    <!-- ============================================================
+         CUSTOM BODY：個別課 / 自組班 諮詢流程（無價格區塊）
+         ============================================================ -->
+    <div id="customBody" style="display:none;">
 
-  <div class="acard advanced-card password-card collapsed">
-    <div class="acard-title" role="button" tabindex="0" onclick="toggleAdvancedCard(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleAdvancedCard(this)}">進階設定：修改後台密碼</div>
-    <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;">
-      <div class="cff" style="flex:1;min-width:160px;">
-        <label>新密碼</label>
-        <div style="position:relative;">
-          <input type="password" id="newPw1" placeholder="輸入新密碼" style="padding-right:36px;">
-          <button type="button" onclick="togglePwVis('newPw1','eye1')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#6a73a0;padding:0;line-height:1;font-size:.7rem;" id="eye1">顯示</button>
+      <p class="section-tip">這是諮詢需求，門市會依你的時間 / 程度 / 偏好回覆方案與報價，<strong>不需要先付款</strong>。</p>
+
+      <div class="fg"><label>方便上課時間 <span class="req">*</span><span class="opt">可複選</span></label>
+        <div class="chip-group" id="cgTimeSlots">
+          <label class="chip"><input type="checkbox" name="timeSlots" value="平日下午"><span>平日下午</span></label>
+          <label class="chip"><input type="checkbox" name="timeSlots" value="平日晚上"><span>平日晚上</span></label>
+          <label class="chip"><input type="checkbox" name="timeSlots" value="週六上午"><span>週六上午</span></label>
+          <label class="chip"><input type="checkbox" name="timeSlots" value="週六下午"><span>週六下午</span></label>
+          <label class="chip"><input type="checkbox" name="timeSlots" value="週六晚上"><span>週六晚上</span></label>
         </div>
       </div>
-      <div class="cff" style="flex:1;min-width:160px;">
-        <label>確認新密碼</label>
-        <div style="position:relative;">
-          <input type="password" id="newPw2" placeholder="再次輸入" style="padding-right:36px;">
-          <button type="button" onclick="togglePwVis('newPw2','eye2')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#6a73a0;padding:0;line-height:1;font-size:.7rem;" id="eye2">顯示</button>
+
+      <div class="fg"><label>學員程度 <span class="req">*</span></label>
+        <div class="chip-group" id="cgLevel">
+          <label class="chip"><input type="radio" name="level" value="beginner"><span>完全新手</span></label>
+          <label class="chip"><input type="radio" name="level" value="basic"><span>有摸過一點</span></label>
+          <label class="chip"><input type="radio" name="level" value="advanced"><span>已有基礎</span></label>
+          <label class="chip"><input type="radio" name="level" value="unsure"><span>不確定</span></label>
         </div>
       </div>
-      <button class="add-btn" onclick="changePw()" style="background:#2d6a4f;">更新密碼</button>
-    </div>
-    <div id="pwMsg" style="font-size:0.73rem;margin-top:8px;min-height:16px;"></div>
-  </div>
 
-  <div class="acard admin-slots-card">
-    <div class="acard-title">自動週六時段管理</div>
-    <div style="font-size:0.72rem;color:#6a73a0;margin-bottom:16px;">系統自動產生未來 4 個週六，點「關」可關閉特定時段。</div>
-    <div class="dates-list" id="adminDatesList"><div class="empty-hint">載入中…</div></div>
-  </div>
+      <div class="fg"><label>是否有吉他 <span class="req">*</span></label>
+        <div class="chip-group" id="cgHasGuitar">
+          <label class="chip"><input type="radio" name="hasGuitar" value="yes"><span>有（可帶來上課）</span></label>
+          <label class="chip"><input type="radio" name="hasGuitar" value="no"><span>沒有（可先使用教室琴）</span></label>
+          <label class="chip"><input type="radio" name="hasGuitar" value="interested"><span>想了解購買優惠</span></label>
+        </div>
+      </div>
 
-  <div class="acard admin-add-date-card">
-    <div class="acard-title">新增特殊日期（平日／週日）</div>
-    <div style="font-size:0.72rem;color:#6a73a0;margin-bottom:12px;">額外開放非週六的日期，例如週日或平日特殊場次。</div>
-    <div class="add-form">
-      <div class="af"><label>起始日期</label><input type="date" id="newDateFrom"></div>
-      <div class="af"><label>結束日期 <span style="color:#555e7a;">（單日可留空）</span></label><input type="date" id="newDateTo"></div>
-      <button class="add-btn" onclick="addDate()" id="addDateBtn">新增日期</button>
-    </div>
-    <div class="slcb-title" style="display:flex;align-items:center;justify-content:space-between;margin-top:14px;">
-      <span>開放時段（可多選）</span>
-      <button onclick="toggleAllSlots()" id="toggleAllBtn" style="padding:3px 12px;background:transparent;border:1px solid var(--abr);color:#8a93b0;border-radius:12px;font-size:0.72rem;cursor:pointer;">全部取消</button>
-    </div>
-    <div class="slotcbs" id="newSlotCbs"></div>
-  </div>
+      <div class="fg" id="fgGroupSize" style="display:none;"><label>預計幾人一起上課 <span class="req">*</span></label>
+        <div class="chip-group" id="cgGroupSize">
+          <label class="chip"><input type="radio" name="groupSize" value="2"><span>2 人</span></label>
+          <label class="chip"><input type="radio" name="groupSize" value="3-4"><span>3–4 人</span></label>
+        </div>
+      </div>
 
-  <div class="acard admin-special-card">
-    <div class="acard-title">特殊日期列表</div>
-    <div class="dates-list" id="adminSpecialList"><div class="empty-hint">尚未新增特殊日期</div></div>
+      <div class="fg"><label>備註 <span class="opt">選填</span></label>
+        <textarea id="fNoteCustom" placeholder="想學什麼曲風、預算、或希望的老師都可以寫"></textarea>
+      </div>
+    </div><!-- /#customBody -->
+
+    <!-- 信任條：送出前最後一次安心 -->
+    <div class="trust-line">
+      <div class="tl-row">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 8.5l3 3 7-7"/></svg>
+        <span>門市會逐筆與你確認，填錯了我們會幫你改，放心送出。</span>
+      </div>
+      <div class="tl-row">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6"/><path d="M8 5v3.5L10 10"/></svg>
+        <span>送出後通常 1 小時內回覆，最慢 1 個工作天。</span>
+      </div>
+    </div>
+
+    <button class="btn-primary" id="submitBtn" onclick="submitForm()" disabled>請先選擇班別</button>
   </div>
 </div>
+
+<!-- ============ PAGE: SUCCESS ============ -->
+<div class="page" id="page-success">
+  <div class="pg-header">
+    <div class="success-icon"><svg viewBox="0 0 24 24"><polyline points="5,12 10,17 19,7"/></svg></div>
+    <div class="success-title">收到你的報名了，謝謝你 🌿</div>
+    <p class="success-desc">店長會盡快幫你核對課程與名額<br>通常 1 小時內回覆，最慢 1 個工作天。</p>
+  </div>
+  <div class="body">
+    <div class="success-next">
+      <span class="sn-strong">下一步：加入官方 LINE，讓確認更快</span>
+      <span class="sn-time">通常 1 小時內回覆</span>
+    </div>
+    <div class="line-card">
+      <div class="lc-title">加入官方 LINE，方便即時聯繫</div>
+      <div class="lc-desc">行前通知、上課提醒、補課安排<br>都會透過 LINE 通知你</div>
+      <div class="lc-id">@gay6872z</div>
+      <a class="btn-line" href="https://line.me/R/ti/p/@gay6872z" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.105.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>
+        加入 Lubymusic LINE
+      </a>
+    </div>
+    <div class="spacer"></div>
+    <button class="btn-outline" onclick="resetAndBack()">再報名一次</button>
+  </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+</div>
+
 <script>
-// ============================================================
-// 設定
-// ============================================================
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwRicgFrAKQIdnxeAi6knZWRBWkOEflf0RHS16eCxbS0-Ca-loDwvRPtxowqGgW3ybyJA/exec';
-const LEGACY_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbymjVzz8j1GHEJCc1fl6vn4ae4xq2bQ-Y3MG1pYuh8f15YT-XvQ3dTZ2aVwiYQYeeP5og/exec';
-const SLOTS = ['10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'];
-const SAT_SLOTS = ['10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00'];
-const DEFAULT_PW = 'luby2024';
+/* =========================================================
+ * classData：暫存於前端，與 index.html 主系統同步維護。
+ * 若要替換來源，可改為 fetch('/api/classes') 或 inline。
+ * ========================================================= */
+const currentClassData=[
+  // ===== 週一 (06/29-08/17) =====
+  {id:1, name:'吉他中級 #1',level:'中級',day:'週一',time:'19:00',startDate:'6/29',endDate:'8/17',teacher:'曾筠藩',lessons:8,price:4400},
+  {id:2, name:'吉他中級 #2',level:'中級',day:'週一',time:'19:00',startDate:'6/29',endDate:'8/17',teacher:'張鈺君',lessons:8,price:4400},
+  {id:3, name:'吉他入門',level:'入門',day:'週一',time:'20:00',startDate:'6/29',endDate:'8/17',teacher:'張鈺君',lessons:8,price:3600},
+  {id:4, name:'進階彈唱 #4',level:'進階彈唱',day:'週一',time:'21:00',startDate:'6/29',endDate:'8/17',teacher:'張鈺君',lessons:8,price:4400},
+  // ===== 週二 (06/30-08/18) =====
+  {id:5, name:'樂理編曲 #2',level:'樂理編曲',day:'週二',time:'18:00',startDate:'6/30',endDate:'8/18',teacher:'吳興儒',lessons:8,price:4400},
+  {id:6, name:'樂理編曲 #3',level:'樂理編曲',day:'週二',time:'18:00',startDate:'6/30',endDate:'8/18',teacher:'張鈺君',lessons:8,price:4400},
+  {id:7, name:'進階彈唱 #2',level:'進階彈唱',day:'週二',time:'19:00',startDate:'6/30',endDate:'8/18',teacher:'詹俊皓',lessons:8,price:4400},
+  {id:8, name:'進階彈唱 #5',level:'進階彈唱',day:'週二',time:'19:00',startDate:'6/30',endDate:'8/18',teacher:'吳興儒',lessons:8,price:4400},
+  {id:9, name:'樂理編曲 #5',level:'樂理編曲',day:'週二',time:'19:00',startDate:'6/30',endDate:'8/18',teacher:'張鈺君',lessons:8,price:4400},
+  {id:10,name:'吉他中級 #4',level:'中級',day:'週二',time:'20:00',startDate:'6/30',endDate:'8/18',teacher:'江松霖',lessons:8,price:4400},
+  {id:11,name:'進階彈唱 #3',level:'進階彈唱',day:'週二',time:'20:00',startDate:'6/30',endDate:'8/18',teacher:'張鈺君',lessons:8,price:4400},
+  {id:12,name:'進階彈唱 #4',level:'進階彈唱',day:'週二',time:'21:00',startDate:'6/30',endDate:'8/18',teacher:'張鈺君',lessons:8,price:4400},
+  // ===== 週三 (07/01-08/19) =====
+  {id:13,name:'吉他入門',level:'入門',day:'週三',time:'18:00',startDate:'7/1',endDate:'8/19',teacher:'張鈺君',lessons:8,price:3600},
+  {id:14,name:'吉他中級 #4',level:'中級',day:'週三',time:'19:00',startDate:'7/1',endDate:'8/19',teacher:'張鈺君',lessons:8,price:4400},
+  {id:15,name:'進階彈唱 #3',level:'進階彈唱',day:'週三',time:'20:00',startDate:'7/1',endDate:'8/19',teacher:'張鈺君',lessons:8,price:4400},
+  {id:16,name:'樂理編曲 #8',level:'樂理編曲',day:'週三',time:'20:00',startDate:'7/1',endDate:'8/19',teacher:'吳興儒',lessons:8,price:4400},
+  {id:17,name:'吉他初級',level:'初級',day:'週三',time:'21:00',startDate:'7/1',endDate:'8/19',teacher:'張鈺君',lessons:8,price:3600},
+  // ===== 週四 (07/02-08/20) =====
+  {id:18,name:'吉他初級',level:'初級',day:'週四',time:'19:00',startDate:'7/2',endDate:'8/20',teacher:'詹俊皓',lessons:8,price:3600},
+  {id:19,name:'吉他中級 #4',level:'中級',day:'週四',time:'19:00',startDate:'7/2',endDate:'8/20',teacher:'張鈺君',lessons:8,price:4400},
+  {id:20,name:'樂理編曲 #2',level:'樂理編曲',day:'週四',time:'19:00',startDate:'7/2',endDate:'8/20',teacher:'吳興儒',lessons:8,price:4400},
+  {id:21,name:'吉他中級 #1',level:'中級',day:'週四',time:'20:00',startDate:'7/2',endDate:'8/20',teacher:'吳興儒',lessons:8,price:4400},
+  {id:22,name:'進階彈唱 #3',level:'進階彈唱',day:'週四',time:'20:00',startDate:'7/2',endDate:'8/20',teacher:'張鈺君',lessons:8,price:4400},
+  {id:23,name:'進階彈唱 #5',level:'進階彈唱',day:'週四',time:'20:00',startDate:'7/2',endDate:'8/20',teacher:'詹俊皓',lessons:8,price:4400},
+  // ===== 週五 (07/03-08/21) =====
+  {id:24,name:'吉他中級 #1',level:'中級',day:'週五',time:'19:00',startDate:'7/3',endDate:'8/21',teacher:'張鈺君',lessons:8,price:4400},
+  {id:25,name:'吉他入門',level:'入門',day:'週五',time:'19:00',startDate:'7/3',endDate:'8/21',teacher:'吳興儒',lessons:8,price:3600},
+  {id:26,name:'樂理編曲 #7',level:'樂理編曲',day:'週五',time:'20:00',startDate:'7/3',endDate:'8/21',teacher:'張鈺君',lessons:8,price:4400},
+  // ===== 週六 (07/04-08/22) =====
+  {id:27,name:'樂理編曲 #4',level:'樂理編曲',day:'週六',time:'10:00',startDate:'7/4',endDate:'8/22',teacher:'張鈺君',lessons:8,price:4400},
+  {id:28,name:'樂理編曲 #3',level:'樂理編曲',day:'週六',time:'11:00',startDate:'7/4',endDate:'8/22',teacher:'張鈺君',lessons:8,price:4400},
+  {id:29,name:'吉他中級 #1',level:'中級',day:'週六',time:'12:00',startDate:'7/4',endDate:'8/22',teacher:'張鈺君',lessons:8,price:4400},
+  {id:30,name:'進階彈唱 #4',level:'進階彈唱',day:'週六',time:'12:00',startDate:'7/4',endDate:'8/22',teacher:'吳興儒',lessons:8,price:4400},
+  {id:31,name:'吉他中級 #2',level:'中級',day:'週六',time:'13:00',startDate:'7/4',endDate:'8/22',teacher:'張鈺君',lessons:8,price:4400},
+  {id:32,name:'吉他中級 #4',level:'中級',day:'週六',time:'13:00',startDate:'7/4',endDate:'8/22',teacher:'吳興儒',lessons:8,price:4400},
+  {id:33,name:'進階彈唱 #4',level:'進階彈唱',day:'週六',time:'15:00',startDate:'7/4',endDate:'8/22',teacher:'張鈺君',lessons:8,price:4400},
+  {id:34,name:'吉他入門',level:'入門',day:'週六',time:'16:00',startDate:'7/4',endDate:'8/22',teacher:'張鈺君',lessons:8,price:3600},
+  {id:35,name:'吉他初級',level:'初級',day:'週六',time:'17:00',startDate:'7/4',endDate:'8/22',teacher:'曾筠藩',lessons:8,price:3600},
+  {id:36,name:'吉他中級 #4',level:'中級',day:'週六',time:'17:00',startDate:'7/4',endDate:'8/22',teacher:'張鈺君',lessons:8,price:4400},
+  // ===== 暑期吉他班（18 堂，入門+初級內容） =====
+  {id:37,name:'暑期A',level:'暑期班',type:'summer',day:'週一、週三',time:'15:00',startDate:'6/22',endDate:'8/19',teacher:'張鈺君',lessons:18,price:8100},
+  {id:38,name:'暑期B',level:'暑期班',type:'summer',day:'週二、週四',time:'14:00',startDate:'6/23',endDate:'8/20',teacher:'吳興儒',lessons:18,price:8100},
+];
+const nextClassData=[
+{id:1,name:'吉他入門',level:'入門',day:'週一',time:'18:00',startDate:'8/31',endDate:'10/19',teacher:'張鈺君',lessons:8,price:3600},{id:2,name:'吉他中級 #2',level:'中級',day:'週一',time:'19:00',startDate:'8/31',endDate:'10/19',teacher:'曾筠藩',lessons:8,price:4400},{id:3,name:'吉他中級 #3',level:'中級',day:'週一',time:'19:00',startDate:'8/31',endDate:'10/19',teacher:'張鈺君',lessons:8,price:4400},{id:4,name:'吉他初級',level:'初級',day:'週一',time:'20:00',startDate:'8/31',endDate:'10/19',teacher:'張鈺君',lessons:8,price:3600},{id:5,name:'進階彈唱 #4',level:'進階彈唱',day:'週一',time:'21:00',startDate:'8/31',endDate:'10/19',teacher:'張鈺君',lessons:8,price:4800},
+{id:6,name:'樂理編曲 #4',level:'樂理編曲',day:'週二',time:'18:00',startDate:'9/1',endDate:'10/20',teacher:'張鈺君',lessons:8,price:5200},{id:7,name:'進階彈唱 #3',level:'進階彈唱',day:'週二',time:'19:00',startDate:'9/1',endDate:'10/20',teacher:'詹俊皓',lessons:8,price:4800},{id:8,name:'進階彈唱 #6',level:'進階彈唱',day:'週二',time:'19:00',startDate:'9/1',endDate:'10/20',teacher:'吳興儒',lessons:8,price:4800},{id:9,name:'樂理編曲 #5',level:'樂理編曲',day:'週二',time:'19:00',startDate:'9/1',endDate:'10/20',teacher:'張鈺君',lessons:8,price:5200},{id:10,name:'進階彈唱 #1',level:'進階彈唱',day:'週二',time:'20:00',startDate:'9/1',endDate:'10/20',teacher:'江松霖',lessons:8,price:4800},{id:11,name:'進階彈唱 #4',level:'進階彈唱',day:'週二',time:'20:00',startDate:'9/1',endDate:'10/20',teacher:'張鈺君',lessons:8,price:4800},
+{id:12,name:'吉他初級',level:'初級',day:'週三',time:'18:00',startDate:'9/2',endDate:'10/21',teacher:'張鈺君',lessons:8,price:3600},{id:13,name:'進階彈唱 #3',level:'進階彈唱',day:'週三',time:'20:00',startDate:'9/2',endDate:'10/21',teacher:'張鈺君',lessons:8,price:4800},{id:14,name:'樂理編曲 #8',level:'樂理編曲',day:'週三',time:'20:00',startDate:'9/2',endDate:'10/21',teacher:'吳興儒',lessons:8,price:5200},{id:15,name:'吉他中級 #1',level:'中級',day:'週三',time:'21:00',startDate:'9/2',endDate:'10/21',teacher:'張鈺君',lessons:8,price:4400},
+{id:16,name:'吉他入門',level:'入門',day:'週四',time:'19:00',startDate:'9/3',endDate:'10/22',teacher:'詹俊皓',lessons:8,price:3600},{id:17,name:'進階彈唱 #2',level:'進階彈唱',day:'週四',time:'19:00',startDate:'9/3',endDate:'10/22',teacher:'張鈺君',lessons:8,price:4800},{id:18,name:'樂理編曲 #3',level:'樂理編曲',day:'週四',time:'19:00',startDate:'9/3',endDate:'10/22',teacher:'吳興儒',lessons:8,price:5200},{id:19,name:'吉他中級 #2',level:'中級',day:'週四',time:'20:00',startDate:'9/3',endDate:'10/22',teacher:'吳興儒',lessons:8,price:4400},{id:20,name:'進階彈唱 #3',level:'進階彈唱',day:'週四',time:'20:00',startDate:'9/3',endDate:'10/22',teacher:'張鈺君',lessons:8,price:4800},{id:21,name:'進階彈唱 #6',level:'進階彈唱',day:'週四',time:'20:00',startDate:'9/3',endDate:'10/22',teacher:'詹俊皓',lessons:8,price:4800},
+{id:22,name:'吉他中級 #2',level:'中級',day:'週五',time:'19:00',startDate:'9/4',endDate:'10/23',teacher:'張鈺君',lessons:8,price:4400},{id:23,name:'吉他初級',level:'初級',day:'週五',time:'19:00',startDate:'9/4',endDate:'10/23',teacher:'吳興儒',lessons:8,price:3600},{id:24,name:'樂理編曲 #7',level:'樂理編曲',day:'週五',time:'20:00',startDate:'9/4',endDate:'10/23',teacher:'張鈺君',lessons:8,price:5200},
+{id:25,name:'樂理編曲 #5',level:'樂理編曲',day:'週六',time:'10:00',startDate:'9/5',endDate:'10/24',teacher:'張鈺君',lessons:8,price:5200},{id:26,name:'樂理編曲 #4',level:'樂理編曲',day:'週六',time:'11:00',startDate:'9/5',endDate:'10/24',teacher:'張鈺君',lessons:8,price:5200},{id:27,name:'吉他中級 #2',level:'中級',day:'週六',time:'12:00',startDate:'9/5',endDate:'10/24',teacher:'張鈺君',lessons:8,price:4400},{id:28,name:'進階彈唱 #5',level:'進階彈唱',day:'週六',time:'12:00',startDate:'9/5',endDate:'10/24',teacher:'吳興儒',lessons:8,price:4800},{id:29,name:'吉他中級 #3',level:'中級',day:'週六',time:'13:00',startDate:'9/5',endDate:'10/24',teacher:'張鈺君',lessons:8,price:4400},{id:30,name:'進階彈唱 #1',level:'進階彈唱',day:'週六',time:'13:00',startDate:'9/5',endDate:'10/24',teacher:'吳興儒',lessons:8,price:4800},{id:31,name:'進階彈唱 #5',level:'進階彈唱',day:'週六',time:'15:00',startDate:'9/5',endDate:'10/24',teacher:'張鈺君',lessons:8,price:4800},{id:32,name:'吉他入門',level:'入門',day:'週六',time:'16:00',startDate:'9/5',endDate:'10/24',teacher:'曾筠藩',lessons:8,price:3600},{id:33,name:'吉他初級',level:'初級',day:'週六',time:'16:00',startDate:'9/5',endDate:'10/24',teacher:'張鈺君',lessons:8,price:3600},{id:34,name:'吉他中級 #1',level:'中級',day:'週六',time:'17:00',startDate:'9/5',endDate:'10/24',teacher:'曾筠藩',lessons:8,price:4400},{id:35,name:'進階彈唱 #2',level:'進階彈唱',day:'週六',time:'17:00',startDate:'9/5',endDate:'10/24',teacher:'張鈺君',lessons:8,price:4800}
+];
 
-// ============================================================
-// 儲存層
-// ============================================================
-const loadCfg = () => { try { return JSON.parse(localStorage.getItem('luby_config')) || {}; } catch { return {}; } };
-const saveCfg = c => localStorage.setItem('luby_config', JSON.stringify(c));
-const loadBookings = () => { try { return JSON.parse(localStorage.getItem('luby_bookings')) || []; } catch { return []; } };
-const saveBookings = b => localStorage.setItem('luby_bookings', JSON.stringify(b));
-function getUrl() {
-  const configured = loadCfg().sheetsUrl;
-  return !configured || configured === LEGACY_SHEETS_URL ? SHEETS_URL : configured;
-}
-function getCached() { try { return JSON.parse(localStorage.getItem('luby_dates_cache')) || []; } catch { return []; } }
-function setCache(d) { localStorage.setItem('luby_dates_cache', JSON.stringify(d)); localStorage.setItem('luby_dates_cache_ts', Date.now()); }
-// 每次管理員修改時遞增，避免較早發出的背景讀取覆蓋剛儲存的新狀態。
-let datesMutationVersion = 0;
-let datesSaveTimer = null;
-let datesSaveInFlight = false;
-let pendingDatesSnapshot = null;
-let localDateSessionDirty = false;
-let adminRenderVersion = 0;
-const slotSyncQueue = new Map();
+/* =========================================================
+ * State
+ * ========================================================= */
+let courseType='group'; // 'group' | 'private' | 'custom'
+let mode='returning';   // 'returning' | 'new'  (group 模式內)
+let pickMode='quiz';    // 'quiz' | 'manual'  (group + 新生模式內)
+let selectedClass=null; // 下一期班別 {id,name,level,day,time,...}
+let selectedOriginClass=null; // 目前原上課班別（07-08）
 
-// Google Sheet 曾累積同日期重複列；前後台一律先整理成「每日期唯一」。
-function normalizeDates(dates) {
-  const byDate = new Map();
-  (Array.isArray(dates) ? dates : []).forEach(raw => {
-    if (!raw || typeof raw.date !== 'string') return;
-    const slots = [...new Set(Array.isArray(raw.slots) && raw.slots.length ? raw.slots : SAT_SLOTS)];
-    const closedSlots = [...new Set(Array.isArray(raw.closedSlots) ? raw.closedSlots : [])]
-      .filter(slot => slots.includes(slot));
-    byDate.set(raw.date, {
-      date: raw.date,
-      slots,
-      active: raw.active !== false,
-      closedSlots
-    });
-  });
-  return [...byDate.values()].sort((a,b) => a.date.localeCompare(b.date));
-}
-
-// 自動產生未來 4 個週六
-function getNext4Saturdays() {
-  const result = [];
-  const d = new Date();
-  d.setHours(0,0,0,0);
-  const dow = d.getDay();
-  d.setDate(d.getDate() + (dow === 6 ? 0 : 6 - dow));
-  for (let i = 0; i < 4; i++) {
-    result.push(d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'));
-    d.setDate(d.getDate() + 7);
+/* =========================================================
+ * 折扣規則：即日起至 2026-06-20 23:59:59 (UTC+8 台灣時間) → 95 折；之後 → 原價
+ * 下一期課表更新時，記得同步調整 EARLY_BIRD_DEADLINE 與畫面文案。
+ * ========================================================= */
+const EARLY_BIRD_DEADLINE=new Date(Date.UTC(2026,7,20,15,59,59)); // 2026-08-20 23:59:59 UTC+8
+function calcPrice(basePrice, today){
+  const now=today||new Date();
+  const isEarlyBird=now<=EARLY_BIRD_DEADLINE;
+  if(isEarlyBird){
+    const finalPrice=Math.round(basePrice*0.95);
+    return {finalPrice,discount:basePrice-finalPrice,isEarlyBird:true,basePrice};
   }
-  return result;
+  return {finalPrice:basePrice,discount:0,isEarlyBird:false,basePrice};
 }
 
-// 讀取日期：快取優先，背景更新
-async function fetchDatesRemote() {
-  const configuredUrl = getUrl();
-  if (configuredUrl === SHEETS_URL && window.__lubyDatesPrefetch) {
-    const prefetched = window.__lubyDatesPrefetch;
-    window.__lubyDatesPrefetch = null;
-    const json = await prefetched;
-    if (json) return json;
-  }
-  const res = await fetch(configuredUrl + '?action=getDates&_=' + Date.now());
-  return res.json();
-}
+/* =========================================================
+ * Quiz（沿用 index.html 的 3 題機制）
+ * ========================================================= */
+const quizData=[
+  {q:'你有沒有接觸過樂器？',opts:[{t:'完全沒有',s:0},{t:'小時候學過一點',s:1},{t:'自己有在練習',s:2},{t:'已經會彈一些歌了',s:3}]},
+  {q:'你認得樂譜嗎？',opts:[{t:'完全不認得',s:0},{t:'看得懂簡譜',s:1},{t:'會看 Tab 譜',s:2},{t:'五線譜也沒問題',s:3}]},
+  {q:'你希望學到什麼程度？',opts:[{t:'能彈簡單的歌就好',s:0},{t:'想學自彈自唱',s:1},{t:'想和朋友組團',s:2},{t:'想精進演奏技術',s:3}]}
+];
+let qStep=0,qScore=0;
 
-async function loadDates({ refreshRemote = true, onRemoteUpdate = null } = {}) {
-  const cached = normalizeDates(getCached());
-  if (JSON.stringify(cached) !== JSON.stringify(getCached())) setCache(cached);
-  // 有快取先用，背景靜默更新
-  if (cached.length) {
-    if (refreshRemote) {
-      const requestVersion = datesMutationVersion;
-      fetchDatesRemote().then(j=>{
-        // 本次頁面只要有管理員操作，就不再接受較慢的遠端資料覆蓋本機最新狀態。
-        if (localDateSessionDirty || datesSaveInFlight || pendingDatesSnapshot || requestVersion !== datesMutationVersion) return;
-        if (j.dates && j.dates.length) {
-          const remoteDates = normalizeDates(j.dates);
-          setCache(remoteDates);
-          if (typeof onRemoteUpdate === 'function') onRemoteUpdate();
-        }
-      }).catch(()=>{});
-    }
-    return cached;
-  }
-  // 沒快取才等待
-  try {
-    const json = await fetchDatesRemote();
-    if (json.dates && json.dates.length) {
-      const remoteDates = normalizeDates(json.dates);
-      setCache(remoteDates);
-      return remoteDates;
-    }
-  } catch(e) {}
-  return [];
-}
-
-// 所有日期異動只走這條佇列：即時更新畫面，連續操作合併成一次遠端寫入。
-function queueDatesSave(dates) {
-  const normalizedDates = normalizeDates(dates);
-  localDateSessionDirty = true;
-  datesMutationVersion++;
-  setCache(normalizedDates);
-  pendingDatesSnapshot = JSON.parse(JSON.stringify(normalizedDates));
-  clearTimeout(datesSaveTimer);
-  datesSaveTimer = setTimeout(flushDatesSave, 400);
-}
-
-async function flushDatesSave() {
-  if (datesSaveInFlight || !pendingDatesSnapshot) return;
-  const snapshot = pendingDatesSnapshot;
-  pendingDatesSnapshot = null;
-  datesSaveInFlight = true;
-  try {
-    await fetch(getUrl(), {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ action: 'saveDates', dates: snapshot })
-    });
-  } catch(e) {
-    console.error('flushDatesSave:', e);
-    // 保留最新畫面狀態並排入一次重試，避免短暫斷線就遺失操作。
-    if (!pendingDatesSnapshot) pendingDatesSnapshot = snapshot;
-    clearTimeout(datesSaveTimer);
-    datesSaveTimer = setTimeout(flushDatesSave, 1500);
-  } finally {
-    datesSaveInFlight = false;
-    if (pendingDatesSnapshot) {
-      clearTimeout(datesSaveTimer);
-      datesSaveTimer = setTimeout(flushDatesSave, 400);
-    }
-  }
-}
-
-// ============================================================
-// 路由
-// ============================================================
-function goAdmin() {
-  document.getElementById('loginOverlay').classList.add('show');
-  document.getElementById('pwInput').value = '';
-  document.getElementById('loginErr').textContent = '';
-  document.getElementById('adminPage').classList.add('active');
-  document.getElementById('frontPage').classList.remove('active');
-  // Apps Script 首次回應較慢，打開登入畫面時就先開始同步。
-  syncPassword();
-}
-async function doLogin() {
-  const cfg = loadCfg();
-  const inputPw = document.getElementById('pwInput').value;
-  // 先用本機密碼驗證，背景同步最新密碼
-  if (inputPw === (cfg.password || DEFAULT_PW)) {
-    document.getElementById('loginOverlay').classList.remove('show');
-    renderAdmin();
-    // 背景同步密碼（不影響登入速度）
-    syncPassword();
+function initQuiz(){qStep=0;qScore=0;renderQuiz();}
+function renderQuiz(){
+  const area=document.getElementById('quizArea');
+  if(qStep>=quizData.length){
+    let tl;
+    if(qScore<=2)tl='入門';
+    else if(qScore<=5)tl='初級';
+    else if(qScore<=7)tl='中級';
+    else tl='進階彈唱';
+    const rec=nextClassData.find(c=>c.level===tl)||nextClassData[0];
+    area.innerHTML='<div class="quiz-progress">'+quizData.map(()=>'<div class="qp-bar done"></div>').join('')+'</div>'+
+      '<div style="text-align:center;padding:20px 0 24px;">'+
+        '<div style="font-size:0.7rem;letter-spacing:0.2em;color:var(--gray-light);margin-bottom:10px;">推薦給你</div>'+
+        '<div style="font-family:\'Noto Serif TC\',serif;font-size:1.25rem;color:var(--black);margin-bottom:6px;">'+rec.name+'</div>'+
+        '<div style="font-size:0.82rem;color:var(--gray);">'+rec.day+' '+rec.time+' ・ '+rec.startDate+' 開課</div>'+
+      '</div>'+
+      '<button class="btn-primary" onclick="confirmQuizPick('+rec.id+')">就選這個班</button>'+
+      '<div class="spacer-s"></div>'+
+      '<button class="btn-outline" onclick="initQuiz()">重新測一次</button>';
     return;
   }
-  // 本機驗證失敗，嘗試從 Sheets 拉最新密碼再驗證一次
-  const btn = document.querySelector('.login-btn');
-  const err = document.getElementById('loginErr');
-  btn.disabled = true; btn.textContent = '正在連線（約 15 秒）…';
-  err.textContent = '首次登入正在同步管理密碼，請稍候';
-  const synced = await syncPassword();
-  btn.disabled = false; btn.textContent = '進入後台';
-  const cfg2 = loadCfg();
-  if (inputPw === (cfg2.password || DEFAULT_PW)) {
-    err.textContent = '';
-    document.getElementById('loginOverlay').classList.remove('show');
-    renderAdmin();
-  } else if (!synced) {
-    err.textContent = '連線逾時，請確認網路後再按一次「進入後台」';
-  } else {
-    err.textContent = '密碼錯誤';
+  const q=quizData[qStep];
+  area.innerHTML='<div class="quiz-progress">'+
+    quizData.map((_,i)=>'<div class="qp-bar '+(i<qStep?'done':i===qStep?'current':'')+'"></div>').join('')+
+    '</div>'+
+    '<div class="quiz-q">'+q.q+'</div>'+
+    '<div class="quiz-opts">'+
+    q.opts.map(o=>'<button class="quiz-opt" onclick="qScore+='+o.s+';qStep++;renderQuiz()">'+o.t+'</button>').join('')+
+    '</div>';
+}
+function confirmQuizPick(id){
+  onClassPick(String(id));
+  // 把推薦結果在 UI 上「鎖定」，避免再被洗掉
+  document.getElementById('quizArea').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+/* =========================================================
+ * Course Type 切換 (group / private / custom)
+ * ========================================================= */
+function switchCourseType(c){
+  courseType=c;
+  document.querySelectorAll('.tab[data-course]').forEach(t=>t.classList.toggle('active',t.dataset.course===c));
+  const isGroup=(c==='group');
+  document.getElementById('groupBody').style.display=isGroup?'block':'none';
+  document.getElementById('customBody').style.display=isGroup?'none':'block';
+  document.getElementById('fgGroupSize').style.display=(c==='custom')?'block':'none';
+  // 清空跨類型殘留
+  selectedClass=null;
+  selectedOriginClass=null;
+  document.getElementById('fOriginClass').value='';
+  document.getElementById('fNextClass').value='';
+  document.getElementById('fManualClass').value='';
+  cdRefresh('fOriginClass');cdRefresh('fNextClass');cdRefresh('fManualClass');
+  // chip 清空（切到 group 時把 private/custom 的 chip 重置）
+  document.querySelectorAll('#customBody .chip input, #cgHasGuitarG input').forEach(inp=>{inp.checked=false;inp.closest('.chip').classList.remove('selected');});
+  renderSelectedClass();
+  updateSubmitButton();
+}
+
+function updateSubmitButton(){
+  const btn=document.getElementById('submitBtn');
+  if(courseType==='group'){
+    if(!selectedClass){btn.disabled=true;btn.textContent='請先選擇班別';}
+    else{btn.disabled=false;btn.textContent='送出報名';}
+  }else if(courseType==='private'){
+    btn.disabled=false;btn.textContent='送出個別課諮詢';
+  }else if(courseType==='custom'){
+    btn.disabled=false;btn.textContent='送出自組班需求';
   }
 }
-function goFront() {
-  document.getElementById('frontPage').classList.add('active');
-  document.getElementById('adminPage').classList.remove('active');
-  renderFrontDates();
-}
 
-// ============================================================
-// 工具
-// ============================================================
-function fmtDate(ds) {
-  const p = ds.split('-');
-  const dw = ['日','一','二','三','四','五','六'][new Date(parseInt(p[0]),parseInt(p[1])-1,parseInt(p[2])).getDay()];
-  return `${parseInt(p[1])}月${parseInt(p[2])}日（${dw}）`;
-}
-
-// ============================================================
-// 後台
-// ============================================================
-async function renderAdmin() {
-  const cfg = loadCfg();
-  document.getElementById('cfgPK').value = cfg.pubKey || 'RaamsiaDHLjtIj7bK';
-  document.getElementById('cfgSID').value = cfg.serviceId || 'service_jbj19zq';
-  document.getElementById('cfgTO').value = cfg.tplOwner || 'template_11tk9tg';
-  document.getElementById('cfgTC').value = cfg.tplCustomer || 'template_9xsijum';
-  document.getElementById('cfgOE').value = cfg.ownerEmail || 'rock7652@gmail.com';
-  document.getElementById('cfgGS').value = getUrl();
-  const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate()+1);
-  document.getElementById('newDateFrom').min = tomorrow.toISOString().split('T')[0];
-  document.getElementById('newDateTo').min = tomorrow.toISOString().split('T')[0];
-  document.getElementById('newSlotCbs').innerHTML = SLOTS.map(t =>
-    `<div class="slcb"><input type="checkbox" id="ns_${t.replace(':','')}" value="${t}" checked><label for="ns_${t.replace(':','')}"> ${t}</label></div>`
-  ).join('');
-  await renderAdminDates();
-}
-
-async function renderAdminDates(refreshRemote = true) {
-  const renderVersion = ++adminRenderVersion;
-  const satDates = getNext4Saturdays();
-  const today = new Date().toISOString().split('T')[0];
-
-  // 讀取 Sheets 設定（快取優先）
-  const sheetsData = await loadDates({
-    refreshRemote,
-    onRemoteUpdate: () => {
-      if (renderVersion === adminRenderVersion) renderAdminDates(false);
-    }
-  });
-  if (renderVersion !== adminRenderVersion) return;
-  const closedMap = {};
-  sheetsData.forEach(d => { if (d.closedSlots && d.closedSlots.length) closedMap[d.date] = d.closedSlots; });
-
-  // 特殊日期（非週六、未過期）
-  const specialDates = sheetsData.filter(d => {
-    const dow = new Date(d.date+'T12:00:00').getDay();
-    return dow !== 6 && d.date >= today;
-  });
-
-  // 讀取已預約（本機 + 背景更新遠端）
-  let bookedKeys = new Set(loadBookings().map(b=>b.date+'|'+b.time));
-
-  // 立即渲染
-  _renderSaturdays(satDates, closedMap, bookedKeys);
-  _renderSpecialDates(specialDates, bookedKeys);
-
-  // 背景從 Sheets 更新已約狀態
-  fetch(getUrl()+'?action=getBookings').then(r=>r.json()).then(json=>{
-    // 較早一次畫面的預約請求即使較晚回來，也不得重新畫掉最新時段狀態。
-    if (renderVersion !== adminRenderVersion) return;
-    if (!json.bookings) return;
-    let hasNew = false;
-    json.bookings.forEach(k=>{ if(!bookedKeys.has(k)){bookedKeys.add(k);hasNew=true;} });
-    if (hasNew) {
-      _renderSaturdays(satDates, closedMap, bookedKeys);
-      _renderSpecialDates(specialDates, bookedKeys);
-    }
-  }).catch(()=>{});
-}
-
-function _renderSaturdays(satDates, closedMap, bookedKeys) {
-  const el = document.getElementById('adminDatesList');
-  el.innerHTML = satDates.map(ds => {
-    const closedSlots = closedMap[ds] || [];
-    const tags = SAT_SLOTS.map(s => {
-      const isBooked = bookedKeys.has(ds+'|'+s);
-      const isClosed = closedSlots.includes(s);
-      const isSaving = slotSyncQueue.has(ds+'|'+s);
-      let ts = '';
-      if (isBooked) ts='background:rgba(180,80,80,0.15);color:#c07080;border-color:rgba(180,80,80,0.3);';
-      else if (isClosed) ts='background:rgba(100,100,100,0.15);color:#888;border-color:rgba(100,100,100,0.3);text-decoration:line-through;';
-      const al = isClosed?'開':'關', ac = isClosed?'#4aaa7a':'#c07080';
-      return `<span class="stag" style="${ts}display:inline-flex;align-items:center;gap:4px;">${s}${isBooked?' 已約':isClosed?' 關閉':''}
-        ${isBooked
-          ? `<button onclick="cancelBooking('${ds}','${s}')" style="background:none;border:none;cursor:pointer;color:#e07070;font-size:0.68rem;padding:0 2px;">取消</button>`
-          : `<button onclick="toggleSlot('${ds}','${s}')" style="background:none;border:none;cursor:pointer;color:${ac};font-size:0.68rem;padding:0 2px;">${al}${isSaving?' <span aria-label="背景同步中，仍可繼續點擊" style="opacity:.65;"> 同步中</span>':''}</button>`
-        }</span>`;
-    }).join('');
-    return `<div class="di"><div class="di-hdr"><div class="di-name">${fmtDate(ds)}</div></div><div class="slot-tags">${tags}</div></div>`;
-  }).join('');
-}
-
-function _renderSpecialDates(specialDates, bookedKeys) {
-  const spEl = document.getElementById('adminSpecialList');
-  if (!specialDates.length) { spEl.innerHTML = '<div class="empty-hint">尚未新增特殊日期</div>'; return; }
-  spEl.innerHTML = specialDates.sort((a,b)=>a.date.localeCompare(b.date)).map(d => {
-    const closedSlots = d.closedSlots || [];
-    const act = d.active !== false;
-    const tags = (d.slots || SAT_SLOTS).map(s => {
-      const isBooked = bookedKeys.has(d.date+'|'+s);
-      const isClosed = closedSlots.includes(s);
-      const isSaving = slotSyncQueue.has(d.date+'|'+s);
-      let ts = '';
-      if (isBooked) ts='background:rgba(180,80,80,0.15);color:#c07080;border-color:rgba(180,80,80,0.3);';
-      else if (isClosed) ts='background:rgba(100,100,100,0.15);color:#888;border-color:rgba(100,100,100,0.3);text-decoration:line-through;';
-      const al = isClosed?'開':'關', ac = isClosed?'#4aaa7a':'#c07080';
-      return `<span class="stag" style="${ts}display:inline-flex;align-items:center;gap:4px;">${s}${isBooked?' 已約':isClosed?' 關閉':''}
-        ${isBooked
-          ? `<button onclick="cancelBooking('${d.date}','${s}')" style="background:none;border:none;cursor:pointer;color:#e07070;font-size:0.68rem;padding:0 2px;">取消</button>`
-          : `<button onclick="toggleSlot('${d.date}','${s}')" style="background:none;border:none;cursor:pointer;color:${ac};font-size:0.68rem;padding:0 2px;">${al}${isSaving?' <span aria-label="背景同步中，仍可繼續點擊" style="opacity:.65;"> 同步中</span>':''}</button>`
-        }</span>`;
-    }).join('');
-    return `<div class="di">
-      <div class="di-hdr">
-        <div class="di-name">${fmtDate(d.date)}</div>
-        <div class="di-btns">
-          <button class="tog-btn" onclick="toggleDate('${d.date}')">${act?'暫停':'開啟'}</button>
-          <button class="del-btn" onclick="deleteDate('${d.date}')">刪除</button>
-        </div>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-        <span class="badge" style="background:${act?'rgba(79,142,247,0.15)':'rgba(150,80,80,0.15)'};color:${act?'var(--aa)':'#c07080'};">${act?'開放中':'已暫停'}</span>
-        <div class="slot-tags">${tags}</div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function toggleAdvancedCard(titleEl) {
-  const card = titleEl.closest('.advanced-card');
-  if (card) card.classList.toggle('collapsed');
-}
-
-function saveConfig() {
-  const cfg = loadCfg();
-  cfg.pubKey = document.getElementById('cfgPK').value.trim();
-  cfg.serviceId = document.getElementById('cfgSID').value.trim();
-  cfg.tplOwner = document.getElementById('cfgTO').value.trim();
-  cfg.tplCustomer = document.getElementById('cfgTC').value.trim();
-  cfg.ownerEmail = document.getElementById('cfgOE').value.trim();
-  cfg.sheetsUrl = document.getElementById('cfgGS').value.trim();
-  saveCfg(cfg);
-  const ok = document.getElementById('cfgOk');
-  ok.style.display='block'; setTimeout(()=>ok.style.display='none',2200);
-}
-
-function togglePwVis(inputId, btnId) {
-  const input = document.getElementById(inputId);
-  const btn = document.getElementById(btnId);
-  input.type = input.type==='password' ? 'text' : 'password';
-  btn.textContent = input.type==='password' ? '顯示' : '隱藏';
-}
-
-function changePw() {
-  const p1=document.getElementById('newPw1').value;
-  const p2=document.getElementById('newPw2').value;
-  const msg=document.getElementById('pwMsg');
-  if (!p1){msg.style.color='#e07070';msg.textContent='請輸入新密碼';return;}
-  if (p1!==p2){msg.style.color='#e07070';msg.textContent='兩次密碼不一致';return;}
-  if (p1.length<4){msg.style.color='#e07070';msg.textContent='密碼至少 4 個字元';return;}
-  const cfg=loadCfg(); cfg.password=p1; saveCfg(cfg);
-  savePassword(p1);
-  document.getElementById('newPw1').value='';
-  document.getElementById('newPw2').value='';
-  msg.style.color='#4aaa7a'; msg.textContent='密碼已更新並同步';
-  setTimeout(()=>msg.textContent='',2500);
-}
-
-function savePassword(pw) {
-  new Promise((resolve) => {
-    var xhr = new XMLHttpRequest();
-    xhr.open('POST', getUrl(), true);
-    xhr.setRequestHeader('Content-Type', 'text/plain');
-    xhr.onload = resolve; xhr.onerror = resolve;
-    xhr.send(JSON.stringify({ action: 'savePassword', password: pw }));
-  }).catch(()=>{});
-}
-
-let passwordSyncPromise = null;
-function syncPassword() {
-  // 登入畫面預抓與按鈕驗證共用同一個請求，避免 Apps Script 重複等待。
-  if (passwordSyncPromise) return passwordSyncPromise;
-  passwordSyncPromise = (async () => {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 25000);
-    try {
-      const res = await fetch(getUrl() + '?action=getPassword&_=' + Date.now(), { signal: controller.signal });
-      if (!res.ok) return false;
-      const json = await res.json();
-      if (json.password && json.password.length >= 4) {
-        const cfg = loadCfg(); cfg.password = json.password; saveCfg(cfg);
-        return true;
+/* chip 視覺狀態（radio 互斥 / checkbox 多選）— 含 group 的 hasGuitar 與 customBody 內所有 chip */
+function bindChips(){
+  document.querySelectorAll('#customBody .chip input, #cgHasGuitarG input').forEach(inp=>{
+    inp.addEventListener('change',()=>{
+      const grp=inp.closest('.chip-group');
+      if(inp.type==='radio'){
+        grp.querySelectorAll('.chip').forEach(c=>c.classList.remove('selected'));
+        inp.closest('.chip').classList.add('selected');
+      }else{
+        inp.closest('.chip').classList.toggle('selected',inp.checked);
       }
-      return false;
-    } catch(e) {
-      console.error('syncPassword:', e);
-      return false;
-    } finally {
-      clearTimeout(timer);
-    }
-  })().finally(() => { passwordSyncPromise = null; });
-  return passwordSyncPromise;
-}
-
-function toggleAllSlots() {
-  const cbs=[...document.querySelectorAll('#newSlotCbs input[type=checkbox]')];
-  const all=cbs.every(c=>c.checked);
-  cbs.forEach(c=>c.checked=!all);
-  document.getElementById('toggleAllBtn').textContent=all?'全選':'全部取消';
-}
-
-async function addDate() {
-  const from=document.getElementById('newDateFrom').value;
-  const to=document.getElementById('newDateTo').value||from;
-  if (!from){alert('請選擇起始日期');return;}
-  if (to<from){alert('結束日期不能早於起始日期');return;}
-  const slots=[...document.querySelectorAll('#newSlotCbs input:checked')].map(c=>c.value);
-  if (!slots.length){alert('請選擇至少一個時段');return;}
-  const dates=getCached();
-  let added=0;
-  let cur=new Date(from+'T12:00:00');
-  const end=new Date(to+'T12:00:00');
-  while(cur<=end){
-    const ds=cur.getFullYear()+'-'+String(cur.getMonth()+1).padStart(2,'0')+'-'+String(cur.getDate()).padStart(2,'0');
-    if(!dates.find(d=>d.date===ds)){dates.push({date:ds,slots,active:true});added++;}
-    cur.setDate(cur.getDate()+1);
-  }
-  if(added===0){alert('所選日期已全部存在');return;}
-  document.getElementById('newDateFrom').value='';
-  document.getElementById('newDateTo').value='';
-  const btn=document.getElementById('addDateBtn');
-  btn.disabled=true; btn.textContent='儲存中…';
-  queueDatesSave(dates);
-  btn.disabled=false; btn.textContent=`已新增 ${added} 天`; btn.style.background='#2d6a4f';
-  setTimeout(()=>{btn.textContent='新增日期';btn.style.background='';},2200);
-  await renderAdminDates(false);
-}
-
-async function deleteDate(dateStr) {
-  if(!confirm('確定刪除此日期？'))return;
-  const dates = getCached().filter(d=>d.date!==dateStr);
-  queueDatesSave(dates);
-  await renderAdminDates(false);
-}
-
-async function toggleDate(dateStr) {
-  const dates = getCached();
-  const d = dates.find(x=>x.date===dateStr);
-  if(d) d.active = d.active===false ? true : false;
-  queueDatesSave(dates);
-  await renderAdminDates(false);
-}
-
-async function toggleSlot(dateStr, slot) {
-  const key = dateStr+'|'+slot;
-  const dates = normalizeDates(getCached());
-  let d = dates.find(x => x.date === dateStr);
-  if (!d) {
-    d = { date: dateStr, slots: SAT_SLOTS, active: true, closedSlots: [] };
-    dates.push(d);
-  }
-  if (!d.closedSlots) d.closedSlots = [];
-  const idx = d.closedSlots.indexOf(slot);
-  const targetState = idx >= 0 ? 'open' : 'closed';
-  if (targetState === 'open') d.closedSlots.splice(idx, 1); else d.closedSlots.push(slot);
-
-  // 立即反映每次點擊；伺服器尚未確認時仍可繼續改變最後目標狀態。
-  localDateSessionDirty = true;
-  datesMutationVersion++;
-  const queued = slotSyncQueue.get(key) || { date: dateStr, slot, desiredState: targetState, processing: false };
-  queued.desiredState = targetState;
-  slotSyncQueue.set(key, queued);
-  setCache(normalizeDates(dates));
-  await renderAdminDates(false);
-
-  // 不等待網路即可繼續點擊；同一時段只依序送出，最後以最新目標狀態為準。
-  processSlotSyncQueue(key);
-}
-
-async function processSlotSyncQueue(key) {
-  const queued = slotSyncQueue.get(key);
-  if (!queued || queued.processing) return;
-  queued.processing = true;
-
-  try {
-    while (slotSyncQueue.has(key)) {
-      const stateToSend = queued.desiredState;
-      const operationId = 'slot_' + Date.now() + '_' + Math.random().toString(36).slice(2,10);
-      const url = getUrl() + '?action=setSlotStateV2' +
-        '&date=' + encodeURIComponent(queued.date) +
-        '&slot=' + encodeURIComponent(queued.slot) +
-        '&state=' + encodeURIComponent(stateToSend) +
-        '&operationId=' + encodeURIComponent(operationId) +
-        '&_=' + Date.now();
-      const res = await fetch(url);
-      const json = await res.json();
-      if (!json.ok || json.date !== queued.date || json.slot !== queued.slot || json.state !== stateToSend) {
-        throw new Error(json.message || '伺服器未確認此時段');
-      }
-
-      // 同步期間若又被點擊，只補送最後狀態；中間重複狀態不送。
-      if (queued.desiredState === stateToSend) {
-        slotSyncQueue.delete(key);
-        break;
-      }
-    }
-  } catch (err) {
-    console.error('processSlotSyncQueue:', err);
-    try {
-      const res = await fetch(getUrl() + '?action=getDates&_=' + Date.now());
-      const json = await res.json();
-      if (json.dates) setCache(normalizeDates(json.dates));
-    } catch (_) {}
-    slotSyncQueue.delete(key);
-    alert('此時段儲存失敗，畫面已恢復後端狀態，請再試一次');
-  } finally {
-    queued.processing = false;
-    await renderAdminDates(false);
-  }
-}
-
-async function cancelBooking(dateStr, slot) {
-  const key=dateStr+'|'+slot;
-  if(!confirm(`確定取消「${fmtDate(dateStr)} ${slot}」的預約並釋放時段？`))return;
-  try {
-    await fetch(getUrl()+'?action=cancelBooking&key='+encodeURIComponent(key));
-  } catch(e){}
-  const bookings=loadBookings().filter(b=>!(b.date===dateStr&&b.time===slot));
-  saveBookings(bookings);
-  await renderAdminDates();
-  alert(`已釋放「${fmtDate(dateStr)} ${slot}」時段`);
-}
-
-// ============================================================
-// 前台
-// ============================================================
-function onQtyChange() {
-  const qty=parseInt(document.getElementById('fqty').value)||1;
-  document.getElementById('multiSlotHint').style.display=qty>=2?'block':'none';
-  document.getElementById('slotSectionLabel').textContent=qty>=2?`選擇預約時段（請選 ${qty===4?'多個':qty} 個）`:'選擇預約時段';
-  const inputs=document.querySelectorAll('#dateSlotsContainer input[data-date]');
-  inputs.forEach(inp=>{
-    if(inp.disabled)return;
-    if(qty>=2){inp.type='checkbox';inp.removeAttribute('name');}
-    else{inp.type='radio';inp.setAttribute('name','bookSlot');}
-  });
-  if(qty===1){
-    let found=false;
-    document.querySelectorAll('#dateSlotsContainer input[type=radio]').forEach(inp=>{
-      if(inp.checked&&!found)found=true; else inp.checked=false;
     });
-  }
+  });
 }
 
-async function renderFrontDates() {
-  const c = document.getElementById('dateSlotsContainer');
-  const satDates = getNext4Saturdays();
-  const today = new Date().toISOString().split('T')[0];
-
-  // 新裝置尚無快取時，先畫出日期與時段骨架，避免只看到空白載入訊息。
-  if (!normalizeDates(getCached()).length) renderFrontLoadingSlots(satDates, c);
-
-  // 讀取設定（快取優先，極快）
-  const sheetsData = await loadDates();
-  const closedMap = {};
-  sheetsData.forEach(d => { if (d.closedSlots) closedMap[d.date] = d.closedSlots; });
-
-  // 特殊日期（非週六、未過期、開放中）
-  const specialDates = sheetsData
-    .filter(d => new Date(d.date+'T12:00:00').getDay() !== 6 && d.date >= today && d.active !== false)
-    .map(d => ({ date: d.date, slots: d.slots || SAT_SLOTS, closedSlots: d.closedSlots || [] }));
-
-  // 合併並排序
-  const allDates = [
-    ...satDates.map(ds => ({ date: ds, slots: SAT_SLOTS, closedSlots: closedMap[ds] || [] })),
-    ...specialDates
-  ].sort((a,b) => a.date.localeCompare(b.date));
-
-  const qty = parseInt(document.getElementById('fqty').value) || 1;
-  const inputType = qty >= 2 ? 'checkbox' : 'radio';
-  let bookedKeys = new Set(loadBookings().map(b=>b.date+'|'+b.time));
-
-  // 立即顯示
-  _renderFrontSlots(allDates, c, bookedKeys, inputType);
-
-  // 背景更新已約
-  fetch(getUrl()+'?action=getBookings').then(r=>r.json()).then(json=>{
-    if(!json.bookings) return;
-    let hasNew=false;
-    json.bookings.forEach(k=>{ if(!bookedKeys.has(k)){bookedKeys.add(k);hasNew=true;} });
-    if(hasNew) _renderFrontSlots(allDates, c, bookedKeys, inputType);
-  }).catch(()=>{});
+/* =========================================================
+ * Mode 切換 (group 模式內：returning / new)
+ * ========================================================= */
+function switchMode(m){
+  mode=m;
+  document.querySelectorAll('.tab[data-mode]').forEach(t=>t.classList.toggle('active',t.dataset.mode===m));
+  document.getElementById('returningSection').style.display=(m==='returning')?'block':'none';
+  document.getElementById('newSection').style.display=(m==='new')?'block':'none';
+  // 切換 mode 時清空已選
+  selectedClass=null;
+  selectedOriginClass=null;
+  document.getElementById('fOriginClass').value='';
+  document.getElementById('fNextClass').value='';
+  document.getElementById('fManualClass').value='';
+  cdRefresh('fOriginClass');cdRefresh('fNextClass');cdRefresh('fManualClass');
+  if(m==='new')initQuiz();
+  renderSelectedClass();
+}
+function switchPickMode(p){
+  pickMode=p;
+  document.querySelectorAll('.tab[data-pick]').forEach(t=>t.classList.toggle('active',t.dataset.pick===p));
+  document.getElementById('quizArea').style.display=(p==='quiz')?'block':'none';
+  document.getElementById('manualPickArea').style.display=(p==='manual')?'block':'none';
+  selectedClass=null;
+  document.getElementById('fManualClass').value='';
+  cdRefresh('fManualClass');
+  if(p==='quiz')initQuiz();
+  renderSelectedClass();
 }
 
-function renderFrontLoadingSlots(satDates, c) {
-  c.innerHTML = satDates.map(ds => `<div class="date-block loading">
-    <div class="date-block-hd">預約 ${fmtDate(ds)}　<span style="font-size:0.72rem;color:var(--muted);font-weight:300;">（正在確認）</span></div>
-    <div class="time-slots">${SAT_SLOTS.map(t => `<div class="tsi">
-      <input type="radio" disabled>
-      <label>${t}</label>
-    </div>`).join('')}</div>
-  </div>`).join('') + '<div class="slots-loading-note">正在確認最新可預約狀態，請稍候</div>';
+/* =========================================================
+ * 選班 → 渲染 class card / bank box
+ * ========================================================= */
+function onClassPick(id){
+  if(!id){selectedClass=null;renderSelectedClass();return;}
+  const c=nextClassData.find(x=>String(x.id)===String(id));
+  if(!c){selectedClass=null;renderSelectedClass();return;}
+  selectedClass=c;
+  renderSelectedClass();
+}
+function onOriginClassPick(id){
+  selectedOriginClass=currentClassData.find(x=>String(x.id)===String(id))||null;
 }
 
-function _renderFrontSlots(allDates, c, bookedKeys, inputType) {
-  if (!allDates.length) {
-    c.innerHTML='<div style="padding:22px;text-align:center;color:var(--muted);font-size:0.82rem;">目前尚無開放預約日期，請稍後再查看或 Line：@gay6872z</div>';
+function renderSelectedClass(){
+  const cardBox=document.getElementById('selectedClassBox');
+  const bankBox=document.getElementById('bankBox');
+
+  if(!selectedClass){
+    cardBox.innerHTML='';
+    bankBox.style.display='none';
+    updateSubmitButton();
     return;
   }
-  c.innerHTML = allDates.map((d, di) => {
-    const closedSlots = new Set(d.closedSlots || []);
-    return `<div class="date-block">
-      <div class="date-block-hd">預約 ${fmtDate(d.date)}　<span style="font-size:0.72rem;color:var(--muted);font-weight:300;">（一個時段以一件為主）</span></div>
-      <div class="time-slots">${d.slots.map((t, ti) => {
-        const isBooked = bookedKeys.has(d.date+'|'+t);
-        const isClosed = closedSlots.has(t);
-        const disabled = isBooked || isClosed;
-        const cls = isBooked ? 'booked' : isClosed ? 'closed' : '';
-        return `<div class="tsi${cls?' '+cls:''}">
-          <input type="${inputType}" ${inputType==='radio'?'name="bookSlot"':''} id="sl_${di}_${ti}" value="${d.date}|${t}" data-label="${fmtDate(d.date)} ${t}" data-date="${d.date}" data-time="${t}"${disabled?' disabled':''}>
-          <label for="sl_${di}_${ti}">${t}</label>
-        </div>`;
-      }).join('')}</div>
-    </div>`;
-  }).join('');
+
+  const c=selectedClass;
+  const p=calcPrice(c.price);
+  const periodLabel=mode==='returning'?'下一期班別':'課程資訊';
+
+  cardBox.innerHTML='<div class="class-card">'+
+    '<div style="font-size:0.7rem;letter-spacing:0.2em;color:var(--gray-light);margin-bottom:8px;">'+periodLabel+'</div>'+
+    '<div class="cc-name">'+c.name+'</div>'+
+    '<div class="cc-meta">'+
+      c.day+' '+c.time+' ・ '+c.teacher+' 老師<br>'+
+      c.startDate+' ~ '+c.endDate+' ・ 共 '+c.lessons+' 堂'+
+    '</div>'+
+    '<div class="cc-price">'+
+      '<span class="cc-price-label">學費</span>'+
+      '<span>'+
+        (p.isEarlyBird?'<span class="cc-price-orig">NT$'+p.basePrice.toLocaleString()+'</span>':'')+
+        '<span class="cc-price-final">NT$'+p.finalPrice.toLocaleString()+'</span>'+
+        (p.isEarlyBird?'<span class="cc-discount">早鳥 95折 -'+p.discount+'</span>':'')+
+      '</span>'+
+    '</div>'+
+  '</div>';
+
+  document.getElementById('bankAmount').textContent='NT$ '+p.finalPrice.toLocaleString();
+  bankBox.style.display='block';
+  updateSubmitButton();
 }
 
-// ============================================================
-// 送出
-// ============================================================
-document.getElementById('bookingForm').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  const name=document.getElementById('fname').value.trim();
-  const phone=document.getElementById('fphone').value.trim();
-  const email=document.getElementById('femail').value.trim();
-  const qty=parseInt(document.getElementById('fqty').value)||0;
-  const consent=document.getElementById('fconsent').checked;
-  let ok=true;
+/* =========================================================
+ * dropdown 初始化
+ * ========================================================= */
+function initDropdowns(){
+  const groupOpts=(sel,data)=>{
+    const byDay={};
+    const summer=[];
+    const dateRange=c=>[c.startDate,c.endDate].map(d=>d.split('/').map(n=>n.padStart(2,'0')).join('/')).join('-');
+    const dayHint=day=>'（'+day.replaceAll('週','')+'）';
+    data.forEach(c=>{
+      if(c.type==='summer'){summer.push(c);return;}
+      (byDay[c.day]=byDay[c.day]||[]).push(c);
+    });
+    const order=['週一','週二','週三','週四','週五','週六','週日'];
+    sel.innerHTML='<option value="">'+sel.options[0].text+'</option>';
+    order.forEach(day=>{
+      if(!byDay[day])return;
+      const og=document.createElement('optgroup');og.label=day;
+      byDay[day].sort((a,b)=>a.time.localeCompare(b.time)).forEach(c=>{
+        const o=document.createElement('option');
+        o.value=c.id;
+        o.textContent=dateRange(c)+dayHint(c.day)+' '+c.time+'  '+c.name+'（'+c.teacher+'）';
+        o.dataset.date=dateRange(c);o.dataset.dayHint=dayHint(c.day);o.dataset.time=c.time;o.dataset.name=c.name;o.dataset.tea=c.teacher;
+        og.appendChild(o);
+      });
+      sel.appendChild(og);
+    });
+    if(summer.length){
+      const og=document.createElement('optgroup');og.label='暑期班・密集 18 堂';
+      summer.forEach(c=>{
+        const o=document.createElement('option');
+        o.value=c.id;
+        o.textContent=dateRange(c)+dayHint(c.day)+' '+c.name+' '+c.time+'（'+c.teacher+'）';
+        o.dataset.date=dateRange(c);o.dataset.dayHint=dayHint(c.day);o.dataset.time=c.time;o.dataset.name=c.name;o.dataset.tea=c.teacher;
+        og.appendChild(o);
+      });
+      sel.appendChild(og);
+    }
+  };
+  groupOpts(document.getElementById('fOriginClass'),currentClassData);
+  groupOpts(document.getElementById('fNextClass'),nextClassData);
+  groupOpts(document.getElementById('fManualClass'),nextClassData);
+  buildCustomDropdown(document.getElementById('fOriginClass'));
+  buildCustomDropdown(document.getElementById('fNextClass'));
+  buildCustomDropdown(document.getElementById('fManualClass'));
+}
 
-  const phoneValid = /^09\d{8}$/.test(phone.replace(/[\s\-]/g,''));
-  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-
-  [['fg-name',!name,'請填寫姓名'],['fg-phone',!phoneValid,'請輸入正確手機號碼（09 開頭，共 10 碼）'],
-   ['fg-email',!emailValid,'請輸入正確的 Email 格式'],['fg-qty',!qty,'請選擇件數'],['fg-consent',!consent,'請勾選同意']
-  ].forEach(([id,err,msg])=>{
-    const el=document.getElementById(id);
-    el.classList.toggle('has-error',err);
-    if(err){const fe=el.querySelector('.ferr');if(fe)fe.textContent=msg;ok=false;}
+/* =========================================================
+ * 自製下拉（蓋在 native select 上，星期分組標題可完全控制樣式）
+ * ========================================================= */
+function buildCustomDropdown(sel){
+  if(!sel||sel._cd)return;
+  const placeholder=sel.options[0]?sel.options[0].text:'';
+  const wrap=document.createElement('div');wrap.className='cd';
+  const trigger=document.createElement('div');trigger.className='cd-trigger placeholder';
+  trigger.innerHTML='<span class="cd-label">'+placeholder+'</span><span class="cd-arrow">▾</span>';
+  const panel=document.createElement('div');panel.className='cd-panel';
+  Array.from(sel.children).forEach(node=>{
+    if(node.tagName==='OPTGROUP'){
+      const dh=document.createElement('div');dh.className='cd-day';
+      if(/暑期/.test(node.label))dh.classList.add('summer');
+      dh.textContent=node.label;
+      panel.appendChild(dh);
+      Array.from(node.children).forEach(opt=>{
+        const it=document.createElement('div');it.className='cd-opt';
+        it.dataset.value=opt.value;
+        const date=opt.dataset.date||'';
+        const dayHint=opt.dataset.dayHint||'';
+        const t=opt.dataset.time||'';
+        const nm=opt.dataset.name||opt.textContent;
+        const tea=opt.dataset.tea||'';
+        it.innerHTML='<span class="cd-time">'+date+dayHint+' '+t+'</span><span class="cd-name">'+nm+'</span>'+(tea?'<span class="cd-tea">'+tea+'</span>':'');
+        it.addEventListener('click',(ev)=>{
+          ev.stopPropagation();
+          sel.value=opt.value;
+          trigger.querySelector('.cd-label').textContent=opt.textContent;
+          trigger.classList.remove('placeholder');
+          panel.querySelectorAll('.cd-opt').forEach(o=>o.classList.remove('selected'));
+          it.classList.add('selected');
+          wrap.classList.remove('open');
+          sel.dispatchEvent(new Event('change',{bubbles:true}));
+        });
+        panel.appendChild(it);
+      });
+    }
   });
+  trigger.addEventListener('click',(ev)=>{
+    ev.stopPropagation();
+    document.querySelectorAll('.cd.open').forEach(c=>{if(c!==wrap)c.classList.remove('open');});
+    wrap.classList.toggle('open');
+  });
+  wrap.appendChild(trigger);wrap.appendChild(panel);
+  sel.style.display='none';
+  sel.parentNode.insertBefore(wrap,sel.nextSibling);
+  sel._cd={wrap:wrap,trigger:trigger,panel:panel,placeholder:placeholder};
+}
 
-  const slotErr=document.getElementById('slotErr');
-  const isMulti=qty>=2;
-  const selectedSlots=isMulti
-    ?[...document.querySelectorAll('#dateSlotsContainer input[type=checkbox]:checked')]
-    :(document.querySelector('input[name="bookSlot"]:checked')?[document.querySelector('input[name="bookSlot"]:checked')]:[]);
+function cdRefresh(id){
+  const sel=document.getElementById(id);if(!sel||!sel._cd)return;
+  if(sel.value===''){
+    sel._cd.trigger.querySelector('.cd-label').textContent=sel._cd.placeholder;
+    sel._cd.trigger.classList.add('placeholder');
+    sel._cd.panel.querySelectorAll('.cd-opt').forEach(o=>o.classList.remove('selected'));
+    sel._cd.wrap.classList.remove('open');
+  }
+}
 
-  if(!selectedSlots.length){slotErr.style.display='block';ok=false;}
-  else if(isMulti&&qty<4&&selectedSlots.length<qty){
-    slotErr.textContent=`送修 ${qty} 把請選 ${qty} 個時段（已選 ${selectedSlots.length} 個）`;
-    slotErr.style.display='block';ok=false;
-  } else {slotErr.style.display='none';slotErr.textContent='請選擇預約時段';}
-  if(!ok)return;
+/* 點擊頁面其他位置關閉所有自製下拉 */
+document.addEventListener('click',()=>{document.querySelectorAll('.cd.open').forEach(c=>c.classList.remove('open'));});
+
+/* =========================================================
+ * 提交
+ * ========================================================= */
+function getSource(){
+  // 來源追蹤：讀 ?source=xxx；轉小寫 + 限制字元（a-z 0-9 _ . - :）+ 最多 60 字
+  // 未填或被過濾光 → 'direct'（自然流量）
+  const raw=new URLSearchParams(location.search).get('source')||'';
+  return raw.toLowerCase().replace(/[^a-z0-9_.\-:]/g,'').slice(0,60)||'direct';
+}
+
+function showAlert(msg,duration){
+  const a=document.getElementById('alertBox');
+  a.textContent=msg;a.classList.add('show');
+  setTimeout(()=>a.classList.remove('show'),duration||5000);
+  // 捲到 alert 元素本身（不是頁頂），否則錯誤訊息會被 Hero 蓋掉看不到
+  a.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+async function submitForm(){
+  const name=document.getElementById('fName').value.trim();
+  const phone=document.getElementById('fPhone').value.trim();
+
+  if(!name)return showAlert('請填寫姓名');
+  if(!/^\d{10}$/.test(phone))return showAlert('請輸入正確手機號碼（10碼）');
+
+  let payload={courseType,name,phone,submittedAt:new Date().toISOString(),source:getSource()};
+
+  if(courseType==='group'){
+    const last4=document.getElementById('fLast4').value.trim();
+    const note=document.getElementById('fNote').value.trim();
+    const hasGuitar=(document.querySelector('#cgHasGuitarG input:checked')||{}).value||'';
+    if(mode==='returning'&&!selectedOriginClass)return showAlert('請選擇原上課時段');
+    if(!selectedClass)return showAlert(mode==='returning'?'請選擇下一期班別':'請選擇班別');
+    if(!hasGuitar)return showAlert('請選擇是否有吉他');
+    if(!/^\d{4}$/.test(last4))return showAlert('請輸入轉帳末四碼（4 位數字）');
+    const p=calcPrice(selectedClass.price);
+    Object.assign(payload,{
+      studentType:mode,                    // 'returning' | 'new'
+      pickMode:mode==='new'?pickMode:null, // 'quiz' | 'manual' | null
+      originClassId:mode==='returning'?selectedOriginClass.id:null,
+      originClassName:mode==='returning'?selectedOriginClass.name:null,
+      originClassDay:mode==='returning'?selectedOriginClass.day:null,
+      originClassTime:mode==='returning'?selectedOriginClass.time:null,
+      classId:selectedClass.id,
+      className:selectedClass.name,
+      classLevel:selectedClass.level,
+      classDay:selectedClass.day,
+      classTime:selectedClass.time,
+      classTeacher:selectedClass.teacher,
+      classStartDate:selectedClass.startDate,
+      classEndDate:selectedClass.endDate,
+      basePrice:p.basePrice,
+      finalPrice:p.finalPrice,
+      discount:p.discount,
+      isEarlyBird:p.isEarlyBird,
+      transferLast4:last4,
+      hasGuitar,
+      note
+    });
+  }else{
+    // private / custom：諮詢需求
+    const slots=Array.from(document.querySelectorAll('#cgTimeSlots input:checked')).map(i=>i.value);
+    const level=(document.querySelector('#cgLevel input:checked')||{}).value||'';
+    const hasGuitar=(document.querySelector('#cgHasGuitar input:checked')||{}).value||'';
+    const groupSize=(document.querySelector('#cgGroupSize input:checked')||{}).value||'';
+    const note=document.getElementById('fNoteCustom').value.trim();
+    if(slots.length===0)return showAlert('請至少選一個方便上課時間');
+    if(!level)return showAlert('請選擇學員程度');
+    if(!hasGuitar)return showAlert('請選擇是否有吉他');
+    if(courseType==='custom'&&!groupSize)return showAlert('請選擇預計人數');
+    Object.assign(payload,{
+      timeSlots:slots,    // 多選陣列
+      level,hasGuitar,
+      groupSize:courseType==='custom'?groupSize:'',
+      note
+    });
+  }
 
   const btn=document.getElementById('submitBtn');
-  btn.disabled=true; btn.innerHTML='<span class="spinner"></span>送出中…';
+  const originalText=btn.textContent;
+  btn.disabled=true;btn.textContent='送出中…';
 
-  const notes=document.getElementById('fnotes').value.trim()||'無';
-  const slotLabels=selectedSlots.map(s=>s.dataset.label).join('、');
-  const cfg=loadCfg();
-  const sheetsUrl=getUrl();
-  const pubKey=cfg.pubKey||'RaamsiaDHLjtIj7bK';
-  const serviceId=cfg.serviceId||'service_jbj19zq';
-  const tplOwner=cfg.tplOwner||'template_11tk9tg';
-  const tplCustomer=cfg.tplCustomer||'template_9xsijum';
-  const ownerEmail=cfg.ownerEmail||'rock7652@gmail.com';
+  // 20 秒 timeout，防止 iOS Safari 在弱網／背景時 fetch 永遠 pending 卡住按鈕
+  const controller=new AbortController();
+  const timeoutId=setTimeout(()=>controller.abort(),20000);
+  let success=false;
 
-  // 1. 寫入 Sheets
-  for(const s of selectedSlots){
-    fetch(sheetsUrl, {
-      method:'POST', mode:'no-cors',
-      headers:{'Content-Type':'text/plain'},
-      body:JSON.stringify({action:'addBooking',name,phone,email,
-        booking_date:s.dataset.label,
-        booking_date_key:s.dataset.date+'|'+s.dataset.time,
-        guitar_qty:qty+' 把',notes})
-    }).catch(()=>{});
+  try{
+    const res=await fetch('/api/register',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload),
+      signal:controller.signal
+    });
+    const json=await res.json().catch(()=>({ok:false,error:'回應格式錯誤'}));
+    if(!res.ok||!json.ok)throw new Error(json.error||('HTTP '+res.status));
+    success=true;
+    console.info('[register] submit success, id='+(json&&json.id||'?'));
+    goToSuccess();
+  }catch(err){
+    console.error('[register] submit failed:',err);
+    const msg=err.name==='AbortError'
+      ? '送出逾時（超過 20 秒），系統可能已收到。請先聯繫官方 LINE @gay6872z 確認，避免重複送出'
+      : '送出失敗：'+err.message+'。請稍後再試或截圖聯繫官方 LINE @gay6872z';
+    showAlert(msg,15000);
+  }finally{
+    clearTimeout(timeoutId);
+    if(!success){btn.disabled=false;btn.textContent=originalText;}
   }
+}
 
-  // 2. 本機備份
-  const bookings=loadBookings();
-  selectedSlots.forEach(s=>bookings.push({date:s.dataset.date,time:s.dataset.time,name,phone,email,qty,notes,ts:Date.now()}));
-  saveBookings(bookings);
+function goToSuccess(){
+  document.getElementById('page-form').classList.remove('active');
+  document.getElementById('page-success').classList.add('active');
+  window.scrollTo({top:0,behavior:'instant'});
+}
+function resetAndBack(){
+  ['fName','fPhone','fLast4','fNote','fNoteCustom','fOriginClass','fNextClass','fManualClass'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.value='';
+  });
+  cdRefresh('fOriginClass');cdRefresh('fNextClass');cdRefresh('fManualClass');
+  document.querySelectorAll('#customBody .chip input, #cgHasGuitarG input').forEach(inp=>{inp.checked=false;inp.closest('.chip').classList.remove('selected');});
+  selectedClass=null;
+  selectedOriginClass=null;
+  switchCourseType('group');
+  switchMode('returning');
+  document.getElementById('page-success').classList.remove('active');
+  document.getElementById('page-form').classList.add('active');
+  window.scrollTo({top:0,behavior:'instant'});
+}
 
-  // 3. EmailJS 寄信
-  let sent=false;
-  try {
-    emailjs.init(pubKey);
-    const p={customer_name:name,customer_phone:phone,customer_email:email,
-      booking_date:slotLabels,guitar_qty:qty+' 把',notes,owner_email:ownerEmail};
-    await Promise.all([emailjs.send(serviceId,tplOwner,p),emailjs.send(serviceId,tplCustomer,p)]);
-    sent=true;
-  } catch(e){console.error('EmailJS:',e);}
+/* =========================================================
+ * Helpers
+ * ========================================================= */
+function copy(text){
+  navigator.clipboard?.writeText(text).then(()=>{
+    showAlert('已複製：'+text);
+  }).catch(()=>{});
+}
 
-  document.getElementById('bookingForm').style.display='none';
-  document.getElementById('successScreen').style.display='block';
-  document.getElementById('successMsg').innerHTML=
-    `感謝您，<strong>${name}</strong>！<br>
-    預約時段：<strong>${slotLabels}</strong><br>
-    送修件數：<strong>${qty} 把</strong><br><br>
-    ${sent?`確認信已寄至 <strong>${email}</strong><br>`:''}
-    如有疑問請 <a href="https://line.me/R/ti/p/@gay6872z" target="_blank" style="color:var(--gold);">Line：@gay6872z</a>`;
-});
-
-// 初始化：獨立 /admin/ 網址直接進入後台登入；一般網址維持顧客預約頁。
-const isStandaloneAdmin = /\/admin\/?$/.test(window.location.pathname) || new URLSearchParams(window.location.search).get('admin') === '1';
-if (isStandaloneAdmin) goAdmin();
-else renderFrontDates();
-
+/* boot */
+initDropdowns();
+bindChips();
+updateSubmitButton();
 </script>
 </body>
 </html>
