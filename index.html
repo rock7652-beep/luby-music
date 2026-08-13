@@ -370,6 +370,25 @@ let datesMutationVersion = 0;
 let datesSaveTimer = null;
 let datesSaveInFlight = false;
 let pendingDatesSnapshot = null;
+let localDateSessionDirty = false;
+
+// Google Sheet 曾累積同日期重複列；前後台一律先整理成「每日期唯一」。
+function normalizeDates(dates) {
+  const byDate = new Map();
+  (Array.isArray(dates) ? dates : []).forEach(raw => {
+    if (!raw || typeof raw.date !== 'string') return;
+    const slots = [...new Set(Array.isArray(raw.slots) && raw.slots.length ? raw.slots : SAT_SLOTS)];
+    const closedSlots = [...new Set(Array.isArray(raw.closedSlots) ? raw.closedSlots : [])]
+      .filter(slot => slots.includes(slot));
+    byDate.set(raw.date, {
+      date: raw.date,
+      slots,
+      active: raw.active !== false,
+      closedSlots
+    });
+  });
+  return [...byDate.values()].sort((a,b) => a.date.localeCompare(b.date));
+}
 
 // 自動產生未來 4 個週六
 function getNext4Saturdays() {
@@ -386,51 +405,45 @@ function getNext4Saturdays() {
 }
 
 // 讀取日期：快取優先，背景更新
-async function loadDates() {
-  const cached = getCached();
+async function loadDates({ refreshRemote = true, onRemoteUpdate = null } = {}) {
+  const cached = normalizeDates(getCached());
+  if (JSON.stringify(cached) !== JSON.stringify(getCached())) setCache(cached);
   // 有快取先用，背景靜默更新
   if (cached.length) {
-    const requestVersion = datesMutationVersion;
-    fetch(getUrl() + '?action=getDates&_=' + Date.now()).then(r=>r.json()).then(j=>{
-      if (!datesSaveInFlight && !pendingDatesSnapshot && requestVersion === datesMutationVersion && j.dates && j.dates.length) setCache(j.dates);
-    }).catch(()=>{});
+    if (refreshRemote) {
+      const requestVersion = datesMutationVersion;
+      fetch(getUrl() + '?action=getDates&_=' + Date.now()).then(r=>r.json()).then(j=>{
+        // 本次頁面只要有管理員操作，就不再接受較慢的遠端資料覆蓋本機最新狀態。
+        if (localDateSessionDirty || datesSaveInFlight || pendingDatesSnapshot || requestVersion !== datesMutationVersion) return;
+        if (j.dates && j.dates.length) {
+          const remoteDates = normalizeDates(j.dates);
+          setCache(remoteDates);
+          if (typeof onRemoteUpdate === 'function') onRemoteUpdate();
+        }
+      }).catch(()=>{});
+    }
     return cached;
   }
   // 沒快取才等待
   try {
     const res = await fetch(getUrl() + '?action=getDates&_=' + Date.now());
     const json = await res.json();
-    if (json.dates && json.dates.length) { setCache(json.dates); return json.dates; }
+    if (json.dates && json.dates.length) {
+      const remoteDates = normalizeDates(json.dates);
+      setCache(remoteDates);
+      return remoteDates;
+    }
   } catch(e) {}
   return [];
 }
 
-// 儲存日期：使用 Safari 可送出的 no-cors POST。
-// Apps Script 會跨網域重新導向；Safari 的 XHR 無法讀取回應，即使後端已收到也會回報失敗。
-async function saveDates(dates) {
-  const previousDates = getCached();
-  datesMutationVersion++;
-  setCache(dates);
-  try {
-    await fetch(getUrl(), {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ action: 'saveDates', dates })
-    });
-    return true;
-  } catch(e) {
-    console.error('saveDates:', e);
-    setCache(previousDates);
-    return false;
-  }
-}
-
-// 時段按鈕採即時畫面更新，連續操作會合併成一次遠端寫入。
+// 所有日期異動只走這條佇列：即時更新畫面，連續操作合併成一次遠端寫入。
 function queueDatesSave(dates) {
+  const normalizedDates = normalizeDates(dates);
+  localDateSessionDirty = true;
   datesMutationVersion++;
-  setCache(dates);
-  pendingDatesSnapshot = JSON.parse(JSON.stringify(dates));
+  setCache(normalizedDates);
+  pendingDatesSnapshot = JSON.parse(JSON.stringify(normalizedDates));
   clearTimeout(datesSaveTimer);
   datesSaveTimer = setTimeout(flushDatesSave, 400);
 }
@@ -538,12 +551,15 @@ async function renderAdmin() {
   await renderAdminDates();
 }
 
-async function renderAdminDates() {
+async function renderAdminDates(refreshRemote = true) {
   const satDates = getNext4Saturdays();
   const today = new Date().toISOString().split('T')[0];
 
   // 讀取 Sheets 設定（快取優先）
-  const sheetsData = await loadDates();
+  const sheetsData = await loadDates({
+    refreshRemote,
+    onRemoteUpdate: () => renderAdminDates(false)
+  });
   const closedMap = {};
   sheetsData.forEach(d => { if (d.closedSlots && d.closedSlots.length) closedMap[d.date] = d.closedSlots; });
 
@@ -727,34 +743,25 @@ async function addDate() {
   document.getElementById('newDateTo').value='';
   const btn=document.getElementById('addDateBtn');
   btn.disabled=true; btn.textContent='儲存中…';
-  setCache(dates);
-  // 等待 Sheets 確實存入
-  await new Promise((resolve) => {
-    var xhr = new XMLHttpRequest();
-    xhr.open('POST', getUrl(), true);
-    xhr.setRequestHeader('Content-Type', 'text/plain');
-    xhr.onload = resolve; xhr.onerror = resolve;
-    xhr.send(JSON.stringify({ action: 'saveDates', dates }));
-  });
+  queueDatesSave(dates);
   btn.disabled=false; btn.textContent=`✓ 已新增 ${added} 天`; btn.style.background='#2d6a4f';
   setTimeout(()=>{btn.textContent='新增日期';btn.style.background='';},2200);
-  await renderAdminDates();
+  await renderAdminDates(false);
 }
 
-function deleteDate(dateStr) {
+async function deleteDate(dateStr) {
   if(!confirm('確定刪除此日期？'))return;
   const dates = getCached().filter(d=>d.date!==dateStr);
-  saveDates(dates);
-  renderAdminDates();
+  queueDatesSave(dates);
+  await renderAdminDates(false);
 }
 
 async function toggleDate(dateStr) {
   const dates = getCached();
   const d = dates.find(x=>x.date===dateStr);
   if(d) d.active = d.active===false ? true : false;
-  const saved = await saveDates(dates);
-  if (!saved) alert('儲存失敗，請確認網路後再試一次');
-  await renderAdminDates();
+  queueDatesSave(dates);
+  await renderAdminDates(false);
 }
 
 async function toggleSlot(dateStr, slot) {
@@ -768,7 +775,7 @@ async function toggleSlot(dateStr, slot) {
   const idx = d.closedSlots.indexOf(slot);
   if (idx >= 0) d.closedSlots.splice(idx, 1); else d.closedSlots.push(slot);
   queueDatesSave(dates);
-  await renderAdminDates();
+  await renderAdminDates(false);
 }
 
 async function cancelBooking(dateStr, slot) {
