@@ -33,3 +33,7 @@ Do not reuse `APPS_SCRIPT_TOKEN`, do not commit either value, and do not store a
 - Five failed attempts within 15 minutes return HTTP 429.
 - Cross-origin login and logout requests are rejected.
 - Missing security configuration fails closed.
+
+## Git integration checkpoint
+
+Vercel Git integration is connected to `rock7652-beep/luby-music`. Production tracks `vercel-production`; all unassigned branches deploy to Preview.
