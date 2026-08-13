@@ -37,3 +37,7 @@ Do not reuse `APPS_SCRIPT_TOKEN`, do not commit either value, and do not store a
 ## Git integration checkpoint
 
 Vercel Git integration is connected to `rock7652-beep/luby-music`. Production tracks `vercel-production`; all unassigned branches deploy to Preview.
+
+## Preview environment refresh
+
+The Preview environment variables were rotated on 2026-08-13. This checkpoint forces PR #17 to rebuild with the updated encrypted values.
