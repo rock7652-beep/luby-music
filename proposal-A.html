@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>A — 極簡精品｜陸比音樂</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@200;300;400;500;600&family=Noto+Sans+TC:wght@100;200;300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap');
+
+*{margin:0;padding:0;box-sizing:border-box;}
+html{font-size:16px;-webkit-font-smoothing:antialiased;scroll-behavior:smooth;}
+body{
+  font-family:'Noto Sans TC','Helvetica Neue',sans-serif;
+  background:#FFFFFF;color:#111111;
+  overflow-x:hidden;font-weight:300;
+  letter-spacing:0.03em;line-height:1.8;
+}
+::selection{background:#111;color:#fff;}
+button{border:none;cursor:pointer;font-family:inherit;background:none;letter-spacing:0.02em;}
+input,select,textarea{font-family:inherit;font-size:1rem;letter-spacing:0.02em;}
+
+:root{
+  --black:#111111;
+  --white:#FFFFFF;
+  --sand:#F5F5F3;
+  --border:#E7E5E1;
+  --gray:#6B6B6B;
+  --gray-light:#A3A3A3;
+  --accent:#8A8575;
+}
+
+/* ========== PROPOSAL TAG ========== */
+.proposal-tag{
+  position:fixed;top:0;left:0;right:0;z-index:999;
+  background:var(--black);color:#fff;
+  text-align:center;padding:10px;
+  font-size:0.62rem;letter-spacing:0.3em;font-weight:400;
+}
+
+/* ========== SECTION DIVIDER ========== */
+.section-divider{
+  text-align:center;padding:100px 32px 60px;
+  border-top:1px solid var(--border);
+  margin-top:0;
+}
+.section-divider span{
+  font-size:0.55rem;letter-spacing:0.45em;
+  text-transform:uppercase;color:var(--gray-light);
+}
+
+/* ============================================ */
+/*  HERO — 極簡精品                             */
+/*  大量留白 / 幾乎全黑白 / 極乾淨             */
+/*  氣質：設計品牌官網 / 選物店                 */
+/* ============================================ */
+.hero{
+  min-height:100vh;
+  display:flex;flex-direction:column;
+  justify-content:center;align-items:center;
+  text-align:center;
+  padding:140px 48px 100px;
+}
+
+.hero-brand{
+  font-family:'Cormorant Garamond',serif;
+  font-size:0.68rem;
+  letter-spacing:0.65em;
+  text-transform:uppercase;
+  color:var(--gray-light);
+  font-weight:400;
+  margin-bottom:88px;
+}
+
+.hero h1{
+  font-family:'Noto Serif TC',serif;
+  font-weight:200;
+  font-size:clamp(1.9rem,5.8vw,3rem);
+  line-height:2;
+  letter-spacing:0.16em;
+  margin-bottom:32px;
+}
+
+.hero-sub{
+  color:var(--gray);
+  font-size:0.82rem;
+  max-width:240px;
+  line-height:2.3;
+  font-weight:300;
+  margin-bottom:112px;
+}
+
+.hero-line{
+  width:1px;height:80px;
+  background:var(--border);
+  margin-bottom:88px;
+}
+
+/* ENTRIES — 極簡列表 */
+.entries{
+  width:100%;max-width:380px;
+  border-top:1px solid var(--border);
+}
+.entry-item{
+  display:flex;align-items:center;
+  justify-content:space-between;
+  padding:40px 0;
+  border-bottom:1px solid var(--border);
+  cursor:pointer;
+  transition:all 0.5s cubic-bezier(0.25,0.46,0.45,0.94);
+}
+.entry-item:hover{padding-left:16px;}
+.entry-item h3{
+  font-family:'Noto Serif TC',serif;
+  font-weight:400;font-size:0.98rem;
+  letter-spacing:0.1em;margin-bottom:5px;
+}
+.entry-item .sub{
+  font-size:0.7rem;color:var(--gray-light);
+  font-weight:300;letter-spacing:0.05em;
+}
+.entry-arrow{
+  width:18px;height:18px;color:var(--border);
+  transition:all 0.5s cubic-bezier(0.25,0.46,0.45,0.94);
+}
+.entry-item:hover .entry-arrow{
+  color:var(--black);transform:translateX(8px);
+}
+.hero-footer{
+  margin-top:140px;font-size:0.58rem;
+  color:var(--gray-light);letter-spacing:0.14em;
+}
+
+/* ============================================ */
+/*  SCHEDULE — 課程展板                         */
+/*  不像表格，像藝術排版 / 展覽導覽             */
+/* ============================================ */
+.schedule-wrap{
+  max-width:520px;margin:0 auto;
+  padding:0 48px 140px;
+}
+.sch-header{padding:0 0 0;}
+.sch-back{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:0.68rem;color:var(--gray-light);
+  letter-spacing:0.1em;cursor:pointer;
+  padding:8px 0;transition:color 0.3s;
+  margin-bottom:48px;
+}
+.sch-back:hover{color:var(--black);}
+.sch-back svg{width:14px;height:14px;}
+.sch-label{
+  font-size:0.52rem;letter-spacing:0.4em;
+  text-transform:uppercase;color:var(--gray-light);
+  margin-bottom:18px;
+}
+.sch-title{
+  font-family:'Noto Serif TC',serif;
+  font-weight:200;font-size:1.7rem;
+  letter-spacing:0.12em;line-height:1.5;
+  margin-bottom:10px;
+}
+.sch-desc{
+  color:var(--gray);font-size:0.8rem;
+  line-height:2.1;margin-bottom:72px;
+}
+
+/* Course list — editorial */
+.course-list{display:flex;flex-direction:column;}
+.course-item{
+  border-top:1px solid var(--border);
+  padding:44px 0;
+  display:grid;
+  grid-template-columns:68px 1fr;
+  gap:0 28px;
+  cursor:pointer;
+  transition:all 0.35s ease;
+}
+.course-item:last-child{border-bottom:1px solid var(--border);}
+.course-item:hover{padding-left:10px;}
+
+.ci-time{display:flex;flex-direction:column;align-items:flex-start;padding-top:2px;}
+.ci-day{font-size:0.55rem;letter-spacing:0.28em;color:var(--gray-light);margin-bottom:6px;}
+.ci-hour{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.5rem;font-weight:300;
+  color:var(--black);letter-spacing:0.02em;
+}
+.ci-body h4{
+  font-family:'Noto Serif TC',serif;
+  font-weight:400;font-size:1.02rem;
+  letter-spacing:0.08em;margin-bottom:6px;
+}
+.ci-body .ci-desc{
+  font-size:0.75rem;color:var(--gray);
+  line-height:1.8;margin-bottom:12px;
+}
+.ci-body .ci-meta{
+  font-size:0.62rem;color:var(--accent);letter-spacing:0.1em;
+}
+
+/* ============================================ */
+/*  FORM — 極簡表單                             */
+/*  乾淨、有呼吸感、不像 Google Form            */
+/* ============================================ */
+.form-wrap{
+  max-width:520px;margin:0 auto;
+  padding:0 48px 140px;
+}
+.form-course-tag{
+  display:inline-block;padding:10px 22px;
+  border:1px solid var(--border);
+  font-size:0.68rem;letter-spacing:0.1em;
+  color:var(--gray);margin-bottom:64px;
+}
+.form-group{margin-bottom:52px;}
+.form-group label{
+  display:block;font-size:0.58rem;
+  letter-spacing:0.3em;text-transform:uppercase;
+  color:var(--gray-light);margin-bottom:18px;font-weight:400;
+}
+.form-group .optional{
+  font-size:0.52rem;color:var(--gray-light);
+  margin-left:8px;letter-spacing:0.06em;text-transform:none;
+}
+.form-group input{
+  width:100%;padding:18px 0;border:none;
+  border-bottom:1px solid var(--border);
+  background:transparent;font-size:0.92rem;
+  color:var(--black);outline:none;
+  transition:border-color 0.4s;
+  font-family:inherit;font-weight:300;letter-spacing:0.03em;
+}
+.form-group input:focus{border-bottom-color:var(--black);}
+.form-group input::placeholder{color:#C8C5C0;font-weight:200;}
+.form-group select{
+  width:100%;padding:18px 0;border:none;
+  border-bottom:1px solid var(--border);
+  background:transparent;font-size:0.92rem;
+  color:var(--gray);outline:none;
+  font-family:inherit;cursor:pointer;
+  -webkit-appearance:none;appearance:none;
+}
+.form-group select:focus{border-bottom-color:var(--black);}
+.form-group textarea{
+  width:100%;padding:20px 0;border:none;
+  border-bottom:1px solid var(--border);
+  background:transparent;font-size:0.88rem;
+  color:var(--black);outline:none;resize:none;
+  min-height:76px;font-family:inherit;
+  line-height:1.9;font-weight:300;
+}
+.form-group textarea:focus{border-bottom-color:var(--black);}
+.form-group textarea::placeholder{color:#C8C5C0;font-weight:200;}
+
+.divider{width:100%;height:1px;background:var(--border);margin:56px 0;}
+
+.btn-primary{
+  display:block;width:100%;padding:21px 0;
+  background:var(--black);color:#fff;
+  font-size:0.76rem;font-weight:400;
+  letter-spacing:0.2em;text-align:center;
+  border:none;cursor:pointer;font-family:inherit;
+  transition:background 0.3s;
+}
+.btn-primary:hover{background:#2a2a2a;}
+.btn-ghost{
+  display:block;width:100%;padding:18px 0;
+  color:var(--gray-light);font-size:0.7rem;
+  letter-spacing:0.1em;text-align:center;
+  border:none;cursor:pointer;font-family:inherit;
+  background:none;transition:color 0.3s;margin-top:4px;
+}
+.btn-ghost:hover{color:var(--black);}
+
+@media(max-width:520px){
+  .hero{padding:120px 28px 80px;}
+  .schedule-wrap,.form-wrap{padding-left:28px;padding-right:28px;}
+}
+</style>
+</head>
+<body>
+
+<div class="proposal-tag">PROPOSAL A &mdash; 極簡精品 Minimal Luxury</div>
+
+<!-- ==================== PAGE 1: HERO ==================== -->
+<div class="hero">
+  <div class="hero-brand">Lubi Music Studio</div>
+  <h1>在音樂裡<br>找到自己的節奏</h1>
+  <p class="hero-sub">陸比音樂，一個安靜的學習空間。<br>選一堂課，開始你的音樂旅程。</p>
+  <div class="hero-line"></div>
+  <div class="entries">
+    <div class="entry-item">
+      <div>
+        <h3>團體班</h3>
+        <span class="sub">查看課表，選擇適合的班級</span>
+      </div>
+      <svg class="entry-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </div>
+    <div class="entry-item">
+      <div>
+        <h3>個別課 / 自組班</h3>
+        <span class="sub">依你的時間與需求安排</span>
+      </div>
+      <svg class="entry-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </div>
+    <div class="entry-item">
+      <div>
+        <h3>還不確定？</h3>
+        <span class="sub">三個問題，幫你找到方向</span>
+      </div>
+      <svg class="entry-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </div>
+  </div>
+  <div class="hero-footer">陸比音樂 &copy; 2026</div>
+</div>
+
+<!-- ==================== PAGE 2: SCHEDULE ==================== -->
+<div class="section-divider"><span>Page 2 &mdash; Schedule</span></div>
+
+<div class="schedule-wrap">
+  <div class="sch-header">
+    <div class="sch-back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 18l-6-6 6-6"/></svg>
+      返回
+    </div>
+    <div class="sch-label">Group Classes</div>
+    <h2 class="sch-title">團體班課表</h2>
+    <p class="sch-desc">點選想參加的班級，查看詳情並報名。</p>
+  </div>
+
+  <div class="course-list">
+    <div class="course-item">
+      <div class="ci-time">
+        <span class="ci-day">週五</span>
+        <span class="ci-hour">19:00</span>
+      </div>
+      <div class="ci-body">
+        <h4>入門班</h4>
+        <p class="ci-desc">適合零基礎的朋友</p>
+        <span class="ci-meta">5/9 開課 ・ 剩 7 名</span>
+      </div>
+    </div>
+    <div class="course-item">
+      <div class="ci-time">
+        <span class="ci-day">週六</span>
+        <span class="ci-hour">14:00</span>
+      </div>
+      <div class="ci-body">
+        <h4>入門班</h4>
+        <p class="ci-desc">適合零基礎的朋友</p>
+        <span class="ci-meta">6/6 開課 ・ 剩 5 名</span>
+      </div>
+    </div>
+    <div class="course-item">
+      <div class="ci-time">
+        <span class="ci-day">週三</span>
+        <span class="ci-hour">19:00</span>
+      </div>
+      <div class="ci-body">
+        <h4>初級班</h4>
+        <p class="ci-desc">學過一點的朋友</p>
+        <span class="ci-meta">5/7 開課 ・ 剩 5 名</span>
+      </div>
+    </div>
+    <div class="course-item">
+      <div class="ci-time">
+        <span class="ci-day">週二</span>
+        <span class="ci-hour">19:00</span>
+      </div>
+      <div class="ci-body">
+        <h4>進階班</h4>
+        <p class="ci-desc">有基礎，想突破的朋友</p>
+        <span class="ci-meta">5/20 開課 ・ 剩 4 名</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== PAGE 3: FORM ==================== -->
+<div class="section-divider"><span>Page 3 &mdash; Registration Form</span></div>
+
+<div class="form-wrap">
+  <div class="sch-header">
+    <div class="sch-back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 18l-6-6 6-6"/></svg>
+      返回
+    </div>
+    <div class="sch-label">Registration</div>
+    <h2 class="sch-title">填寫報名資料</h2>
+    <p class="sch-desc">只需要基本資訊，不到一分鐘。</p>
+  </div>
+
+  <div class="form-course-tag">初級班 ・ 週三 19:00 ・ 5/7 開課</div>
+
+  <div class="divider"></div>
+
+  <div class="form-group">
+    <label>姓名</label>
+    <input type="text" placeholder="你的名字">
+  </div>
+  <div class="form-group">
+    <label>電話</label>
+    <input type="tel" placeholder="0912-345-678">
+  </div>
+  <div class="form-group">
+    <label>是否有樂器 <span class="optional">選填</span></label>
+    <select>
+      <option value="">請選擇</option>
+      <option>有，自己的樂器</option>
+      <option>沒有，需要租借</option>
+      <option>沒有，想了解購買</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label>備註 <span class="optional">選填</span></label>
+    <textarea placeholder="任何想問的都可以寫在這裡"></textarea>
+  </div>
+
+  <div class="divider"></div>
+
+  <button class="btn-primary">確認報名</button>
+  <button class="btn-ghost">返回</button>
+</div>
+
+<div style="height:100px;"></div>
+
+</body>
+</html>

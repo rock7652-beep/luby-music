@@ -143,7 +143,6 @@ footer{text-align:center;margin-top:34px;font-size:.7rem;color:var(--muted);lett
 .admin-add-date-card{order:2;}
 .admin-special-card{order:3;}
 .advanced-card{order:4;}
-.advanced-card.password-card{order:5;}
 .advanced-card.collapsed{padding-bottom:4px;}
 .advanced-card.collapsed > :not(.acard-title){display:none!important;}
 .advanced-card .acard-title{cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
@@ -337,28 +336,6 @@ footer{text-align:center;margin-top:34px;font-size:.7rem;color:var(--muted);lett
     <div class="cfg-note">這些是系統連線資料，日常開關時段不需要修改。</div>
   </div>
 
-  <div class="acard advanced-card password-card collapsed">
-    <div class="acard-title" role="button" tabindex="0" onclick="toggleAdvancedCard(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleAdvancedCard(this)}">進階設定：修改後台密碼</div>
-    <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;">
-      <div class="cff" style="flex:1;min-width:160px;">
-        <label>新密碼</label>
-        <div style="position:relative;">
-          <input type="password" id="newPw1" placeholder="輸入新密碼" style="padding-right:36px;">
-          <button type="button" onclick="togglePwVis('newPw1','eye1')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#6a73a0;padding:0;line-height:1;font-size:.7rem;" id="eye1">顯示</button>
-        </div>
-      </div>
-      <div class="cff" style="flex:1;min-width:160px;">
-        <label>確認新密碼</label>
-        <div style="position:relative;">
-          <input type="password" id="newPw2" placeholder="再次輸入" style="padding-right:36px;">
-          <button type="button" onclick="togglePwVis('newPw2','eye2')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#6a73a0;padding:0;line-height:1;font-size:.7rem;" id="eye2">顯示</button>
-        </div>
-      </div>
-      <button class="add-btn" onclick="changePw()" style="background:#2d6a4f;">更新密碼</button>
-    </div>
-    <div id="pwMsg" style="font-size:0.73rem;margin-top:8px;min-height:16px;"></div>
-  </div>
-
   <div class="acard admin-slots-card">
     <div class="acard-title">自動週六時段管理</div>
     <div style="font-size:0.72rem;color:#6a73a0;margin-bottom:16px;">系統自動產生未來 4 個週六，點「關」可關閉特定時段。</div>
@@ -396,7 +373,6 @@ const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwRicgFrAKQIdnxeAi6k
 const LEGACY_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbymjVzz8j1GHEJCc1fl6vn4ae4xq2bQ-Y3MG1pYuh8f15YT-XvQ3dTZ2aVwiYQYeeP5og/exec';
 const SLOTS = ['10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'];
 const SAT_SLOTS = ['10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00'];
-const DEFAULT_PW = 'luby2024';
 
 // ============================================================
 // 儲存層
@@ -544,37 +520,30 @@ function goAdmin() {
   document.getElementById('loginErr').textContent = '';
   document.getElementById('adminPage').classList.add('active');
   document.getElementById('frontPage').classList.remove('active');
-  // Apps Script 首次回應較慢，打開登入畫面時就先開始同步。
-  syncPassword();
+  checkAdminSession();
+}
+async function checkAdminSession() {
+  try {
+    const res = await fetch('/api/admin-auth', { cache: 'no-store', credentials: 'same-origin' });
+    if (res.ok) {
+      document.getElementById('loginOverlay').classList.remove('show');
+      renderAdmin();
+    }
+  } catch(e) {}
 }
 async function doLogin() {
-  const cfg = loadCfg();
   const inputPw = document.getElementById('pwInput').value;
-  // 先用本機密碼驗證，背景同步最新密碼
-  if (inputPw === (cfg.password || DEFAULT_PW)) {
-    document.getElementById('loginOverlay').classList.remove('show');
-    renderAdmin();
-    // 背景同步密碼（不影響登入速度）
-    syncPassword();
-    return;
-  }
-  // 本機驗證失敗，嘗試從 Sheets 拉最新密碼再驗證一次
   const btn = document.querySelector('.login-btn');
   const err = document.getElementById('loginErr');
-  btn.disabled = true; btn.textContent = '正在連線（約 15 秒）…';
-  err.textContent = '首次登入正在同步管理密碼，請稍候';
-  const synced = await syncPassword();
-  btn.disabled = false; btn.textContent = '進入後台';
-  const cfg2 = loadCfg();
-  if (inputPw === (cfg2.password || DEFAULT_PW)) {
-    err.textContent = '';
+  btn.disabled = true; btn.textContent = '驗證中…'; err.textContent = '';
+  try {
+    const res = await fetch('/api/admin-auth', { method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ password: inputPw }) });
+    const json = await res.json().catch(()=>({}));
+    if (!res.ok) throw new Error(json.error || '登入失敗');
     document.getElementById('loginOverlay').classList.remove('show');
     renderAdmin();
-  } else if (!synced) {
-    err.textContent = '連線逾時，請確認網路後再按一次「進入後台」';
-  } else {
-    err.textContent = '密碼錯誤';
-  }
+  } catch(e) { err.textContent = e.message || '登入失敗'; }
+  finally { btn.disabled = false; btn.textContent = '進入後台'; }
 }
 function goFront() {
   document.body.classList.remove('admin-view');
@@ -729,64 +698,6 @@ function saveConfig() {
   saveCfg(cfg);
   const ok = document.getElementById('cfgOk');
   ok.style.display='block'; setTimeout(()=>ok.style.display='none',2200);
-}
-
-function togglePwVis(inputId, btnId) {
-  const input = document.getElementById(inputId);
-  const btn = document.getElementById(btnId);
-  input.type = input.type==='password' ? 'text' : 'password';
-  btn.textContent = input.type==='password' ? '顯示' : '隱藏';
-}
-
-function changePw() {
-  const p1=document.getElementById('newPw1').value;
-  const p2=document.getElementById('newPw2').value;
-  const msg=document.getElementById('pwMsg');
-  if (!p1){msg.style.color='#e07070';msg.textContent='請輸入新密碼';return;}
-  if (p1!==p2){msg.style.color='#e07070';msg.textContent='兩次密碼不一致';return;}
-  if (p1.length<4){msg.style.color='#e07070';msg.textContent='密碼至少 4 個字元';return;}
-  const cfg=loadCfg(); cfg.password=p1; saveCfg(cfg);
-  savePassword(p1);
-  document.getElementById('newPw1').value='';
-  document.getElementById('newPw2').value='';
-  msg.style.color='#4aaa7a'; msg.textContent='密碼已更新並同步';
-  setTimeout(()=>msg.textContent='',2500);
-}
-
-function savePassword(pw) {
-  new Promise((resolve) => {
-    var xhr = new XMLHttpRequest();
-    xhr.open('POST', getUrl(), true);
-    xhr.setRequestHeader('Content-Type', 'text/plain');
-    xhr.onload = resolve; xhr.onerror = resolve;
-    xhr.send(JSON.stringify({ action: 'savePassword', password: pw }));
-  }).catch(()=>{});
-}
-
-let passwordSyncPromise = null;
-function syncPassword() {
-  // 登入畫面預抓與按鈕驗證共用同一個請求，避免 Apps Script 重複等待。
-  if (passwordSyncPromise) return passwordSyncPromise;
-  passwordSyncPromise = (async () => {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 25000);
-    try {
-      const res = await fetch(getUrl() + '?action=getPassword&_=' + Date.now(), { signal: controller.signal });
-      if (!res.ok) return false;
-      const json = await res.json();
-      if (json.password && json.password.length >= 4) {
-        const cfg = loadCfg(); cfg.password = json.password; saveCfg(cfg);
-        return true;
-      }
-      return false;
-    } catch(e) {
-      console.error('syncPassword:', e);
-      return false;
-    } finally {
-      clearTimeout(timer);
-    }
-  })().finally(() => { passwordSyncPromise = null; });
-  return passwordSyncPromise;
 }
 
 function toggleAllSlots() {
@@ -1099,7 +1010,7 @@ document.getElementById('bookingForm').addEventListener('submit', async function
 });
 
 // 初始化：獨立 /admin/ 網址直接進入後台登入；一般網址維持顧客預約頁。
-const isStandaloneAdmin = /\/admin\/?$/.test(window.location.pathname) || new URLSearchParams(window.location.search).get('admin') === '1';
+const isStandaloneAdmin = /\/admin\/?$/.test(window.location.pathname);
 if (isStandaloneAdmin) goAdmin();
 else renderFrontDates();
 
