@@ -351,6 +351,7 @@ footer{text-align:center;margin-top:32px;font-size:0.7rem;color:var(--muted);let
 // 設定
 // ============================================================
 const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwRicgFrAKQIdnxeAi6knZWRBWkOEflf0RHS16eCxbS0-Ca-loDwvRPtxowqGgW3ybyJA/exec';
+const LEGACY_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbymjVzz8j1GHEJCc1fl6vn4ae4xq2bQ-Y3MG1pYuh8f15YT-XvQ3dTZ2aVwiYQYeeP5og/exec';
 const SLOTS = ['10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'];
 const SAT_SLOTS = ['10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00'];
 const DEFAULT_PW = 'luby2024';
@@ -362,7 +363,10 @@ const loadCfg = () => { try { return JSON.parse(localStorage.getItem('luby_confi
 const saveCfg = c => localStorage.setItem('luby_config', JSON.stringify(c));
 const loadBookings = () => { try { return JSON.parse(localStorage.getItem('luby_bookings')) || []; } catch { return []; } };
 const saveBookings = b => localStorage.setItem('luby_bookings', JSON.stringify(b));
-function getUrl() { return loadCfg().sheetsUrl || SHEETS_URL; }
+function getUrl() {
+  const configured = loadCfg().sheetsUrl;
+  return !configured || configured === LEGACY_SHEETS_URL ? SHEETS_URL : configured;
+}
 function getCached() { try { return JSON.parse(localStorage.getItem('luby_dates_cache')) || []; } catch { return []; } }
 function setCache(d) { localStorage.setItem('luby_dates_cache', JSON.stringify(d)); localStorage.setItem('luby_dates_cache_ts', Date.now()); }
 // 每次管理員修改時遞增，避免較早發出的背景讀取覆蓋剛儲存的新狀態。
@@ -543,7 +547,7 @@ async function renderAdmin() {
   document.getElementById('cfgTO').value = cfg.tplOwner || 'template_11tk9tg';
   document.getElementById('cfgTC').value = cfg.tplCustomer || 'template_9xsijum';
   document.getElementById('cfgOE').value = cfg.ownerEmail || 'rock7652@gmail.com';
-  document.getElementById('cfgGS').value = cfg.sheetsUrl || SHEETS_URL;
+  document.getElementById('cfgGS').value = getUrl();
   const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate()+1);
   document.getElementById('newDateFrom').min = tomorrow.toISOString().split('T')[0];
   document.getElementById('newDateTo').min = tomorrow.toISOString().split('T')[0];
@@ -958,7 +962,7 @@ document.getElementById('bookingForm').addEventListener('submit', async function
   const notes=document.getElementById('fnotes').value.trim()||'無';
   const slotLabels=selectedSlots.map(s=>s.dataset.label).join('、');
   const cfg=loadCfg();
-  const sheetsUrl=cfg.sheetsUrl||SHEETS_URL;
+  const sheetsUrl=getUrl();
   const pubKey=cfg.pubKey||'RaamsiaDHLjtIj7bK';
   const serviceId=cfg.serviceId||'service_jbj19zq';
   const tplOwner=cfg.tplOwner||'template_11tk9tg';
