@@ -1,4 +1,8 @@
 {
+  "rewrites": [
+    { "source": "/sitemap.xml", "destination": "/api/sitemap" },
+    { "source": "/articles/:slug/", "destination": "/api/article-page?slug=:slug" }
+  ],
   "headers": [
     {
       "source": "/admin/(.*)",
