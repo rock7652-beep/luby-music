@@ -20,28 +20,42 @@
 
 <main class="shell">
   <header class="top">
-    <div class="brand"><img src="/assets/home/luby-logo.png" alt="陸比音樂"><div><h1>文章管理</h1><div class="sub">草稿、預覽、發布與 SEO</div></div></div>
+    <div class="brand"><img src="/assets/home/luby-logo.png" alt="陸比音樂"><div><div class="kicker">LUBY MUSIC</div><h1>內容管理中心</h1><div class="sub">撰寫、預覽並發布吉他知識文章</div></div></div>
     <div class="top-actions"><a class="btn" href="/admin/">吉他保養後台</a><button class="btn" id="logout">安全登出</button></div>
   </header>
   <div class="notice">文章網址發布後建議不要更改；若一定要改，需同步設定 301 轉址，避免 SEO 排名與既有分享連結失效。</div>
   <section class="layout">
-    <aside class="panel">
-      <div class="panel-head"><h2>文章列表</h2><button class="btn" id="newArticle">＋ 新文章</button></div>
+    <aside class="panel library">
+      <div class="panel-head"><div><span class="section-label">CONTENT</span><h2>文章列表</h2></div><button class="btn btn-new" id="newArticle">＋ 新文章</button></div>
       <div class="list" id="articleList"><div class="empty">正在載入…</div></div>
     </aside>
     <section class="panel editor">
       <form id="editorForm">
         <input type="hidden" id="articleId">
-        <div class="grid">
+        <div class="editor-heading"><div><span class="section-label">EDITOR</span><h2>編輯文章</h2></div><span class="autosave-note">儲存後才會更新內容</span></div>
+        <section class="form-section">
+          <div class="form-section-head"><span>01</span><div><h3>基本資料</h3><p>文章標題、網址與列表中顯示的摘要</p></div></div>
+          <div class="grid">
           <div class="field full"><label for="title">文章標題 <span class="hint" id="titleCount">0 / 120</span></label><input id="title" maxlength="120" required></div>
           <div class="field"><label for="slug">文章網址</label><input id="slug" placeholder="guitar-beginner-guide" pattern="[a-z0-9]+(?:-[a-z0-9]+)*" required></div>
           <div class="field"><label for="category">分類</label><input id="category" value="吉他知識"></div>
           <div class="field full"><label for="excerpt">文章摘要</label><textarea id="excerpt" maxlength="500" placeholder="用 1–2 句說明這篇文章能解決什麼問題"></textarea></div>
+          </div>
+        </section>
+        <section class="form-section">
+          <div class="form-section-head"><span>02</span><div><h3>圖片與文章內容</h3><p>加入封面、段落、小標題及內文照片</p></div></div>
+          <div class="grid">
           <div class="field full"><label>封面照片</label><div class="cover" id="coverPreview"><span class="sub">尚未上傳封面照片</span></div><div class="upload-row"><input id="coverFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif"><button class="btn" type="button" id="uploadCover">上傳封面</button></div><input id="coverUrl" type="hidden"><input id="coverAlt" style="margin-top:8px" placeholder="照片替代文字（描述照片內容）"></div>
           <div class="field full"><label for="content">文章內文 <span class="hint">可使用下方工具加入段落、標題及圖片</span></label><div class="toolbar"><button class="btn" type="button" data-wrap="p">段落</button><button class="btn" type="button" data-wrap="h2">小標題</button><button class="btn" type="button" data-wrap="ul">項目清單</button><button class="btn" type="button" id="insertImage">上傳內文照片</button><input id="bodyFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden></div><textarea class="body" id="content" placeholder="<p>在這裡輸入文章內容…</p>"></textarea></div>
+          </div>
+        </section>
+        <section class="form-section seo-section">
+          <div class="form-section-head"><span>03</span><div><h3>Google 搜尋設定</h3><p>控制搜尋結果中顯示的標題與說明</p></div></div>
+          <div class="grid">
           <div class="field full"><label for="seoTitle">SEO 標題 <span class="hint" id="seoTitleCount">0 / 120</span></label><input id="seoTitle" maxlength="120" placeholder="未填寫時會使用文章標題"></div>
           <div class="field full"><label for="seoDescription">SEO 摘要 <span class="hint" id="seoDescriptionCount">0 / 320</span></label><textarea id="seoDescription" maxlength="320" placeholder="Google 搜尋結果可能顯示的摘要"></textarea></div>
-        </div>
+          </div>
+        </section>
         <div class="message" id="message"></div>
         <div class="editor-actions"><button class="btn" type="button" id="preview">預覽</button><button class="btn" type="button" id="delete">刪除</button><button class="btn btn-primary" type="button" id="saveDraft">儲存草稿</button><button class="btn btn-green" type="button" id="publish">發布文章</button></div>
       </form>
