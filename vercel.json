@@ -1,4 +1,11 @@
 {
+  "redirects": [
+    {
+      "source": "/tokyo",
+      "destination": "https://luby-tokyo-2026.ggg-oooooo-ddd.chatgpt.site",
+      "permanent": false
+    }
+  ],
   "headers": [
     {
       "source": "/admin/(.*)",
