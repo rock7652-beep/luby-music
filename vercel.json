@@ -3,6 +3,13 @@
     { "source": "/sitemap.xml", "destination": "/api/sitemap" },
     { "source": "/articles/:slug/", "destination": "/api/article-page?slug=:slug" }
   ],
+  "redirects": [
+    {
+      "source": "/tokyo",
+      "destination": "https://luby-tokyo-2026.ggg-oooooo-ddd.chatgpt.site",
+      "permanent": false
+    }
+  ],
   "headers": [
     {
       "source": "/admin/(.*)",
