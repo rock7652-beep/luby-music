@@ -13,22 +13,69 @@ function cleanCell(value) {
   return typeof value === 'string' ? value.slice(0, 1000) : value;
 }
 
+const FIELD_ALIASES = {
+  '報名日期': ['submittedAt', 'serverReceivedAt'],
+  '來源': ['source'],
+  '姓名': ['name'],
+  '電話': ['phone'],
+  '報名類型': ['courseType'],
+  '學員類型': ['studentType'],
+  '班級名稱': ['className'],
+  '班級程度': ['classLevel'],
+  '星期': ['classDay'],
+  '時間': ['classTime'],
+  '老師': ['classTeacher'],
+  '開課日': ['classStartDate'],
+  '程度需求': ['level'],
+  '可上課時段': ['timeSlots'],
+  '人數': ['groupSize'],
+  '是否有吉他': ['hasGuitar'],
+  '原價': ['basePrice'],
+  '優惠': ['discount'],
+  '應付金額': ['finalPrice'],
+  '匯款後五碼': ['transferLast4'],
+  '備註': ['note'],
+};
+
+const VALUE_LABELS = {
+  '報名類型': { group: '團體班', private: '個人班', custom: '自組班' },
+  '學員類型': { new: '新生', returning: '舊生' },
+  '是否有吉他': { yes: '有', no: '沒有', interested: '想了解購買' },
+};
+
+function sourceKeys(field) {
+  return [field, ...(FIELD_ALIASES[field] || [])];
+}
+
+function formatField(field, value) {
+  const cleaned = cleanCell(value);
+  return VALUE_LABELS[field]?.[cleaned] || cleaned;
+}
+
 function normalizeRows(payload) {
   const source = payload.rows || payload.data || payload.registrations;
   if (!Array.isArray(source)) return null;
   if (!source.length) return [];
 
   if (Array.isArray(source[0])) {
-    const header = source[0].map(String);
-    const hasHeader = DISPLAY_FIELDS.some(field => header.includes(field));
-    const rows = hasHeader ? source.slice(1) : source;
+    const payloadHeader = Array.isArray(payload.header) ? payload.header.map(String) : [];
+    const firstRow = source[0].map(String);
+    const knownHeaders = DISPLAY_FIELDS.flatMap(sourceKeys);
+    const firstRowIsHeader = firstRow.some(key => knownHeaders.includes(key));
+    const header = payloadHeader.length ? payloadHeader : (firstRowIsHeader ? firstRow : []);
+    const rows = firstRowIsHeader && !payloadHeader.length ? source.slice(1) : source;
     return rows.map(row => Object.fromEntries(DISPLAY_FIELDS.map((field, index) => {
-      const sourceIndex = hasHeader ? header.indexOf(field) : index;
-      return [field, cleanCell(sourceIndex >= 0 ? row[sourceIndex] : '')];
+      const sourceIndex = header.length
+        ? sourceKeys(field).map(key => header.indexOf(key)).find(i => i >= 0)
+        : index;
+      return [field, formatField(field, sourceIndex >= 0 ? row[sourceIndex] : '')];
     })));
   }
 
-  return source.map(row => Object.fromEntries(DISPLAY_FIELDS.map(field => [field, cleanCell(row[field])])));
+  return source.map(row => Object.fromEntries(DISPLAY_FIELDS.map(field => {
+    const key = sourceKeys(field).find(candidate => row[candidate] !== undefined);
+    return [field, formatField(field, key ? row[key] : '')];
+  })));
 }
 
 export default async function handler(req, res) {
