@@ -1,5 +1,5 @@
 import { hasSameOrigin, hasValidAdminSession, noStoreJson } from './_lib/admin-session.js';
-import { createArticle, deleteArticle, listAdminArticles, listPublishedArticles, normalizeArticle, updateArticle } from './_lib/articles-store.js';
+import { createArticle, listAdminArticles, listPublishedArticles, normalizeArticle, restoreArticle, trashArticle, updateArticle } from './_lib/articles-store.js';
 
 export default async function handler(req, res) {
   try {
@@ -29,10 +29,15 @@ export default async function handler(req, res) {
     }
     if (req.method === 'DELETE') {
       if (!body.id) return noStoreJson(res, 400, { ok: false, error: '缺少文章 ID' });
-      await deleteArticle(body.id);
-      return noStoreJson(res, 200, { ok: true });
+      const article = await trashArticle(body.id, body.original_status, body.original_category);
+      return noStoreJson(res, 200, { ok: true, article });
     }
-    res.setHeader('Allow', 'GET, POST, PUT, DELETE');
+    if (req.method === 'PATCH') {
+      if (body.action !== 'restore' || !body.id) return noStoreJson(res, 400, { ok: false, error: '復原資料不完整' });
+      const article = await restoreArticle(body.id, body.restore_status, body.restore_category);
+      return noStoreJson(res, 200, { ok: true, article });
+    }
+    res.setHeader('Allow', 'GET, POST, PUT, PATCH, DELETE');
     return noStoreJson(res, 405, { ok: false, error: 'Method not allowed' });
   } catch (error) {
     const status = /duplicate key|articles_slug_key/i.test(error.message) ? 409 : 500;
