@@ -39,6 +39,40 @@ export function listAdminArticles() {
   return request('/rest/v1/articles?select=*&order=updated_at.desc', {}, true);
 }
 
+const TRASH_PREFIX = '__trash__:';
+
+function trashCategory(status, category) {
+  const safeStatus = status === 'published' ? 'published' : 'draft';
+  return `${TRASH_PREFIX}${safeStatus}:${String(category || '吉他知識').replace(/^__trash__:[^:]+:/, '').slice(0, 18)}`;
+}
+
+export function trashArticle(id, originalStatus, originalCategory) {
+  return request(`/rest/v1/articles?id=eq.${encodeURIComponent(id)}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', Prefer: 'return=representation' },
+    body: JSON.stringify({
+      status: 'draft',
+      category: trashCategory(originalStatus, originalCategory),
+      published_at: null,
+      updated_at: new Date().toISOString()
+    })
+  }, true).then(rows => rows?.[0]);
+}
+
+export function restoreArticle(id, restoreStatus, restoreCategory) {
+  const status = restoreStatus === 'published' ? 'published' : 'draft';
+  return request(`/rest/v1/articles?id=eq.${encodeURIComponent(id)}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', Prefer: 'return=representation' },
+    body: JSON.stringify({
+      status,
+      category: String(restoreCategory || '吉他知識').replace(/^__trash__:[^:]+:/, '').slice(0, 40),
+      published_at: status === 'published' ? new Date().toISOString() : null,
+      updated_at: new Date().toISOString()
+    })
+  }, true).then(rows => rows?.[0]);
+}
+
 export function createArticle(article) {
   return request('/rest/v1/articles', {
     method: 'POST',
@@ -112,14 +146,24 @@ export function sanitizeArticleHtml(html) {
     if (tag.startsWith('</')) return `</${lower}>`;
     const safeAttributes = [];
     const permitted = lower === 'img' ? new Set(['src', 'alt', 'title'])
-      : lower === 'a' ? new Set(['href', 'title'])
+      : lower === 'a' ? new Set(['href', 'title', 'class', 'target', 'rel'])
         : lower === 'div' ? new Set(['class']) : new Set();
     attributes.replace(/([a-z0-9-]+)\s*=\s*("[^"]*"|'[^']*')/gi, (_match, key, quoted) => {
       const attr = key.toLowerCase();
       const value = quoted.slice(1, -1).trim();
       if (!permitted.has(attr)) return '';
       if ((attr === 'href' || attr === 'src') && !/^(https?:\/\/|\/)/i.test(value)) return '';
-      if (attr === 'class' && value !== 'note') return '';
+      if (attr === 'class') {
+        const allowedClasses = lower === 'div'
+          ? new Set(['note', 'cta', 'actions'])
+          : new Set(['button', 'button-dark', 'button-line']);
+        const safeClass = value.split(/\s+/).filter(name => allowedClasses.has(name)).join(' ');
+        if (!safeClass) return '';
+        safeAttributes.push(`class="${escapeHtml(safeClass)}"`);
+        return '';
+      }
+      if (attr === 'target' && value !== '_blank') return '';
+      if (attr === 'rel' && value !== 'noopener') return '';
       safeAttributes.push(`${attr}="${escapeHtml(value)}"`);
       return '';
     });
