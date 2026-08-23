@@ -3,6 +3,13 @@
     { "source": "/sitemap.xml", "destination": "/api/sitemap" },
     { "source": "/articles/:slug/", "destination": "/api/article-page?slug=:slug" }
   ],
+  "redirects": [
+    {
+      "source": "/tokyo",
+      "destination": "https://luby-tokyo-2026.ggg-oooooo-ddd.chatgpt.site",
+      "permanent": false
+    }
+  ],
   "headers": [
     {
       "source": "/admin/(.*)",
@@ -48,6 +55,15 @@
           "key": "Referrer-Policy",
           "value": "no-referrer"
         }
+      ]
+    },
+    {
+      "source": "/api/admin-registrations",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store, max-age=0" },
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "no-referrer" }
       ]
     }
   ]

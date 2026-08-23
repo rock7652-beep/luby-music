@@ -59,7 +59,11 @@ function clearCookie(res) {
 }
 
 export default async function handler(req, res) {
-  const passwordHash = process.env.ADMIN_PASSWORD_HASH || '';
+  const host = String(req.headers['x-forwarded-host'] || req.headers.host || '').split(',')[0].trim();
+  const isPreviewHost = /\.vercel\.app$/i.test(host);
+  const passwordHash = isPreviewHost
+    ? (process.env.ADMIN_PREVIEW_PASSWORD_HASH || process.env.ADMIN_PASSWORD_HASH || '')
+    : (process.env.ADMIN_PASSWORD_HASH || '');
   const secret = process.env.ADMIN_SESSION_SECRET || '';
 
   // 專用密碼雜湊與 Session 金鑰缺一不可；不得沿用其他服務的密鑰。
