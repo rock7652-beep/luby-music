@@ -1,21 +1,50 @@
 <!DOCTYPE html>
-<html lang="zh-TW"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><title>線上報名管理｜陸比音樂</title><link rel="stylesheet" href="/assets/admin-registrations.css"></head>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow">
+  <title>線上報名管理｜陸比音樂</title>
+  <link rel="stylesheet" href="/assets/admin-registrations.css">
+</head>
 <body>
 <header><a href="/admin/" class="back">← 管理中心</a><strong>線上報名管理</strong><button id="refresh" type="button">重新整理</button></header>
 <main>
-  <section class="intro"><p class="eyebrow">LUBY REGISTRATIONS</p><h1>官網報名名單</h1><p>資料來源：吉他線上報名表單。此頁只顯示門市需要的欄位。</p></section>
+  <section class="intro"><p class="eyebrow">LUBY REGISTRATIONS</p><h1>官網報名名單</h1><p>可快速篩選、搜尋及將錯誤資料移至回收區。</p></section>
   <section class="summary"><div><small>目前顯示</small><strong id="count">—</strong></div><div><small>最後更新</small><strong id="updated">—</strong></div></section>
-  <section class="tools"><input id="search" type="search" placeholder="搜尋姓名、電話、班級或老師"><select id="type"><option value="">全部報名類型</option><option>團體班</option><option>個人班</option><option>自組班</option></select></section>
+  <section class="tools">
+    <input id="search" type="search" placeholder="搜尋姓名、電話、班級或老師">
+    <select id="type"><option value="">全部報名類型</option><option>團體班</option><option>個人班</option><option>自組班</option></select>
+    <select id="period"><option value="">全部日期</option><option value="today">今天</option><option value="7">最近 7 天</option><option value="30">最近 30 天</option></select>
+    <select id="classFilter"><option value="">全部班級</option></select>
+    <select id="teacher"><option value="">全部老師</option></select>
+    <label class="test-filter"><input id="testOnly" type="checkbox">只看測試資料</label>
+  </section>
+  <section id="selection" class="selection" hidden><span>已選 <strong id="selectedCount">0</strong> 筆</span><button id="clearSelection" type="button">取消選取</button><button id="trashSelected" class="danger" type="button">移至回收區</button></section>
   <div id="status" class="status">正在安全讀取報名資料…</div>
   <section id="list" class="list" aria-live="polite"></section>
 </main>
 <script>
-const fields=['報名日期','來源','姓名','電話','報名類型','學員類型','班級名稱','班級程度','星期','時間','老師','開課日','程度需求','可上課時段','人數','是否有吉他','原價','優惠','應付金額','匯款後五碼','備註'];let rows=[];
-const $=id=>document.getElementById(id);const safe=value=>String(value??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));const money=value=>{if(value===''||value===null||value===undefined)return '—';const n=Number(String(value).replace(/,/g,''));return Number.isFinite(n)?'NT$'+n.toLocaleString('zh-TW'):safe(value)};
-function detail(label,value,cls=''){if(value===''||value===null||value===undefined)return '';return `<div class="detail ${cls}"><small>${label}</small><span>${safe(value)}</span></div>`}
-function render(){const q=$('search').value.trim().toLowerCase(),type=$('type').value;const visible=rows.filter(row=>(!type||row['報名類型']===type)&&(!q||fields.some(field=>String(row[field]??'').toLowerCase().includes(q))));$('count').textContent=visible.length+' 筆';$('status').hidden=visible.length>0;$('status').textContent=rows.length&&!visible.length?'沒有符合條件的報名資料':'目前沒有報名資料';$('list').innerHTML=visible.map(row=>`<article class="card"><div class="card-top"><div><small>${safe(row['報名日期']||'')}</small><h2>${safe(row['姓名']||'未填姓名')}</h2></div><span class="tag">${safe(row['報名類型']||'未分類')}</span></div><a class="phone" href="tel:${safe(String(row['電話']||'').replace(/\D/g,''))}">${safe(row['電話']||'未填電話')}</a><div class="course"><strong>${safe(row['班級名稱']||row['程度需求']||'尚未指定班級')}</strong><span>${safe([row['星期'],row['時間'],row['老師']].filter(Boolean).join('・')||'待安排')}</span></div><div class="details">${detail('學員',row['學員類型'])}${detail('程度',row['班級程度']||row['程度需求'])}${detail('開課日',row['開課日'])}${detail('可上課時段',row['可上課時段'],'wide')}${detail('是否有吉他',row['是否有吉他'])}${detail('人數',row['人數'])}${detail('匯款後五碼',row['匯款後五碼'])}${detail('來源',row['來源'])}</div>${row['應付金額']!==''&&row['應付金額']!=null?`<div class="payment"><span>應付金額</span><strong>${money(row['應付金額'])}</strong></div>`:''}${row['備註']?`<p class="note">備註：${safe(row['備註'])}</p>`:''}</article>`).join('')}
-async function load(){ $('refresh').disabled=true;$('status').hidden=false;$('status').textContent='正在安全讀取報名資料…';$('list').innerHTML='';try{const res=await fetch('/api/admin-registrations',{cache:'no-store',credentials:'same-origin'});const data=await res.json();if(res.status===401){location.href='/admin/';return}if(!res.ok)throw new Error(data.error||'讀取失敗');rows=Array.isArray(data.rows)?data.rows:[];$('updated').textContent=new Date(data.updatedAt).toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'});render()}catch(error){$('status').hidden=false;$('status').innerHTML=`<strong>尚未完成資料串接</strong><span>${safe(error.message)}</span>`}finally{$('refresh').disabled=false}}
-$('search').addEventListener('input',render);$('type').addEventListener('change',render);$('refresh').addEventListener('click',load);load();
-// 頁面停留在前景時，每 2 分鐘自動讀取最新報名；背景分頁不發送請求。
-setInterval(()=>{if(document.visibilityState==='visible'&&!$('refresh').disabled)load()},120000);
-</script></body></html>
+const fields=['報名日期','來源','姓名','電話','報名類型','學員類型','班級名稱','班級程度','星期','時間','老師','開課日','程度需求','可上課時段','人數','是否有吉他','原價','優惠','應付金額','匯款後五碼','備註'];
+let rows=[],selected=new Set(),busy=false;
+const $=id=>document.getElementById(id);
+const safe=value=>String(value??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+const money=value=>{if(value===''||value==null)return '—';const n=Number(String(value).replace(/,/g,''));return Number.isFinite(n)?'NT$'+n.toLocaleString('zh-TW'):safe(value)};
+const isTest=row=>/test|測試/i.test([row['姓名'],row['電話'],row['備註'],row['來源']].join(' '));
+function detail(label,value,cls=''){if(value===''||value==null)return '';return `<div class="detail ${cls}"><small>${label}</small><span>${safe(value)}</span></div>`}
+function parsedDate(value){const date=new Date(value);return Number.isNaN(date.getTime())?null:date}
+function dateMatches(value,period){if(!period)return true;const date=parsedDate(value);if(!date)return false;const now=new Date();if(period==='today')return date.toDateString()===now.toDateString();const start=new Date(now);start.setDate(now.getDate()-Number(period));return date>=start}
+function formatDate(value){const date=parsedDate(value);return date?date.toLocaleString('zh-TW',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}):String(value||'')}
+function fillSelect(id,values,label){const el=$(id),current=el.value;el.innerHTML=`<option value="">全部${label}</option>`+[...new Set(values.filter(Boolean))].sort().map(value=>`<option>${safe(value)}</option>`).join('');el.value=[...el.options].some(option=>option.value===current)?current:''}
+function updateOptions(){fillSelect('classFilter',rows.map(row=>row['班級名稱']),'班級');fillSelect('teacher',rows.map(row=>row['老師']),'老師')}
+function visibleRows(){const q=$('search').value.trim().toLowerCase(),type=$('type').value,period=$('period').value,className=$('classFilter').value,teacher=$('teacher').value,testOnly=$('testOnly').checked;return rows.filter(row=>(!type||row['報名類型']===type)&&(!className||row['班級名稱']===className)&&(!teacher||row['老師']===teacher)&&dateMatches(row['報名日期'],period)&&(!testOnly||isTest(row))&&(!q||fields.some(field=>String(row[field]??'').toLowerCase().includes(q))))}
+function updateSelection(){const count=selected.size;$('selectedCount').textContent=count;$('selection').hidden=count===0}
+function render(){const visible=visibleRows();$('count').textContent=visible.length+' 筆';$('status').hidden=visible.length>0;$('status').textContent=rows.length&&!visible.length?'沒有符合條件的報名資料':'目前沒有報名資料';$('list').innerHTML=visible.map(row=>{const id=String(row['資料ID']||''),checked=selected.has(id)?' checked':'';return `<article class="card"><div class="select-row">${id?`<label><input class="row-check" type="checkbox" data-id="${safe(id)}"${checked}>選取</label>`:'<span></span>'}${id?`<button class="trash-one" type="button" data-id="${safe(id)}" data-name="${safe(row['姓名']||'未填姓名')}">移至回收區</button>`:''}</div><div class="card-top"><div><small>${safe(formatDate(row['報名日期']))}</small><h2>${safe(row['姓名']||'未填姓名')}</h2></div><span class="tag">${safe(row['報名類型']||'未分類')}</span></div><a class="phone" href="tel:${safe(String(row['電話']||'').replace(/\D/g,''))}">${safe(row['電話']||'未填電話')}</a><div class="course"><strong>${safe(row['班級名稱']||row['程度需求']||'尚未指定班級')}</strong><span>${safe([row['星期'],row['時間'],row['老師']].filter(Boolean).join('・')||'待安排')}</span></div><div class="details">${detail('學員',row['學員類型'])}${detail('程度',row['班級程度']||row['程度需求'])}${detail('開課日',row['開課日'])}${detail('可上課時段',row['可上課時段'],'wide')}${detail('是否有吉他',row['是否有吉他'])}${detail('人數',row['人數'])}${detail('匯款後五碼',row['匯款後五碼'])}${detail('來源',row['來源'])}</div>${row['應付金額']!==''&&row['應付金額']!=null?`<div class="payment"><span>應付金額</span><strong>${money(row['應付金額'])}</strong></div>`:''}${row['備註']?`<p class="note">備註：${safe(row['備註'])}</p>`:''}</article>`}).join('');document.querySelectorAll('.row-check').forEach(input=>input.addEventListener('change',()=>{input.checked?selected.add(input.dataset.id):selected.delete(input.dataset.id);updateSelection()}));document.querySelectorAll('.trash-one').forEach(button=>button.addEventListener('click',()=>trashRows([button.dataset.id],button.dataset.name)))}
+async function trashRows(ids,label){if(busy||!ids.length)return;const first=confirm(`確定將「${label||ids.length+' 筆資料'}」移至回收區嗎？\n\n資料會備份到 registrations_trash，可供救回。`);if(!first)return;if(!confirm('請再次確認：移至回收區後，這些資料將不再顯示於報名後台。'))return;busy=true;try{const res=await fetch('/api/admin-registrations',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({action:'trash',ids})});const data=await res.json();if(!res.ok)throw new Error(data.error||'操作失敗');selected.clear();alert(`已將 ${data.removed||ids.length} 筆資料移至回收區`);await load()}catch(error){alert(error.message)}finally{busy=false;updateSelection()}}
+async function load(){$('refresh').disabled=true;$('status').hidden=false;$('status').textContent='正在安全讀取報名資料…';$('list').innerHTML='';try{const res=await fetch('/api/admin-registrations',{cache:'no-store',credentials:'same-origin'});const data=await res.json();if(res.status===401){location.href='/admin/';return}if(!res.ok)throw new Error(data.error||'讀取失敗');rows=Array.isArray(data.rows)?data.rows:[];selected=new Set([...selected].filter(id=>rows.some(row=>String(row['資料ID'])===id)));$('updated').textContent=new Date(data.updatedAt).toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'});updateOptions();render();updateSelection()}catch(error){$('status').hidden=false;$('status').innerHTML=`<strong>資料讀取失敗</strong><span>${safe(error.message)}</span>`}finally{$('refresh').disabled=false}}
+['search','type','period','classFilter','teacher','testOnly'].forEach(id=>$(id).addEventListener(id==='search'?'input':'change',render));
+$('refresh').addEventListener('click',load);$('clearSelection').addEventListener('click',()=>{selected.clear();render();updateSelection()});$('trashSelected').addEventListener('click',()=>trashRows([...selected],selected.size+' 筆資料'));
+load();setInterval(()=>{if(document.visibilityState==='visible'&&!$('refresh').disabled&&!selected.size)load()},120000);
+</script>
+</body>
+</html>
