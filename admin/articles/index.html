@@ -46,7 +46,7 @@
         <section class="form-section">
           <div class="form-section-head"><span>02</span><div><h3>圖片與文章內容</h3><p>加入封面、段落、小標題及內文照片</p></div></div>
           <div class="grid">
-          <div class="field full"><label>封面照片</label><div class="cover" id="coverPreview"><span class="sub">尚未上傳封面照片</span></div><div class="upload-row"><input id="coverFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif"><button class="btn" type="button" id="uploadCover">上傳封面</button></div><input id="coverUrl" type="hidden"><input id="coverAlt" style="margin-top:8px" placeholder="照片替代文字（描述照片內容）"></div>
+          <div class="field full"><label>封面照片 <span class="hint">手機照片會自動裁切為 1200 × 675 並壓縮</span></label><div class="cover" id="coverPreview"><span class="sub">尚未上傳封面照片</span></div><div class="upload-row"><input id="coverFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif,.heic,.heif"><button class="btn" type="button" id="uploadCover">上傳封面</button></div><input id="coverUrl" type="hidden"><input id="coverAlt" style="margin-top:8px" placeholder="照片替代文字（描述照片內容）"></div>
           <div class="field full"><label for="visualEditor">文章內文 <span class="hint">直接編輯排版，儲存後才會更新文章</span></label><div class="toolbar">
   <button class="btn" type="button" data-command="undo" aria-label="復原">↶ 復原</button>
   <button class="btn" type="button" data-command="redo" aria-label="重做">↷ 重做</button>
@@ -60,7 +60,7 @@
   <button class="btn toolbar-secondary" type="button" id="insertSecondaryButton">＋ 次要按鈕</button>
   <button class="btn" type="button" id="insertImage">上傳內文照片</button>
   <button class="btn source-toggle" type="button" id="toggleSource">查看 HTML</button>
-  <input id="bodyFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden>
+  <input id="bodyFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif,.heic,.heif" hidden>
 </div>
 <div class="visual-editor" id="visualEditor" contenteditable="true" role="textbox" aria-multiline="true" data-placeholder="從這裡開始撰寫文章…"></div>
 <div class="image-settings" id="imageSettings" hidden>
@@ -123,9 +123,41 @@ function slugify(text){return text.toLowerCase().trim().replace(/[^a-z0-9\s-]/g,
 $('title').addEventListener('input',()=>{if(!$('articleId').value&&!$('slug').value)$('slug').value=slugify($('title').value);counts();dirty=true;});document.querySelectorAll('#editorForm input,#editorForm textarea').forEach(el=>el.addEventListener('input',()=>dirty=true));$('seoTitle').addEventListener('input',counts);$('seoDescription').addEventListener('input',counts);$('visualEditor').addEventListener('input',()=>{syncVisualToSource();dirty=true;});$('visualEditor').addEventListener('paste',e=>{e.preventDefault();const html=e.clipboardData.getData('text/html'),plain=e.clipboardData.getData('text/plain');const clean=html?safePreviewHtml(html):escapeHtml(plain).replace(/\n{2,}/g,'</p><p>').replace(/\n/g,'<br>');document.execCommand('insertHTML',false,clean);syncVisualToSource();dirty=true;});
 function counts(){$('titleCount').textContent=$('title').value.length+' / 120';$('seoTitleCount').textContent=$('seoTitle').value.length+' / 120';$('seoDescriptionCount').textContent=$('seoDescription').value.length+' / 320';}
 function renderCover(){const u=$('coverUrl').value;$('coverPreview').innerHTML=u?`<img src="${escapeHtml(u)}" alt="">`:'<span class="sub">尚未上傳封面照片</span>';}
-async function fileBase64(file){return new Promise((resolve,reject)=>{const r=new FileReader;r.onload=()=>resolve(String(r.result).split(',')[1]);r.onerror=reject;r.readAsDataURL(file);});}
-async function upload(file){if(!file)throw new Error('請先選擇圖片');if(file.size>5*1024*1024)throw new Error('圖片需小於 5MB');const j=await api('/api/article-image',{method:'POST',body:JSON.stringify({filename:file.name,contentType:file.type,base64:await fileBase64(file)})});return j.url;}
-$('uploadCover').onclick=async()=>{const b=$('uploadCover');b.disabled=true;msg('正在上傳封面…');try{$('coverUrl').value=await upload($('coverFile').files[0]);renderCover();dirty=true;msg('封面上傳完成','ok');}catch(e){msg(e.message,'error');}finally{b.disabled=false;}};
+function formatBytes(bytes){if(bytes<1024)return bytes+' B';if(bytes<1024*1024)return (bytes/1024).toFixed(0)+' KB';return (bytes/1024/1024).toFixed(1)+' MB';}
+async function fileBase64(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(String(r.result).split(',')[1]);r.onerror=()=>reject(new Error('無法讀取處理後的照片'));r.readAsDataURL(file);});}
+async function loadImageSource(file){
+  if('createImageBitmap' in window){try{return await createImageBitmap(file,{imageOrientation:'from-image'});}catch(error){}}
+  return new Promise((resolve,reject)=>{const image=new Image();const url=URL.createObjectURL(file);image.onload=()=>{URL.revokeObjectURL(url);resolve(image);};image.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('這台裝置無法讀取此照片格式，請先在「照片」中另存為 JPG 再試一次'));};image.src=url;});
+}
+function canvasBlob(canvas,quality){return new Promise((resolve,reject)=>canvas.toBlob(blob=>blob?resolve(blob):reject(new Error('照片壓縮失敗，請換一張照片再試')),'image/jpeg',quality));}
+async function optimizeImage(file,kind='body'){
+  if(!file)throw new Error('請先選擇圖片');
+  if(file.size>30*1024*1024)throw new Error('原始照片請小於 30MB');
+  if(!String(file.type||'').startsWith('image/')&&!/\.(jpe?g|png|webp|gif|heic|heif)$/i.test(file.name))throw new Error('請選擇 JPG、PNG、WebP 或 HEIC 照片');
+  const source=await loadImageSource(file);const sw=source.width||source.naturalWidth,sh=source.height||source.naturalHeight;
+  if(!sw||!sh){source.close?.();throw new Error('無法取得照片尺寸');}
+  let width,height,sx=0,sy=0,sWidth=sw,sHeight=sh;
+  if(kind==='cover'){
+    width=1200;height=675;const targetRatio=width/height,sourceRatio=sw/sh;
+    if(sourceRatio>targetRatio){sWidth=sh*targetRatio;sx=(sw-sWidth)/2;}else{sHeight=sw/targetRatio;sy=(sh-sHeight)/2;}
+  }else{
+    const scale=Math.min(1,1600/Math.max(sw,sh));width=Math.max(1,Math.round(sw*scale));height=Math.max(1,Math.round(sh*scale));
+  }
+  let canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;let context=canvas.getContext('2d',{alpha:false});context.fillStyle='#fff';context.fillRect(0,0,width,height);context.drawImage(source,sx,sy,sWidth,sHeight,0,0,width,height);source.close?.();
+  let quality=.84,blob=await canvasBlob(canvas,quality);
+  while(blob.size>950*1024&&quality>.58){quality-=.08;blob=await canvasBlob(canvas,quality);}
+  if(blob.size>1500*1024){
+    const scale=Math.sqrt((1400*1024)/blob.size);const smaller=document.createElement('canvas');smaller.width=Math.max(1,Math.round(width*scale));smaller.height=Math.max(1,Math.round(height*scale));const smallerContext=smaller.getContext('2d',{alpha:false});smallerContext.fillStyle='#fff';smallerContext.fillRect(0,0,smaller.width,smaller.height);smallerContext.drawImage(canvas,0,0,smaller.width,smaller.height);canvas.width=canvas.height=1;canvas=smaller;width=smaller.width;height=smaller.height;blob=await canvasBlob(canvas,.72);
+  }
+  const baseName=String(file.name||'article-photo').replace(/\.[^.]+$/,'').replace(/[^a-zA-Z0-9_-]+/g,'-').replace(/^-+|-+$/g,'')||'article-photo';
+  const optimized=new File([blob],baseName+'.jpg',{type:'image/jpeg',lastModified:Date.now()});
+  return{file:optimized,originalSize:file.size,width,height};
+}
+async function upload(file,kind='body'){
+  const optimized=await optimizeImage(file,kind);const j=await api('/api/article-image',{method:'POST',body:JSON.stringify({filename:optimized.file.name,contentType:'image/jpeg',base64:await fileBase64(optimized.file)})});
+  return{url:j.url,summary:`${formatBytes(optimized.originalSize)} → ${formatBytes(optimized.file.size)}（${optimized.width} × ${optimized.height}）`};
+}
+$('uploadCover').onclick=async()=>{const b=$('uploadCover');b.disabled=true;msg('正在自動調整並上傳封面…');try{const result=await upload($('coverFile').files[0],'cover');$('coverUrl').value=result.url;renderCover();dirty=true;msg('封面上傳完成，已自動最佳化：'+result.summary,'ok');}catch(e){msg(e.message,'error');}finally{b.disabled=false;}};
 function validLink(url){return /^(https?:\/\/|\/)/i.test(String(url||'').trim());}
 function insertEditorHtml(html){if(!$('content').hidden)syncSourceToVisual();$('content').hidden=true;$('visualEditor').hidden=false;$('toggleSource').textContent='查看 HTML';$('visualEditor').focus();document.execCommand('insertHTML',false,html);syncVisualToSource();dirty=true;}
 function askButton(kind){
@@ -151,11 +183,11 @@ $('insertImage').onclick=()=>$('bodyFile').click();
 $('bodyFile').onchange=async()=>{
   msg('正在上傳內文照片…');
   try{
-    const url=await upload($('bodyFile').files[0]);
+    const result=await upload($('bodyFile').files[0],'body');const url=result.url;
     const alt=prompt('請輸入圖片替代文字（讓搜尋引擎與無障礙工具了解照片）','')||'';
     const caption=prompt('請輸入圖片下方說明（可留空）','')||'';
     insertEditorHtml(`<figure><img src="${url}" alt="${escapeHtml(alt.trim())}"><figcaption>${escapeHtml(caption.trim())}</figcaption></figure><p><br></p>`);
-    dirty=true;msg('照片已插入內文，之後點照片仍可修改說明','ok');
+    dirty=true;msg('照片已插入並自動最佳化：'+result.summary+'；之後點照片仍可修改說明','ok');
   }catch(e){msg(e.message,'error');}
   finally{$('bodyFile').value='';}
 };
