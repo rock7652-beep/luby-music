@@ -1,5 +1,7 @@
 import { hasValidAdminSession, noStoreJson } from './_lib/admin-session.js';
 
+const ADMIN_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwF3l8SuiBwZ4GM638rEX_SrzphEJ_nxHW3PdUzWR5iVSVm2VNHELDzPk-4yeb3N3Q/exec';
+
 const DISPLAY_FIELDS = [
   '報名日期', '來源', '姓名', '電話', '報名類型', '學員類型', '班級名稱',
   '班級程度', '星期', '時間', '老師', '開課日', '程度需求', '可上課時段',
@@ -38,7 +40,9 @@ export default async function handler(req, res) {
     return noStoreJson(res, 401, { ok: false, error: '請先登入管理中心' });
   }
 
-  const url = process.env.APPS_SCRIPT_URL || '';
+  // Preview registration admin is pinned to the verified registration web app.
+  // This branch-only setting avoids changing the formal site's registration endpoint.
+  const url = ADMIN_APPS_SCRIPT_URL;
   const token = process.env.APPS_SCRIPT_TOKEN || '';
   if (!url || !token) {
     return noStoreJson(res, 503, { ok: false, error: '線上報名資料連線尚未設定' });
