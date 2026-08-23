@@ -3,7 +3,7 @@ import { hasValidAdminSession, noStoreJson } from './_lib/admin-session.js';
 const ADMIN_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwF3l8SuiBwZ4GM638rEX_SrzphEJ_nxHW3PdUzWR5iVSVm2VNHELDzPk-4yeb3N3Q/exec';
 
 const DISPLAY_FIELDS = [
-  '報名日期', '來源', '姓名', '電話', '報名類型', '學員類型', '班級名稱',
+  '資料ID', '報名日期', '來源', '姓名', '電話', '報名類型', '學員類型', '班級名稱',
   '班級程度', '星期', '時間', '老師', '開課日', '程度需求', '可上課時段',
   '人數', '是否有吉他', '原價', '優惠', '應付金額', '匯款後五碼', '備註',
 ];
@@ -14,6 +14,7 @@ function cleanCell(value) {
 }
 
 const FIELD_ALIASES = {
+  '資料ID': ['id'],
   '報名日期': ['submittedAt', 'serverReceivedAt'],
   '來源': ['source'],
   '姓名': ['name'],
@@ -41,6 +42,7 @@ const VALUE_LABELS = {
   '報名類型': { group: '團體班', private: '個人班', custom: '自組班' },
   '學員類型': { new: '新生', returning: '舊生' },
   '是否有吉他': { yes: '有', no: '沒有', interested: '想了解購買' },
+  '程度需求': { beginner: '完全新手', basic: '有摸過一點', advanced: '已有基礎', unsure: '不確定' },
 };
 
 function sourceKeys(field) {
@@ -79,20 +81,55 @@ function normalizeRows(payload) {
 }
 
 export default async function handler(req, res) {
-  if (req.method !== 'GET') {
-    res.setHeader('Allow', 'GET');
-    return noStoreJson(res, 405, { ok: false, error: 'Method not allowed' });
-  }
   if (!hasValidAdminSession(req)) {
     return noStoreJson(res, 401, { ok: false, error: '請先登入管理中心' });
   }
 
-  // Preview registration admin is pinned to the verified registration web app.
-  // This branch-only setting avoids changing the formal site's registration endpoint.
   const url = ADMIN_APPS_SCRIPT_URL;
   const token = process.env.APPS_SCRIPT_TOKEN || '';
   if (!url || !token) {
     return noStoreJson(res, 503, { ok: false, error: '線上報名資料連線尚未設定' });
+  }
+
+  if (req.method === 'POST') {
+    const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
+    const ids = Array.isArray(body.ids)
+      ? [...new Set(body.ids.map(value => String(value || '').trim()).filter(Boolean))].slice(0, 50)
+      : [];
+    if (body.action !== 'trash' || !ids.length) {
+      return noStoreJson(res, 400, { ok: false, error: '請選擇要移至回收區的報名資料' });
+    }
+
+    try {
+      const upstream = await fetch(url, {
+        method: 'POST',
+        redirect: 'follow',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'adminTrash', token, ids }),
+      });
+      const text = await upstream.text();
+      let payload;
+      try { payload = JSON.parse(text); } catch { payload = null; }
+      if (!upstream.ok || !payload?.ok) {
+        const detail = payload?.error ? String(payload.error).slice(0, 240) : '';
+        return noStoreJson(res, 502, {
+          ok: false,
+          error: detail ? '移至回收區失敗：' + detail : '回收區服務尚未完成部署',
+        });
+      }
+      return noStoreJson(res, 200, {
+        ok: true,
+        removed: Number(payload.removed || 0),
+        message: '已安全移至回收區',
+      });
+    } catch {
+      return noStoreJson(res, 502, { ok: false, error: '暫時無法移至回收區' });
+    }
+  }
+
+  if (req.method !== 'GET') {
+    res.setHeader('Allow', 'GET, POST');
+    return noStoreJson(res, 405, { ok: false, error: 'Method not allowed' });
   }
 
   try {
@@ -108,17 +145,11 @@ export default async function handler(req, res) {
       const upstreamError = payload && typeof payload.error === 'string'
         ? payload.error.slice(0, 240)
         : '';
-      console.error('Registration admin upstream error', {
-        status: upstream.status,
-        hasPayload: Boolean(payload),
-        upstreamError,
-      });
       return noStoreJson(res, 502, {
         ok: false,
         error: upstreamError
           ? '資料服務錯誤：' + upstreamError
           : '資料服務回傳格式不正確，請確認 Apps Script 已部署新版本',
-        setupRequired: true,
       });
     }
     return noStoreJson(res, 200, {
@@ -126,7 +157,7 @@ export default async function handler(req, res) {
       rows,
       count: rows.length,
       updatedAt: new Date().toISOString(),
-      source: '吉他線上報名表單／報名總表',
+      source: '吉他線上報名表單／registrations',
     });
   } catch {
     return noStoreJson(res, 502, { ok: false, error: '暫時無法讀取線上報名資料' });
