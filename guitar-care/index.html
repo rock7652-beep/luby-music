@@ -151,6 +151,15 @@ footer{text-align:center;margin-top:34px;font-size:.7rem;color:var(--muted);lett
 .advanced-card .acard-title{cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
 .advanced-card .acard-title::after{content:'收合';font-size:.68rem;letter-spacing:.06em;color:#6a73a0;font-weight:400;}
 .advanced-card.collapsed .acard-title::after{content:'展開';color:var(--aa);}
+/* Admin workspace refresh — presentation only; booking logic stays unchanged. */
+body.admin-view{background:#f7f4ee;color:#172033;}
+#adminPage{--ab:#f7f4ee;--ac:#fffdfa;--abr:#ded8cf;--aa:#ad7148;background:radial-gradient(circle at 100% 0,rgba(173,113,72,.11),transparent 34%),#f7f4ee;color:#172033;}
+.aw{max-width:1080px;padding:30px 22px 70px;}
+.ahdr{padding-bottom:24px;border-bottom:1px solid #ded8cf;margin-bottom:32px;}
+.atitle{display:grid;gap:4px;color:#172033;font-size:1.45rem;letter-spacing:.03em;}
+.atitle span{color:#ad7148;}.atitle .admin-kicker{font:700 .62rem/1.2 'Noto Sans TC',sans-serif;letter-spacing:.2em;color:#ad7148;}
+.ahdr-actions{align-items:center}.back-btn{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 16px;border:1px solid #d7d0c6;border-radius:999px;background:rgba(255,255,255,.65);color:#172033;font-weight:500;text-decoration:none}.back-btn:hover{border-color:#ad7148;color:#8f5d3c}.logout-btn{min-height:40px;padding:0 16px;border-radius:999px;background:transparent;border-color:#dbc7c7;color:#9c5757}.acard{border-color:#ded8cf;border-radius:18px;background:#fffdfa;padding:28px;box-shadow:0 10px 30px rgba(40,35,31,.05)}.acard-title{color:#ad7148;font-size:.78rem;font-weight:700}.di{background:#f8f5ef;border-color:#e3ddd4;border-radius:12px}.di-name{color:#172033}.add-form label,.cff label{color:#687286}.add-form input[type=date],.cff input{background:#fff;border-color:#d9d3ca;color:#172033;border-radius:9px;min-height:42px}.add-btn{min-height:42px;border-radius:9px;background:#172033}.add-btn:hover{background:#26344b}.slcb label{border-color:#d9d3ca;color:#687286;background:#fff}.slcb input:checked+label{border-color:#ad7148;color:#8f5d3c;background:#f8eee7}.tog-btn{border-color:#d9d3ca;color:#586174;background:#fff}.del-btn{border-color:#e0caca;color:#a45c62}.stag{background:#eee8df;color:#76533c;border-color:#ddcdbf}.empty-hint,.cfg-note{color:#858c99}.save-cfg-btn{border-radius:9px}.advanced-card.collapsed{background:transparent;box-shadow:none;border-style:dashed}.lbox{background:#fffdfa;border:0;border-radius:22px;padding:38px 32px;width:min(360px,calc(100% - 32px));box-shadow:0 24px 70px rgba(0,0,0,.24)}#loginOverlay{background:#0d192b}.ltitle{color:#172033;font-size:1.3rem}.lsub{color:#687286}.lbox input[type=password]{min-height:48px;background:#fff;border-color:#d9d3ca;color:#172033;border-radius:10px}.login-btn{min-height:48px;background:#172033;border-radius:10px}.login-btn:hover{background:#26344b}
+.admin-toast{position:fixed;top:20px;right:20px;z-index:1200;display:grid;grid-template-columns:auto 1fr auto;align-items:start;gap:12px;width:min(390px,calc(100% - 28px));padding:15px 16px;border:1px solid #d9d3ca;border-radius:14px;background:#fffdfa;color:#172033;box-shadow:0 18px 50px rgba(13,25,43,.18);transform:translateY(-14px);opacity:0;pointer-events:none;transition:.22s ease}.admin-toast.show{transform:none;opacity:1;pointer-events:auto}.admin-toast-dot{width:10px;height:10px;margin-top:6px;border-radius:50%;background:#ad7148}.admin-toast.success .admin-toast-dot{background:#25805e}.admin-toast.error .admin-toast-dot{background:#b84e56}.admin-toast.saving .admin-toast-dot{background:#ad7148;animation:pulse 1s ease infinite}.admin-toast-copy{display:grid;gap:2px}.admin-toast-title{font-size:.82rem;font-weight:700}.admin-toast-detail{color:#687286;font-size:.72rem;line-height:1.55}.admin-toast-close{border:0;background:transparent;color:#778092;cursor:pointer;font-size:1rem}.section-intro{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:18px}.section-copy{display:grid;gap:5px}.section-copy .acard-title{margin:0}.section-copy p{margin:0;color:#687286;font-size:.75rem;line-height:1.7}.section-step{display:grid;place-items:center;min-width:34px;height:34px;border-radius:10px;background:#f1e8df;color:#9a613e;font-size:.7rem;font-weight:700}.slot-legend{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}.legend-item{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border-radius:999px;background:#f7f4ee;color:#687286;font-size:.68rem}.legend-item::before{content:'';width:7px;height:7px;border-radius:50%;background:#25805e}.legend-item.closed::before{background:#8c9199}.legend-item.booked::before{background:#b85a61}.advanced-warning{margin:0 0 18px;padding:12px 14px;border-left:3px solid #ad7148;border-radius:7px;background:#f8eee7;color:#74523d;font-size:.72rem;line-height:1.7}@keyframes pulse{50%{opacity:.35}}
 @media(max-width:520px){
   .aw{padding:22px 14px 48px;overflow-x:hidden;}
   .ahdr{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;margin-bottom:20px;}
@@ -163,6 +172,7 @@ footer{text-align:center;margin-top:34px;font-size:.7rem;color:var(--muted);lett
   .tog-btn,.del-btn{min-height:32px;}
   .slot-tags{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;}
   .stag{width:100%;justify-content:center;text-align:center;}
+  .aw{padding:18px 14px 52px}.ahdr{display:flex;align-items:flex-start;padding-bottom:18px}.atitle{font-size:1.15rem}.ahdr-actions{width:100%;display:grid;grid-template-columns:1fr 1fr auto}.back-btn,.logout-btn{padding:0 12px;font-size:.7rem}.acard{padding:20px 16px;border-radius:15px}.admin-toast{top:12px;right:14px}.section-intro{gap:12px}.section-copy p{font-size:.72rem}
 }
 #loginOverlay{position:fixed;inset:0;background:var(--ab);z-index:999;display:none;align-items:center;justify-content:center;}
 #loginOverlay.show{display:flex;}
@@ -180,6 +190,12 @@ footer{text-align:center;margin-top:34px;font-size:.7rem;color:var(--muted);lett
 </style>
 </head>
 <body>
+
+<div class="admin-toast" id="adminToast" role="status" aria-live="polite">
+  <span class="admin-toast-dot" aria-hidden="true"></span>
+  <span class="admin-toast-copy"><strong class="admin-toast-title" id="adminToastTitle"></strong><span class="admin-toast-detail" id="adminToastDetail"></span></span>
+  <button class="admin-toast-close" type="button" onclick="hideAdminNotice()" aria-label="關閉提示">×</button>
+</div>
 
 <div id="loginOverlay">
   <div class="lbox">
@@ -320,15 +336,17 @@ footer{text-align:center;margin-top:34px;font-size:.7rem;color:var(--muted);lett
 <div id="adminPage" class="page">
 <div class="aw">
   <div class="ahdr">
-    <div class="atitle">陸比音樂 <span>後台管理</span></div>
+    <div class="atitle"><span class="admin-kicker">BOOKING MANAGEMENT</span>吉他保養 <span>預約管理</span></div>
     <div class="ahdr-actions">
-      <button class="back-btn" onclick="goFront()">← 返回預約頁面</button>
+      <a class="back-btn" href="/admin/">管理首頁</a>
+      <button class="back-btn" onclick="goFront()">查看預約頁</button>
       <button class="logout-btn" onclick="logoutAdmin()">安全登出</button>
     </div>
   </div>
 
   <div class="acard advanced-card collapsed">
     <div class="acard-title" role="button" tabindex="0" onclick="toggleAdvancedCard(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleAdvancedCard(this)}">進階設定：通知與資料連線</div>
+    <div class="advanced-warning">只有通知信或資料連線異常時才需要修改。一般開關日期與時段，不需進入這裡。</div>
     <div class="cfg-grid">
       <div class="cff"><label>Public Key</label><input type="password" id="cfgPK" placeholder="YOUR_PUBLIC_KEY"></div>
       <div class="cff"><label>Service ID</label><input type="password" id="cfgSID" placeholder="service_xxxxxxx"></div>
@@ -343,14 +361,13 @@ footer{text-align:center;margin-top:34px;font-size:.7rem;color:var(--muted);lett
   </div>
 
   <div class="acard admin-slots-card">
-    <div class="acard-title">自動週六時段管理</div>
-    <div style="font-size:0.72rem;color:#6a73a0;margin-bottom:16px;">系統自動產生未來 4 個週六，點「關」可關閉特定時段。</div>
+    <div class="section-intro"><div class="section-copy"><div class="acard-title">固定週六時段</div><p>系統自動顯示未來 4 個週六。直接點選時段旁的「關／開」，變更會自動儲存。</p></div><span class="section-step">01</span></div>
+    <div class="slot-legend"><span class="legend-item">可預約</span><span class="legend-item closed">已關閉</span><span class="legend-item booked">已有預約</span></div>
     <div class="dates-list" id="adminDatesList"><div class="empty-hint">載入中…</div></div>
   </div>
 
   <div class="acard admin-add-date-card">
-    <div class="acard-title">新增特殊日期（平日／週日）</div>
-    <div style="font-size:0.72rem;color:#6a73a0;margin-bottom:12px;">額外開放非週六的日期，例如週日或平日特殊場次。</div>
+    <div class="section-intro"><div class="section-copy"><div class="acard-title">新增特殊開放日期</div><p>需要額外開放平日或週日時使用；單日只需填起始日期。</p></div><span class="section-step">02</span></div>
     <div class="add-form">
       <div class="af"><label>起始日期</label><input type="date" id="newDateFrom"></div>
       <div class="af"><label>結束日期 <span style="color:#555e7a;">（單日可留空）</span></label><input type="date" id="newDateTo"></div>
@@ -364,7 +381,7 @@ footer{text-align:center;margin-top:34px;font-size:.7rem;color:var(--muted);lett
   </div>
 
   <div class="acard admin-special-card">
-    <div class="acard-title">特殊日期列表</div>
+    <div class="section-intro"><div class="section-copy"><div class="acard-title">已建立的特殊日期</div><p>可暫停整天、重新開啟、調整個別時段，或刪除不再使用的日期。</p></div><span class="section-step">03</span></div>
     <div class="dates-list" id="adminSpecialList"><div class="empty-hint">尚未新增特殊日期</div></div>
   </div>
 </div>
@@ -379,6 +396,21 @@ const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwRicgFrAKQIdnxeAi6k
 const LEGACY_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbymjVzz8j1GHEJCc1fl6vn4ae4xq2bQ-Y3MG1pYuh8f15YT-XvQ3dTZ2aVwiYQYeeP5og/exec';
 const SLOTS = ['10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'];
 const SAT_SLOTS = ['10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00'];
+let adminNoticeTimer = null;
+function showAdminNotice(type, title, detail, duration = 2600) {
+  const toast = document.getElementById('adminToast');
+  if (!toast) return;
+  clearTimeout(adminNoticeTimer);
+  toast.className = 'admin-toast ' + (type || '') + ' show';
+  document.getElementById('adminToastTitle').textContent = title || '';
+  document.getElementById('adminToastDetail').textContent = detail || '';
+  if (duration) adminNoticeTimer = setTimeout(hideAdminNotice, duration);
+}
+function hideAdminNotice() {
+  clearTimeout(adminNoticeTimer);
+  const toast = document.getElementById('adminToast');
+  if (toast) toast.classList.remove('show');
+}
 
 // ============================================================
 // 儲存層
@@ -485,6 +517,7 @@ function queueDatesSave(dates) {
   datesMutationVersion++;
   setCache(normalizedDates);
   pendingDatesSnapshot = JSON.parse(JSON.stringify(normalizedDates));
+  showAdminNotice('saving', '正在儲存變更', '可以繼續操作，系統會以最後一次設定為準。', 0);
   clearTimeout(datesSaveTimer);
   datesSaveTimer = setTimeout(flushDatesSave, 400);
 }
@@ -501,12 +534,14 @@ async function flushDatesSave() {
       headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify({ action: 'saveDates', dates: snapshot })
     });
+    if (!pendingDatesSnapshot) showAdminNotice('success', '變更已送出', '日期與時段設定已完成同步。');
   } catch(e) {
     console.error('flushDatesSave:', e);
     // 保留最新畫面狀態並排入一次重試，避免短暫斷線就遺失操作。
     if (!pendingDatesSnapshot) pendingDatesSnapshot = snapshot;
     clearTimeout(datesSaveTimer);
     datesSaveTimer = setTimeout(flushDatesSave, 1500);
+    showAdminNotice('error', '暫時無法儲存', '網路連線不穩，系統將自動重試，請先不要關閉頁面。', 0);
   } finally {
     datesSaveInFlight = false;
     if (pendingDatesSnapshot) {
@@ -751,6 +786,7 @@ function saveConfig() {
   saveCfg(cfg);
   const ok = document.getElementById('cfgOk');
   ok.style.display='block'; setTimeout(()=>ok.style.display='none',2200);
+  showAdminNotice('success', '進階設定已儲存', '新的通知與資料連線設定已保存在這台裝置。');
 }
 
 function toggleAllSlots() {
@@ -763,10 +799,10 @@ function toggleAllSlots() {
 async function addDate() {
   const from=document.getElementById('newDateFrom').value;
   const to=document.getElementById('newDateTo').value||from;
-  if (!from){alert('請選擇起始日期');return;}
-  if (to<from){alert('結束日期不能早於起始日期');return;}
+  if (!from){showAdminNotice('error','尚未選擇日期','請先選擇起始日期。');document.getElementById('newDateFrom').focus();return;}
+  if (to<from){showAdminNotice('error','日期範圍不正確','結束日期不能早於起始日期。');document.getElementById('newDateTo').focus();return;}
   const slots=[...document.querySelectorAll('#newSlotCbs input:checked')].map(c=>c.value);
-  if (!slots.length){alert('請選擇至少一個時段');return;}
+  if (!slots.length){showAdminNotice('error','尚未選擇時段','請至少選擇一個要開放的時段。');return;}
   const dates=getCached();
   let added=0;
   let cur=new Date(from+'T12:00:00');
@@ -776,7 +812,7 @@ async function addDate() {
     if(!dates.find(d=>d.date===ds)){dates.push({date:ds,slots,active:true});added++;}
     cur.setDate(cur.getDate()+1);
   }
-  if(added===0){alert('所選日期已全部存在');return;}
+  if(added===0){showAdminNotice('error','日期已經存在','所選日期已建立，可直接在下方列表調整。');return;}
   document.getElementById('newDateFrom').value='';
   document.getElementById('newDateTo').value='';
   const btn=document.getElementById('addDateBtn');
@@ -792,6 +828,7 @@ async function deleteDate(dateStr) {
   const dates = getCached().filter(d=>d.date!==dateStr);
   queueDatesSave(dates);
   await renderAdminDates(false);
+  showAdminNotice('saving', '正在刪除日期', `${fmtDate(dateStr)} 將從特殊日期移除。`, 0);
 }
 
 async function toggleDate(dateStr) {
@@ -800,6 +837,7 @@ async function toggleDate(dateStr) {
   if(d) d.active = d.active===false ? true : false;
   queueDatesSave(dates);
   await renderAdminDates(false);
+  if (d) showAdminNotice('saving', d.active ? '正在開啟日期' : '正在暫停日期', `${fmtDate(dateStr)} 的整日狀態正在同步。`, 0);
 }
 
 async function toggleSlot(dateStr, slot) {
@@ -852,6 +890,7 @@ async function processSlotSyncQueue(key) {
       // 同步期間若又被點擊，只補送最後狀態；中間重複狀態不送。
       if (queued.desiredState === stateToSend) {
         slotSyncQueue.delete(key);
+        showAdminNotice('success', stateToSend === 'open' ? '時段已開放' : '時段已關閉', `${fmtDate(queued.date)} ${queued.slot} 已完成儲存。`);
         break;
       }
     }
@@ -863,7 +902,7 @@ async function processSlotSyncQueue(key) {
       if (json.dates) setCache(normalizeDates(json.dates));
     } catch (_) {}
     slotSyncQueue.delete(key);
-    alert('此時段儲存失敗，畫面已恢復後端狀態，請再試一次');
+    showAdminNotice('error', '時段儲存失敗', '畫面已恢復為後端狀態，請確認網路後再試一次。', 0);
   } finally {
     queued.processing = false;
     await renderAdminDates(false);
@@ -879,7 +918,7 @@ async function cancelBooking(dateStr, slot) {
   const bookings=loadBookings().filter(b=>!(b.date===dateStr&&b.time===slot));
   saveBookings(bookings);
   await renderAdminDates();
-  alert(`已釋放「${fmtDate(dateStr)} ${slot}」時段`);
+  showAdminNotice('success', '預約時段已釋放', `${fmtDate(dateStr)} ${slot} 現在可以重新預約。`);
 }
 
 // ============================================================
@@ -1063,7 +1102,7 @@ document.getElementById('bookingForm').addEventListener('submit', async function
 });
 
 // 初始化：獨立 /admin/ 網址直接進入後台登入；一般網址維持顧客預約頁。
-const isStandaloneAdmin = /\/admin\/?$/.test(window.location.pathname);
+const isStandaloneAdmin = /\/admin(?:\/guitar-care)?\/?$/.test(window.location.pathname);
 if (isStandaloneAdmin) goAdmin();
 else renderFrontDates();
 
