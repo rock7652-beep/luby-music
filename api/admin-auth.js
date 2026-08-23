@@ -4,6 +4,9 @@ const COOKIE = '__Host-luby_admin_session';
 const SESSION_SECONDS = 60 * 60 * 2;
 const LOCK_WINDOW_MS = 15 * 60 * 1000;
 const MAX_ATTEMPTS = 5;
+// Preview-only fallback. This is an irreversible scrypt verifier, never a plaintext password.
+// Production/custom domains continue to require ADMIN_PASSWORD_HASH.
+const PREVIEW_PASSWORD_HASH = '38a72773c3bd1f77db9225cf1cb75dd5a9719b15eb96176e:852aca5a60c929c307c8a461c865bd25b70f6edd66d2be0ad2b87dd9a90adcb0';
 const attempts = new Map();
 
 function json(res, status, body) {
@@ -62,7 +65,7 @@ export default async function handler(req, res) {
   const host = String(req.headers['x-forwarded-host'] || req.headers.host || '').split(',')[0].trim();
   const isPreviewHost = /\.vercel\.app$/i.test(host);
   const passwordHash = isPreviewHost
-    ? (process.env.ADMIN_PREVIEW_PASSWORD_HASH || process.env.ADMIN_PASSWORD_HASH || '')
+    ? (process.env.ADMIN_PREVIEW_PASSWORD_HASH || PREVIEW_PASSWORD_HASH)
     : (process.env.ADMIN_PASSWORD_HASH || '');
   const secret = process.env.ADMIN_SESSION_SECRET || '';
 
