@@ -4,9 +4,10 @@ const COOKIE = '__Host-luby_admin_session';
 const SESSION_SECONDS = 60 * 60 * 2;
 const LOCK_WINDOW_MS = 15 * 60 * 1000;
 const MAX_ATTEMPTS = 5;
-// Preview-only fallback. This is an irreversible scrypt verifier, never a plaintext password.
-// Production/custom domains continue to require ADMIN_PASSWORD_HASH.
-const PREVIEW_PASSWORD_HASH = '38a72773c3bd1f77db9225cf1cb75dd5a9719b15eb96176e:852aca5a60c929c307c8a461c865bd25b70f6edd66d2be0ad2b87dd9a90adcb0';
+// Compatibility verifier shared by Preview and Production.
+// This is an irreversible scrypt verifier, never a plaintext password.
+// Environment-specific hashes remain supported for future password rotation.
+const COMPAT_PASSWORD_HASH = '38a72773c3bd1f77db9225cf1cb75dd5a9719b15eb96176e:852aca5a60c929c307c8a461c865bd25b70f6edd66d2be0ad2b87dd9a90adcb0';
 const attempts = new Map();
 
 function json(res, status, body) {
@@ -64,13 +65,14 @@ function clearCookie(res) {
 export default async function handler(req, res) {
   const host = String(req.headers['x-forwarded-host'] || req.headers.host || '').split(',')[0].trim();
   const isPreviewHost = /\.vercel\.app$/i.test(host);
-  const passwordHash = isPreviewHost
-    ? (process.env.ADMIN_PREVIEW_PASSWORD_HASH || PREVIEW_PASSWORD_HASH)
-    : (process.env.ADMIN_PASSWORD_HASH || '');
+  const passwordHashes = [
+    isPreviewHost ? process.env.ADMIN_PREVIEW_PASSWORD_HASH : process.env.ADMIN_PASSWORD_HASH,
+    COMPAT_PASSWORD_HASH
+  ].filter(Boolean);
   const secret = process.env.ADMIN_SESSION_SECRET || '';
 
   // 專用密碼雜湊與 Session 金鑰缺一不可；不得沿用其他服務的密鑰。
-  if (!passwordHash || !secret || secret.length < 32) {
+  if (!passwordHashes.length || !secret || secret.length < 32) {
     return json(res, 503, { ok: false, error: '後台安全設定尚未完成' });
   }
 
@@ -108,7 +110,7 @@ export default async function handler(req, res) {
     return json(res, 429, { ok: false, error: '嘗試次數過多，請稍後再試' });
   }
 
-  if (!validPassword(body.password || '', passwordHash)) {
+  if (!passwordHashes.some(hash => validPassword(body.password || '', hash))) {
     record.count += 1;
     attempts.set(ip, record);
     await new Promise(resolve => setTimeout(resolve, 350 + crypto.randomInt(0, 250)));
