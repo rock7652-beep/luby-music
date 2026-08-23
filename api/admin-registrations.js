@@ -105,9 +105,19 @@ export default async function handler(req, res) {
     try { payload = JSON.parse(text); } catch { payload = null; }
     const rows = payload && normalizeRows(payload);
     if (!upstream.ok || !rows) {
+      const upstreamError = payload && typeof payload.error === 'string'
+        ? payload.error.slice(0, 240)
+        : '';
+      console.error('Registration admin upstream error', {
+        status: upstream.status,
+        hasPayload: Boolean(payload),
+        upstreamError,
+      });
       return noStoreJson(res, 502, {
         ok: false,
-        error: '線上報名資料服務尚未開放管理端讀取',
+        error: upstreamError
+          ? '資料服務錯誤：' + upstreamError
+          : '資料服務回傳格式不正確，請確認 Apps Script 已部署新版本',
         setupRequired: true,
       });
     }
