@@ -18,11 +18,19 @@ function migrateLegacyDates(){const rows=custom();let changed=false;const migrat
 function ensureCurrentMonthFilter(){const select=document.querySelector('#monthFilter');const month=Number(todayDate().slice(5,7));if(![...select.options].some(option=>Number(option.value)===month)){const option=document.createElement('option');option.value=String(month);option.textContent=month+' 月';select.insertBefore(option,select.firstChild)}select.value=String(month)}
 
 function refresh(){const rows=all(),today=todayDate(),monthKey=today.slice(0,7),yearKey=today.slice(0,4);const month=rows.filter(x=>String(x.date||'').startsWith(monthKey)).reduce((s,x)=>s+x.amount,0);const personal=rows.filter(x=>x.payment==='個人代墊').reduce((s,x)=>s+x.amount,0);const year=Object.values(baseMonthTotals).reduce((a,b)=>a+b,0)+rows.filter(x=>String(x.date||'').startsWith(yearKey+'-')).reduce((s,x)=>s+x.amount,0);document.querySelector('#monthLabel').textContent=Number(monthKey.slice(5,7))+' 月已登記';document.querySelector('#monthTotal').textContent=money(month);document.querySelector('#personalTotal').textContent=money(personal);document.querySelector('#yearTotal').textContent=money(year);renderRows();}
-function renderRows(){const filter=document.querySelector('#monthFilter').value;const rows=all().filter(x=>filter==='all'||Number(x.date.slice(5,7))===Number(filter)).sort((a,b)=>b.date.localeCompare(a.date)||String(b.id).localeCompare(String(a.id)));document.querySelector('#recordCount').textContent=`共 ${rows.length} 筆`;document.querySelector('#expenseList').innerHTML=rows.length?rows.map(x=>`<article class="expense"><div><h3>${escapeHtml(x.item)}</h3><div class="meta"><span>${x.date}</span><span class="pill ${x.payment==='個人代墊'?'personal':''}">${x.payment}</span>${x.note?`<span>${escapeHtml(x.note)}</span>`:''}</div></div><div class="money">${money(x.amount)}${x.base?'':`<div style="display:flex;gap:18px;justify-content:flex-end"><button class="delete" style="color:#3b608d;min-height:44px" data-edit="${escapeHtml(x.id)}">編輯</button><button class="delete" style="min-height:44px" data-delete="${escapeHtml(x.id)}">刪除</button></div>`}</div></article>`).join(''):'<div class="empty">這個月份還沒有支出</div>';}
-function escapeHtml(v){return String(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}function go(name){document.querySelectorAll('[data-panel]').forEach(x=>x.classList.toggle('active',x.dataset.panel===name));document.querySelectorAll('[data-go]').forEach(x=>x.classList.toggle('active',x.dataset.go===name));window.scrollTo({top:0,behavior:'smooth'})}
+function renderRows(){const filter=document.querySelector('#monthFilter').value;const rows=all().filter(x=>filter==='all'||Number(x.date.slice(5,7))===Number(filter)).sort((a,b)=>b.date.localeCompare(a.date)||String(b.id).localeCompare(String(a.id)));document.querySelector('#recordCount').textContent=`共 ${rows.length} 筆`;document.querySelector('#expenseList').innerHTML=rows.length?rows.map(x=>`<article class="expense" data-record="${escapeHtml(x.id)}"><div><h3>${escapeHtml(x.item)}</h3><div class="meta"><span>${x.date}</span><span class="pill ${x.payment==='個人代墊'?'personal':''}">${x.payment}</span>${x.note?`<span>${escapeHtml(x.note)}</span>`:''}</div></div><div class="money">${money(x.amount)}${x.base?'':`<div style="display:flex;gap:18px;justify-content:flex-end"><button class="delete" style="color:#3b608d;min-height:44px" data-edit="${escapeHtml(x.id)}">編輯</button><button class="delete" style="min-height:44px" data-delete="${escapeHtml(x.id)}">刪除</button></div>`}</div></article>`).join(''):'<div class="empty">這個月份還沒有支出</div>';}
+function escapeHtml(v){return String(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}function go(name){if(editingId!==null){resetExpenseForm();renderRows()}document.querySelectorAll('[data-panel]').forEach(x=>x.classList.toggle('active',x.dataset.panel===name));document.querySelectorAll('[data-go]').forEach(x=>x.classList.toggle('active',x.dataset.go===name));window.scrollTo({top:0,behavior:'smooth'})}
 
-let savedTimer, editingId=null;
+let savedTimer, editingId=null, editScrollY=0;
+const formHome=document.querySelector('[data-panel="add"]');
+function restoreEditPosition(){
+  window.scrollTo({top:editScrollY,behavior:'instant'});
+}
+function closeInlineEdit(){
+  resetExpenseForm();refresh();restoreEditPosition();
+}
 function resetExpenseForm(){
+  formHome.appendChild(document.querySelector('#expenseForm'));
   editingId=null;
   document.querySelector('#expenseForm').reset();
   document.querySelector('#date').value=todayDate();
@@ -31,7 +39,7 @@ function resetExpenseForm(){
   document.querySelector('#cancelEdit').hidden=true;
 }
 document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.go)));
-document.querySelector('#cancelEdit').onclick=()=>{resetExpenseForm();go('records')};
+document.querySelector('#cancelEdit').onclick=()=>closeInlineEdit();
 document.querySelector('#expenseForm').addEventListener('submit',e=>{
   e.preventDefault();
   const form=e.currentTarget,f=new FormData(form),rows=custom();
@@ -58,13 +66,15 @@ document.querySelector('#expenseForm').addEventListener('submit',e=>{
   saved.textContent=(isEdit?'✓ 已更新：':'✓ 已儲存：')+item+'・'+money(amount);
   saved.classList.add('show');clearTimeout(savedTimer);
   savedTimer=setTimeout(()=>saved.classList.remove('show'),3500);
-  if(isEdit){go('records');document.querySelector('#recordCount').textContent+='・已更新：'+item}
+  if(isEdit){restoreEditPosition();document.querySelector('#recordCount').textContent+='・已更新：'+item}
 });
 document.querySelector('#expenseList').addEventListener('click',e=>{
   const edit=e.target.closest('[data-edit]');
   if(edit){
     const row=custom().find(x=>String(x.id)===edit.dataset.edit);
     if(!row){refresh();return}
+    if(editingId!==null){resetExpenseForm();renderRows()}
+    editScrollY=window.scrollY;
     editingId=String(row.id);
     for(const field of ['date','item','amount','note'])document.getElementById(field).value=row[field]??'';
     document.querySelectorAll('[name=payment]').forEach(input=>input.checked=input.value===row.payment);
@@ -72,7 +82,10 @@ document.querySelector('#expenseList').addEventListener('click',e=>{
     document.querySelector('#saveExpense').textContent='儲存修改';
     document.querySelector('#cancelEdit').hidden=false;
     document.querySelector('#saved').classList.remove('show');
-    go('add');return;
+    const article=[...document.querySelectorAll('[data-record]')].find(node=>node.dataset.record===editingId);
+    article.style.display='block';
+    article.replaceChildren(document.querySelector('#expenseForm'));
+    restoreEditPosition();return;
   }
   const button=e.target.closest('[data-delete]');if(!button)return;
   try{localStorage.setItem(key,JSON.stringify(custom().filter(x=>String(x.id)!==button.dataset.delete)))}
@@ -80,7 +93,7 @@ document.querySelector('#expenseList').addEventListener('click',e=>{
   if(editingId===button.dataset.delete)resetExpenseForm();
   refresh();
 });
-document.querySelector('#monthFilter').addEventListener('change',renderRows);
+document.querySelector('#monthFilter').addEventListener('change',()=>{if(editingId!==null)resetExpenseForm();renderRows()});
 document.querySelector('#clearTest').addEventListener('click',()=>{
   if(confirm('確定清除這台裝置新增的測試資料？')){
     try{localStorage.removeItem(key)}catch(error){alert('清除失敗，請稍後再試。');return}
