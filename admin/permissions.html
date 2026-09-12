@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>陸比音樂｜帳號與權限</title>
+<style>
+:root{--bg:#f5f3ef;--panel:#fff;--ink:#27231f;--muted:#756e67;--line:#ddd7cf;--brand:#8c735e;--brand2:#3e352e;--soft:#f0ece6;--danger:#9d4d48;--ok:#4d765f}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Noto Sans TC",sans-serif}.wrap{max-width:1180px;margin:0 auto;padding:28px 18px 60px}.top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:22px}.eyebrow{font-size:12px;letter-spacing:.16em;color:var(--brand);font-weight:700}.title{font-size:28px;font-weight:800;margin:4px 0 5px}.sub{font-size:14px;color:var(--muted);line-height:1.7}.badge{font-size:12px;padding:7px 10px;border-radius:999px;background:#eee6db;color:#725d4c;white-space:nowrap}.notice{padding:13px 15px;background:#fff7e8;border:1px solid #ead6aa;border-radius:10px;color:#745c2c;font-size:13px;line-height:1.7;margin-bottom:16px}.grid{display:grid;grid-template-columns:280px minmax(0,1fr);gap:16px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 6px 22px rgba(60,45,30,.04)}.side{padding:16px}.side h3,.main h3{margin:0 0 12px;font-size:15px}.role{width:100%;text-align:left;border:1px solid var(--line);background:#fff;padding:13px;border-radius:10px;margin-bottom:8px;cursor:pointer}.role.active{border-color:var(--brand);background:#f7f2ec}.role b{display:block;font-size:14px}.role span{font-size:12px;color:var(--muted)}.main{padding:18px}.toolbar{display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:14px}.left-tools,.right-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}select,button,input{font:inherit}.select,.btn{height:38px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:0 11px;color:var(--ink)}.btn{cursor:pointer}.btn.primary{background:var(--brand2);border-color:var(--brand2);color:#fff}.btn.ghost{background:var(--soft)}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:11px}table{border-collapse:collapse;width:100%;min-width:820px;background:#fff}th,td{padding:11px 10px;border-bottom:1px solid #ebe6df;font-size:13px;text-align:center}th{position:sticky;top:0;background:#f7f4ef;z-index:1;color:#5e554d;font-size:12px}th:first-child,td:first-child{text-align:left;min-width:230px}.module-row td{background:#eee9e2;font-weight:800;color:#534a42;padding:9px 10px}.feature-name{font-weight:650}.feature-meta{display:block;margin-top:3px;color:var(--muted);font-size:11px;font-weight:400}.sensitive{color:var(--danger);font-weight:700}.cb{width:18px;height:18px;accent-color:#675447}.scope{width:132px;height:32px;border:1px solid var(--line);border-radius:7px;background:#fff;padding:0 6px;font-size:12px}.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}.stat{border:1px solid var(--line);border-radius:10px;padding:12px;background:#fbfaf8}.stat strong{display:block;font-size:20px}.stat span{font-size:11px;color:var(--muted)}.footer-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}.hint{font-size:12px;color:var(--muted);line-height:1.6;margin-top:10px}.toast{position:fixed;right:18px;bottom:18px;background:#292621;color:#fff;padding:11px 14px;border-radius:9px;font-size:13px;opacity:0;transform:translateY(10px);transition:.2s;pointer-events:none}.toast.show{opacity:1;transform:none}@media(max-width:820px){.grid{grid-template-columns:1fr}.top{flex-direction:column}.side{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.side h3{grid-column:1/-1}.role{margin:0}.summary{grid-template-columns:repeat(2,1fr)}.title{font-size:23px}.wrap{padding:20px 12px 50px}}@media(max-width:480px){.side{grid-template-columns:1fr}.summary{grid-template-columns:1fr 1fr}.toolbar,.left-tools,.right-tools{align-items:stretch}.left-tools,.right-tools{width:100%}.select,.btn{flex:1}.badge{white-space:normal}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div><div class="eyebrow">LUBY MUSIC ADMIN</div><div class="title">帳號與權限中心</div><div class="sub">職位提供預設權限；每位帳號仍可逐項勾選，並限制可查看的資料範圍。</div></div>
+    <div class="badge">權限架構 Preview</div>
+  </div>
+  <div class="notice">此頁目前是權限中心第一階段驗收版：可確認角色預設、逐項勾選與資料範圍邏輯。尚未把這些設定接到正式登入驗證與資料庫阻擋，因此目前不代表真正的安全授權已啟用。</div>
+  <div class="grid">
+    <aside class="panel side">
+      <h3>職位預設</h3>
+      <button class="role active" data-role="owner"><b>老闆／超級管理員</b><span>完整權限與系統管理</span></button>
+      <button class="role" data-role="manager"><b>店長／副店長</b><span>招生、教學與日常營運</span></button>
+      <button class="role" data-role="staff"><b>行政／員工</b><span>第一線新增與更新資料</span></button>
+      <button class="role" data-role="teacher"><b>老師</b><span>只看自己相關學生與課程</span></button>
+    </aside>
+    <main class="panel main">
+      <div class="toolbar">
+        <div class="left-tools"><select id="userSelect" class="select"><option>職位預設：老闆／超級管理員</option></select><button class="btn ghost" id="resetBtn">套用職位預設</button></div>
+        <div class="right-tools"><button class="btn" id="copyBtn">複製權限</button><button class="btn primary" id="saveBtn">儲存設定</button></div>
+      </div>
+      <div class="summary"><div class="stat"><strong id="enabledCount">0</strong><span>已開放功能</span></div><div class="stat"><strong id="sensitiveCount">0</strong><span>敏感權限</span></div><div class="stat"><strong id="exportCount">0</strong><span>可匯出項目</span></div><div class="stat"><strong>5</strong><span>操作層級</span></div></div>
+      <div class="table-wrap"><table><thead><tr><th>功能</th><th>查看</th><th>新增</th><th>編輯</th><th>刪除</th><th>匯出</th><th>資料範圍</th></tr></thead><tbody id="permissionBody"></tbody></table></div>
+      <div class="hint">未來新增後台功能時，預設只有超級管理員可用；必須先分類並設定「查看／新增／編輯／刪除／匯出」及資料範圍後，才能開放給其他職位。</div>
+    </main>
+  </div>
+</div>
+<div class="toast" id="toast">已儲存權限設定</div>
+<script>
+const modules=[
+ {name:'招生／CRM',items:[['新生名單','新客與有效名單'],['體驗管理','預約、到店、報名結果'],['待追蹤','未報名與後續聯繫'],['招生分析','來源、到店率、成交率']]},
+ {name:'教學／學生',items:[['學生資料','基本資料與課程狀態'],['團體班','班級、人數、成班狀況'],['老師／排課','老師、體驗與課程安排'],['課程紀錄','出缺席與教學紀錄']]},
+ {name:'銷售／顧客服務',items:[['吉他團購','團購訂單與出貨'],['商品訂單','商品與顧客訂單'],['保養／維修','吉他保養預約與紀錄']]},
+ {name:'行銷／內容',items:[['官網文章','文章草稿與發布'],['活動／SEO','活動內容與搜尋素材'],['Google 評論','評論追蹤與回覆管理']]},
+ {name:'財務／經營',sensitive:true,items:[['收入／支出','公司收支'],['成本／毛利','商品成本與毛利'],['薪資','人員薪資'],['完整經營分析','公司營運全貌']]},
+ {name:'系統／安全',sensitive:true,items:[['帳號與權限','建立帳號與調整授權'],['系統設定','系統參數'],['通知／資料連線','Email、API、資料連線'],['操作紀錄','誰在何時修改資料']]}
+];
+const presets={
+ owner:{view:1,create:1,edit:1,del:1,export:1,scope:'all'},
+ manager:{view:1,create:1,edit:1,del:0,export:0,scope:'all'},
+ staff:{view:1,create:1,edit:1,del:0,export:0,scope:'assigned'},
+ teacher:{view:1,create:0,edit:1,del:0,export:0,scope:'self'}
+};
+let role='owner';
+function key(m,i){return m+'::'+i}
+function permissionFor(module,item){let p={...presets[role]};if(role==='manager'&&(module==='財務／經營'||module==='系統／安全'))p={view:0,create:0,edit:0,del:0,export:0,scope:'none'};if(role==='staff'&&(module==='財務／經營'||module==='系統／安全'||module==='行銷／內容'))p={view:0,create:0,edit:0,del:0,export:0,scope:'none'};if(role==='teacher'){const allowed=['學生資料','老師／排課','課程紀錄'];if(!allowed.includes(item))p={view:0,create:0,edit:0,del:0,export:0,scope:'none'};}
+ if(item==='招生分析'&&role==='staff')p={...p,view:0,create:0,edit:0,del:0,export:0,scope:'none'};return p}
+function render(){const body=document.getElementById('permissionBody');body.innerHTML='';let enabled=0,sens=0,exp=0;modules.forEach(mod=>{body.insertAdjacentHTML('beforeend',`<tr class="module-row"><td colspan="7">${mod.name}${mod.sensitive?' · 敏感資料':''}</td></tr>`);mod.items.forEach(([item,meta])=>{const p=permissionFor(mod.name,item);if(p.view)enabled++;if(mod.sensitive&&p.view)sens++;if(p.export)exp++;const id=key(mod.name,item);body.insertAdjacentHTML('beforeend',`<tr data-id="${id}"><td><span class="feature-name ${mod.sensitive?'sensitive':''}">${item}</span><span class="feature-meta">${meta}</span></td>${['view','create','edit','del','export'].map(a=>`<td><input class="cb" type="checkbox" data-a="${a}" ${p[a]?'checked':''}></td>`).join('')}<td><select class="scope"><option value="all" ${p.scope==='all'?'selected':''}>全部資料</option><option value="store">指定門市</option><option value="assigned" ${p.scope==='assigned'?'selected':''}>分配給我</option><option value="self" ${p.scope==='self'?'selected':''}>自己的資料</option><option value="none" ${p.scope==='none'?'selected':''}>無權限</option></select></td></tr>`)});});document.getElementById('enabledCount').textContent=enabled;document.getElementById('sensitiveCount').textContent=sens;document.getElementById('exportCount').textContent=exp;document.getElementById('userSelect').innerHTML=`<option>職位預設：${document.querySelector('.role.active b').textContent}</option>`}
+function collect(){return [...document.querySelectorAll('tbody tr[data-id]')].map(r=>({feature:r.dataset.id,...Object.fromEntries([...r.querySelectorAll('.cb')].map(c=>[c.dataset.a,c.checked])),scope:r.querySelector('.scope').value}))}
+document.querySelectorAll('.role').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.role').forEach(x=>x.classList.remove('active'));b.classList.add('active');role=b.dataset.role;render()}));
+document.getElementById('resetBtn').onclick=render;
+document.getElementById('saveBtn').onclick=()=>{localStorage.setItem('luby_permission_preview_'+role,JSON.stringify(collect()));const t=document.getElementById('toast');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1600)};
+document.getElementById('copyBtn').onclick=()=>{navigator.clipboard?.writeText(JSON.stringify(collect(),null,2));const t=document.getElementById('toast');t.textContent='權限設定已複製';t.classList.add('show');setTimeout(()=>{t.classList.remove('show');t.textContent='已儲存權限設定'},1600)};
+render();
+</script>
+</body>
+</html>
