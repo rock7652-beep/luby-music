@@ -359,7 +359,7 @@ html{scroll-behavior:smooth;}
       </div>
       <div class="fg"><label>下一期班別 <span class="req">*</span></label>
         <select id="fNextClass" onchange="onClassPick(this.value)">
-          <option value="">請選擇要續報的 09-10 月班別</option>
+          <option value="">請選擇要續報的 11-12 月班別</option>
         </select>
       </div>
     </div>
@@ -393,7 +393,7 @@ html{scroll-behavior:smooth;}
       <!-- 早鳥情緒文案 -->
       <div class="price-emotion">
         <div class="pe-text">趁現在，給自己一個開始的理由<br>少一點猶豫，多一點行動</div>
-        <div class="pe-tag">★ 即日起至 8/20 前報名 早鳥 95 折，系統自動計算 95 折</div>
+        <div class="pe-tag">★ 即日起至 10/20 前報名 早鳥 95 折，系統自動計算 95 折</div>
       </div>
 
       <div class="bank-box">
@@ -520,59 +520,49 @@ html{scroll-behavior:smooth;}
  * 若要替換來源，可改為 fetch('/api/classes') 或 inline。
  * ========================================================= */
 const currentClassData=[
-  // ===== 週一 (06/29-08/17) =====
-  {id:1, name:'吉他中級 #1',level:'中級',day:'週一',time:'19:00',startDate:'6/29',endDate:'8/17',teacher:'曾筠藩',lessons:8,price:4400},
-  {id:2, name:'吉他中級 #2',level:'中級',day:'週一',time:'19:00',startDate:'6/29',endDate:'8/17',teacher:'張鈺君',lessons:8,price:4400},
-  {id:3, name:'吉他入門',level:'入門',day:'週一',time:'20:00',startDate:'6/29',endDate:'8/17',teacher:'張鈺君',lessons:8,price:3600},
-  {id:4, name:'進階彈唱 #4',level:'進階彈唱',day:'週一',time:'21:00',startDate:'6/29',endDate:'8/17',teacher:'張鈺君',lessons:8,price:4400},
-  // ===== 週二 (06/30-08/18) =====
-  {id:5, name:'樂理編曲 #2',level:'樂理編曲',day:'週二',time:'18:00',startDate:'6/30',endDate:'8/18',teacher:'吳興儒',lessons:8,price:4400},
-  {id:6, name:'樂理編曲 #3',level:'樂理編曲',day:'週二',time:'18:00',startDate:'6/30',endDate:'8/18',teacher:'張鈺君',lessons:8,price:4400},
-  {id:7, name:'進階彈唱 #2',level:'進階彈唱',day:'週二',time:'19:00',startDate:'6/30',endDate:'8/18',teacher:'詹俊皓',lessons:8,price:4400},
-  {id:8, name:'進階彈唱 #5',level:'進階彈唱',day:'週二',time:'19:00',startDate:'6/30',endDate:'8/18',teacher:'吳興儒',lessons:8,price:4400},
-  {id:9, name:'樂理編曲 #5',level:'樂理編曲',day:'週二',time:'19:00',startDate:'6/30',endDate:'8/18',teacher:'張鈺君',lessons:8,price:4400},
-  {id:10,name:'吉他中級 #4',level:'中級',day:'週二',time:'20:00',startDate:'6/30',endDate:'8/18',teacher:'江松霖',lessons:8,price:4400},
-  {id:11,name:'進階彈唱 #3',level:'進階彈唱',day:'週二',time:'20:00',startDate:'6/30',endDate:'8/18',teacher:'張鈺君',lessons:8,price:4400},
-  {id:12,name:'進階彈唱 #4',level:'進階彈唱',day:'週二',time:'21:00',startDate:'6/30',endDate:'8/18',teacher:'張鈺君',lessons:8,price:4400},
-  // ===== 週三 (07/01-08/19) =====
-  {id:13,name:'吉他入門',level:'入門',day:'週三',time:'18:00',startDate:'7/1',endDate:'8/19',teacher:'張鈺君',lessons:8,price:3600},
-  {id:14,name:'吉他中級 #4',level:'中級',day:'週三',time:'19:00',startDate:'7/1',endDate:'8/19',teacher:'張鈺君',lessons:8,price:4400},
-  {id:15,name:'進階彈唱 #3',level:'進階彈唱',day:'週三',time:'20:00',startDate:'7/1',endDate:'8/19',teacher:'張鈺君',lessons:8,price:4400},
-  {id:16,name:'樂理編曲 #8',level:'樂理編曲',day:'週三',time:'20:00',startDate:'7/1',endDate:'8/19',teacher:'吳興儒',lessons:8,price:4400},
-  {id:17,name:'吉他初級',level:'初級',day:'週三',time:'21:00',startDate:'7/1',endDate:'8/19',teacher:'張鈺君',lessons:8,price:3600},
-  // ===== 週四 (07/02-08/20) =====
-  {id:18,name:'吉他初級',level:'初級',day:'週四',time:'19:00',startDate:'7/2',endDate:'8/20',teacher:'詹俊皓',lessons:8,price:3600},
-  {id:19,name:'吉他中級 #4',level:'中級',day:'週四',time:'19:00',startDate:'7/2',endDate:'8/20',teacher:'張鈺君',lessons:8,price:4400},
-  {id:20,name:'樂理編曲 #2',level:'樂理編曲',day:'週四',time:'19:00',startDate:'7/2',endDate:'8/20',teacher:'吳興儒',lessons:8,price:4400},
-  {id:21,name:'吉他中級 #1',level:'中級',day:'週四',time:'20:00',startDate:'7/2',endDate:'8/20',teacher:'吳興儒',lessons:8,price:4400},
-  {id:22,name:'進階彈唱 #3',level:'進階彈唱',day:'週四',time:'20:00',startDate:'7/2',endDate:'8/20',teacher:'張鈺君',lessons:8,price:4400},
-  {id:23,name:'進階彈唱 #5',level:'進階彈唱',day:'週四',time:'20:00',startDate:'7/2',endDate:'8/20',teacher:'詹俊皓',lessons:8,price:4400},
-  // ===== 週五 (07/03-08/21) =====
-  {id:24,name:'吉他中級 #1',level:'中級',day:'週五',time:'19:00',startDate:'7/3',endDate:'8/21',teacher:'張鈺君',lessons:8,price:4400},
-  {id:25,name:'吉他入門',level:'入門',day:'週五',time:'19:00',startDate:'7/3',endDate:'8/21',teacher:'吳興儒',lessons:8,price:3600},
-  {id:26,name:'樂理編曲 #7',level:'樂理編曲',day:'週五',time:'20:00',startDate:'7/3',endDate:'8/21',teacher:'張鈺君',lessons:8,price:4400},
-  // ===== 週六 (07/04-08/22) =====
-  {id:27,name:'樂理編曲 #4',level:'樂理編曲',day:'週六',time:'10:00',startDate:'7/4',endDate:'8/22',teacher:'張鈺君',lessons:8,price:4400},
-  {id:28,name:'樂理編曲 #3',level:'樂理編曲',day:'週六',time:'11:00',startDate:'7/4',endDate:'8/22',teacher:'張鈺君',lessons:8,price:4400},
-  {id:29,name:'吉他中級 #1',level:'中級',day:'週六',time:'12:00',startDate:'7/4',endDate:'8/22',teacher:'張鈺君',lessons:8,price:4400},
-  {id:30,name:'進階彈唱 #4',level:'進階彈唱',day:'週六',time:'12:00',startDate:'7/4',endDate:'8/22',teacher:'吳興儒',lessons:8,price:4400},
-  {id:31,name:'吉他中級 #2',level:'中級',day:'週六',time:'13:00',startDate:'7/4',endDate:'8/22',teacher:'張鈺君',lessons:8,price:4400},
-  {id:32,name:'吉他中級 #4',level:'中級',day:'週六',time:'13:00',startDate:'7/4',endDate:'8/22',teacher:'吳興儒',lessons:8,price:4400},
-  {id:33,name:'進階彈唱 #4',level:'進階彈唱',day:'週六',time:'15:00',startDate:'7/4',endDate:'8/22',teacher:'張鈺君',lessons:8,price:4400},
-  {id:34,name:'吉他入門',level:'入門',day:'週六',time:'16:00',startDate:'7/4',endDate:'8/22',teacher:'張鈺君',lessons:8,price:3600},
-  {id:35,name:'吉他初級',level:'初級',day:'週六',time:'17:00',startDate:'7/4',endDate:'8/22',teacher:'曾筠藩',lessons:8,price:3600},
-  {id:36,name:'吉他中級 #4',level:'中級',day:'週六',time:'17:00',startDate:'7/4',endDate:'8/22',teacher:'張鈺君',lessons:8,price:4400},
-  // ===== 暑期吉他班（18 堂，入門+初級內容） =====
-  {id:37,name:'暑期A',level:'暑期班',type:'summer',day:'週一、週三',time:'15:00',startDate:'6/22',endDate:'8/19',teacher:'張鈺君',lessons:18,price:8100},
-  {id:38,name:'暑期B',level:'暑期班',type:'summer',day:'週二、週四',time:'14:00',startDate:'6/23',endDate:'8/20',teacher:'吳興儒',lessons:18,price:8100},
-];
-const nextClassData=[
 {id:1,name:'吉他入門',level:'入門',day:'週一',time:'18:00',startDate:'8/31',endDate:'10/19',teacher:'張鈺君',lessons:8,price:3600},{id:2,name:'吉他中級 #2',level:'中級',day:'週一',time:'19:00',startDate:'8/31',endDate:'10/19',teacher:'曾筠藩',lessons:8,price:4400},{id:3,name:'吉他中級 #3',level:'中級',day:'週一',time:'19:00',startDate:'8/31',endDate:'10/19',teacher:'張鈺君',lessons:8,price:4400},{id:4,name:'吉他初級',level:'初級',day:'週一',time:'20:00',startDate:'8/31',endDate:'10/19',teacher:'張鈺君',lessons:8,price:3600},{id:5,name:'進階彈唱 #4',level:'進階彈唱',day:'週一',time:'21:00',startDate:'8/31',endDate:'10/19',teacher:'張鈺君',lessons:8,price:4800},
 {id:6,name:'樂理編曲 #4',level:'樂理編曲',day:'週二',time:'18:00',startDate:'9/1',endDate:'10/20',teacher:'張鈺君',lessons:8,price:5200},{id:7,name:'進階彈唱 #3',level:'進階彈唱',day:'週二',time:'19:00',startDate:'9/1',endDate:'10/20',teacher:'詹俊皓',lessons:8,price:4800},{id:8,name:'進階彈唱 #6',level:'進階彈唱',day:'週二',time:'19:00',startDate:'9/1',endDate:'10/20',teacher:'吳興儒',lessons:8,price:4800},{id:9,name:'樂理編曲 #5',level:'樂理編曲',day:'週二',time:'19:00',startDate:'9/1',endDate:'10/20',teacher:'張鈺君',lessons:8,price:5200},{id:10,name:'進階彈唱 #1',level:'進階彈唱',day:'週二',time:'20:00',startDate:'9/1',endDate:'10/20',teacher:'江松霖',lessons:8,price:4800},{id:11,name:'進階彈唱 #4',level:'進階彈唱',day:'週二',time:'20:00',startDate:'9/1',endDate:'10/20',teacher:'張鈺君',lessons:8,price:4800},
 {id:12,name:'吉他初級',level:'初級',day:'週三',time:'18:00',startDate:'9/2',endDate:'10/21',teacher:'張鈺君',lessons:8,price:3600},{id:13,name:'進階彈唱 #3',level:'進階彈唱',day:'週三',time:'20:00',startDate:'9/2',endDate:'10/21',teacher:'張鈺君',lessons:8,price:4800},{id:14,name:'樂理編曲 #8',level:'樂理編曲',day:'週三',time:'20:00',startDate:'9/2',endDate:'10/21',teacher:'吳興儒',lessons:8,price:5200},{id:15,name:'吉他中級 #1',level:'中級',day:'週三',time:'21:00',startDate:'9/2',endDate:'10/21',teacher:'張鈺君',lessons:8,price:4400},
 {id:16,name:'吉他入門',level:'入門',day:'週四',time:'19:00',startDate:'9/3',endDate:'10/22',teacher:'詹俊皓',lessons:8,price:3600},{id:17,name:'進階彈唱 #2',level:'進階彈唱',day:'週四',time:'19:00',startDate:'9/3',endDate:'10/22',teacher:'張鈺君',lessons:8,price:4800},{id:18,name:'樂理編曲 #3',level:'樂理編曲',day:'週四',time:'19:00',startDate:'9/3',endDate:'10/22',teacher:'吳興儒',lessons:8,price:5200},{id:19,name:'吉他中級 #2',level:'中級',day:'週四',time:'20:00',startDate:'9/3',endDate:'10/22',teacher:'吳興儒',lessons:8,price:4400},{id:20,name:'進階彈唱 #3',level:'進階彈唱',day:'週四',time:'20:00',startDate:'9/3',endDate:'10/22',teacher:'張鈺君',lessons:8,price:4800},{id:21,name:'進階彈唱 #6',level:'進階彈唱',day:'週四',time:'20:00',startDate:'9/3',endDate:'10/22',teacher:'詹俊皓',lessons:8,price:4800},
 {id:22,name:'吉他中級 #2',level:'中級',day:'週五',time:'19:00',startDate:'9/4',endDate:'10/23',teacher:'張鈺君',lessons:8,price:4400},{id:23,name:'吉他初級',level:'初級',day:'週五',time:'19:00',startDate:'9/4',endDate:'10/23',teacher:'吳興儒',lessons:8,price:3600},{id:24,name:'樂理編曲 #7',level:'樂理編曲',day:'週五',time:'20:00',startDate:'9/4',endDate:'10/23',teacher:'張鈺君',lessons:8,price:5200},
 {id:25,name:'樂理編曲 #5',level:'樂理編曲',day:'週六',time:'10:00',startDate:'9/5',endDate:'10/24',teacher:'張鈺君',lessons:8,price:5200},{id:26,name:'樂理編曲 #4',level:'樂理編曲',day:'週六',time:'11:00',startDate:'9/5',endDate:'10/24',teacher:'張鈺君',lessons:8,price:5200},{id:27,name:'吉他中級 #2',level:'中級',day:'週六',time:'12:00',startDate:'9/5',endDate:'10/24',teacher:'張鈺君',lessons:8,price:4400},{id:28,name:'進階彈唱 #5',level:'進階彈唱',day:'週六',time:'12:00',startDate:'9/5',endDate:'10/24',teacher:'吳興儒',lessons:8,price:4800},{id:29,name:'吉他中級 #3',level:'中級',day:'週六',time:'13:00',startDate:'9/5',endDate:'10/24',teacher:'張鈺君',lessons:8,price:4400},{id:30,name:'進階彈唱 #1',level:'進階彈唱',day:'週六',time:'13:00',startDate:'9/5',endDate:'10/24',teacher:'吳興儒',lessons:8,price:4800},{id:31,name:'進階彈唱 #5',level:'進階彈唱',day:'週六',time:'15:00',startDate:'9/5',endDate:'10/24',teacher:'張鈺君',lessons:8,price:4800},{id:32,name:'吉他入門',level:'入門',day:'週六',time:'16:00',startDate:'9/5',endDate:'10/24',teacher:'曾筠藩',lessons:8,price:3600},{id:33,name:'吉他初級',level:'初級',day:'週六',time:'16:00',startDate:'9/5',endDate:'10/24',teacher:'張鈺君',lessons:8,price:3600},{id:34,name:'吉他中級 #1',level:'中級',day:'週六',time:'17:00',startDate:'9/5',endDate:'10/24',teacher:'曾筠藩',lessons:8,price:4400},{id:35,name:'進階彈唱 #2',level:'進階彈唱',day:'週六',time:'17:00',startDate:'9/5',endDate:'10/24',teacher:'張鈺君',lessons:8,price:4800}
+];
+const nextClassData=[
+{"id":1,"name":"吉他入門","level":"入門","day":"週一","time":"19:00","startDate":"11/2","endDate":"12/21","teacher":"張鈺君","lessons":8,"price":3600},
+{"id":2,"name":"吉他中級 #3","level":"中級","day":"週一","time":"19:00","startDate":"11/2","endDate":"12/21","teacher":"曾筠藩","lessons":8,"price":4400},
+{"id":3,"name":"吉他中級 #1","level":"中級","day":"週一","time":"20:00","startDate":"11/2","endDate":"12/21","teacher":"張鈺君","lessons":8,"price":4400},
+{"id":4,"name":"進階彈唱 #5","level":"進階彈唱","day":"週一","time":"21:00","startDate":"11/2","endDate":"12/21","teacher":"張鈺君","lessons":8,"price":4800},
+{"id":5,"name":"吉他入門","level":"入門","day":"週二","time":"18:00","startDate":"11/3","endDate":"12/22","teacher":"張鈺君","lessons":8,"price":3600},
+{"id":6,"name":"進階彈唱 #4","level":"進階彈唱","day":"週二","time":"19:00","startDate":"11/3","endDate":"12/22","teacher":"詹俊皓","lessons":8,"price":4800},
+{"id":7,"name":"樂理編曲 #1","level":"樂理編曲","day":"週二","time":"19:00","startDate":"11/3","endDate":"12/22","teacher":"吳興儒","lessons":8,"price":5200},
+{"id":8,"name":"樂理編曲 #5","level":"樂理編曲","day":"週二","time":"19:00","startDate":"11/3","endDate":"12/22","teacher":"張鈺君","lessons":8,"price":5200},
+{"id":9,"name":"進階彈唱 #2","level":"進階彈唱","day":"週二","time":"20:00","startDate":"11/3","endDate":"12/22","teacher":"江松霖","lessons":8,"price":4800},
+{"id":10,"name":"進階彈唱 #4","level":"進階彈唱","day":"週二","time":"20:00","startDate":"11/3","endDate":"12/22","teacher":"張鈺君","lessons":8,"price":4800},
+{"id":11,"name":"吉他中級 #1","level":"中級","day":"週三","time":"18:00","startDate":"11/4","endDate":"12/23","teacher":"張鈺君","lessons":8,"price":4400},
+{"id":12,"name":"吉他初級","level":"初級","day":"週三","time":"19:00","startDate":"11/4","endDate":"12/23","teacher":"張鈺君","lessons":8,"price":3600},
+{"id":13,"name":"進階彈唱 #3","level":"進階彈唱","day":"週三","time":"20:00","startDate":"11/4","endDate":"12/23","teacher":"張鈺君","lessons":8,"price":4800},
+{"id":14,"name":"樂理編曲 #8","level":"樂理編曲","day":"週三","time":"20:00","startDate":"11/4","endDate":"12/23","teacher":"吳興儒","lessons":8,"price":5200},
+{"id":15,"name":"吉他中級 #2","level":"中級","day":"週三","time":"21:00","startDate":"11/4","endDate":"12/23","teacher":"張鈺君","lessons":8,"price":4400},
+{"id":16,"name":"吉他初級","level":"初級","day":"週四","time":"19:00","startDate":"11/5","endDate":"12/24","teacher":"詹俊皓","lessons":8,"price":3600},
+{"id":17,"name":"樂理編曲 #4","level":"樂理編曲","day":"週四","time":"19:00","startDate":"11/5","endDate":"12/24","teacher":"吳興儒","lessons":8,"price":5200},
+{"id":18,"name":"吉他入門","level":"入門","day":"週四","time":"20:00","startDate":"11/5","endDate":"12/24","teacher":"吳興儒","lessons":8,"price":3600},
+{"id":19,"name":"進階彈唱 #3","level":"進階彈唱","day":"週四","time":"20:00","startDate":"11/5","endDate":"12/24","teacher":"張鈺君","lessons":8,"price":4800},
+{"id":20,"name":"樂理編曲 #1","level":"樂理編曲","day":"週四","time":"20:00","startDate":"11/5","endDate":"12/24","teacher":"詹俊皓","lessons":8,"price":5200},
+{"id":21,"name":"吉他中級 #1","level":"中級","day":"週五","time":"19:00","startDate":"11/6","endDate":"12/25","teacher":"吳興儒","lessons":8,"price":4400},
+{"id":22,"name":"吉他中級 #4","level":"中級","day":"週五","time":"19:00","startDate":"11/6","endDate":"12/25","teacher":"張鈺君","lessons":8,"price":4400},
+{"id":23,"name":"樂理編曲 #7","level":"樂理編曲","day":"週五","time":"20:00","startDate":"11/6","endDate":"12/25","teacher":"張鈺君","lessons":8,"price":5200},
+{"id":24,"name":"樂理編曲 #5","level":"樂理編曲","day":"週六","time":"10:00","startDate":"11/7","endDate":"12/26","teacher":"張鈺君","lessons":8,"price":5200},
+{"id":25,"name":"樂理編曲 #5","level":"樂理編曲","day":"週六","time":"11:00","startDate":"11/7","endDate":"12/26","teacher":"張鈺君","lessons":8,"price":5200},
+{"id":26,"name":"吉他中級 #3","level":"中級","day":"週六","time":"12:00","startDate":"11/7","endDate":"12/26","teacher":"張鈺君","lessons":8,"price":4400},
+{"id":27,"name":"進階彈唱 #6","level":"進階彈唱","day":"週六","time":"12:00","startDate":"11/7","endDate":"12/26","teacher":"吳興儒","lessons":8,"price":4800},
+{"id":28,"name":"吉他中級 #4","level":"中級","day":"週六","time":"13:00","startDate":"11/7","endDate":"12/26","teacher":"張鈺君","lessons":8,"price":4400},
+{"id":29,"name":"進階彈唱 #2","level":"進階彈唱","day":"週六","time":"13:00","startDate":"11/7","endDate":"12/26","teacher":"吳興儒","lessons":8,"price":4800},
+{"id":30,"name":"吉他中級 #1","level":"中級","day":"週六","time":"14:00","startDate":"11/7","endDate":"12/26","teacher":"曾筠藩","lessons":8,"price":4400},
+{"id":31,"name":"吉他入門","level":"入門","day":"週六","time":"15:00","startDate":"11/7","endDate":"12/26","teacher":"張鈺君","lessons":8,"price":3600},
+{"id":32,"name":"吉他初級","level":"初級","day":"週六","time":"16:00","startDate":"11/7","endDate":"12/26","teacher":"曾筠藩","lessons":8,"price":3600},
+{"id":33,"name":"吉他中級 #1","level":"中級","day":"週六","time":"16:00","startDate":"11/7","endDate":"12/26","teacher":"張鈺君","lessons":8,"price":4400},
+{"id":34,"name":"吉他中級 #2","level":"中級","day":"週六","time":"17:00","startDate":"11/7","endDate":"12/26","teacher":"曾筠藩","lessons":8,"price":4400},
+{"id":35,"name":"進階彈唱 #3","level":"進階彈唱","day":"週六","time":"17:00","startDate":"11/7","endDate":"12/26","teacher":"張鈺君","lessons":8,"price":4800}
 ];
 
 /* =========================================================
@@ -582,13 +572,13 @@ let courseType='group'; // 'group' | 'private' | 'custom'
 let mode='returning';   // 'returning' | 'new'  (group 模式內)
 let pickMode='quiz';    // 'quiz' | 'manual'  (group + 新生模式內)
 let selectedClass=null; // 下一期班別 {id,name,level,day,time,...}
-let selectedOriginClass=null; // 目前原上課班別（07-08）
+let selectedOriginClass=null; // 目前原上課班別（09-10）
 
 /* =========================================================
- * 折扣規則：即日起至 2026-06-20 23:59:59 (UTC+8 台灣時間) → 95 折；之後 → 原價
+ * 折扣規則：即日起至 2026-10-20 23:59:59 (UTC+8 台灣時間) → 95 折；之後 → 原價
  * 下一期課表更新時，記得同步調整 EARLY_BIRD_DEADLINE 與畫面文案。
  * ========================================================= */
-const EARLY_BIRD_DEADLINE=new Date(Date.UTC(2026,7,20,15,59,59)); // 2026-08-20 23:59:59 UTC+8
+const EARLY_BIRD_DEADLINE=new Date(Date.UTC(2026,9,20,15,59,59)); // 2026-10-20 23:59:59 UTC+8
 function calcPrice(basePrice, today){
   const now=today||new Date();
   const isEarlyBird=now<=EARLY_BIRD_DEADLINE;
