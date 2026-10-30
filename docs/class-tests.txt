@@ -1,0 +1,18 @@
+✔ manual settings accept zero remaining and reject invalid dates, capacity, markup (4.861875ms)
+✔ admin edits require signed session and same-origin request (1.067667ms)
+✔ concurrent edits cannot overwrite a newer version (0.245209ms)
+✔ public reads do not require login and are never cached (0.134625ms)
+✔ closed, full, zero-seat and unknown classes never reach registration upstream (0.285917ms)
+✔ database outage fails closed (0.067625ms)
+✔ stale class version, changed time and tampered price require reconfirmation (0.310416ms)
+✔ open class forwards authoritative data without deducting manual seats (0.140083ms)
+✔ individual lesson consultations keep their existing route (0.064875ms)
+✔ preview writes target a separate table (0.109ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 49.770291
