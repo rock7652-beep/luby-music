@@ -1,0 +1,44 @@
+班級管理交付與發布檢查
+
+來源：rock7652-beep/luby-music，vercel-production f2b0d47bfc26e5ffcc1d86a163d65c127a9eb30e。
+本機分支：feat/class-management。
+路由：/admin/classes/，沿用官網管理 Session；管理中心及報名名單都有入口。
+
+已實作
+- 班名、老師、程度、星期、開始時間、起訖日期、堂數、費用。
+- 手動總名額及對外剩餘名額；空白表示未設定，0 阻擋報名。
+- 開放、暫停、滿班；新增及複製預設暫停，避免不小心招生。
+- 報名不自動扣名額；不更動既有報名或寄出額外招生通知。
+- 三個現行報名入口讀 /api/classes?public=1，無靜態招生 fallback。
+- /api/register 每次提交查雲端最新狀態、版本、費用及班級快照。
+- 同一班級樂觀鎖，避免兩位管理者互相覆蓋。
+- Preview 專用 course_classes_preview；正式 course_classes，避免預覽修改正式班級。
+
+本機驗證
+- node --test tests/classes.test.mjs：10/10 通過。
+- 對 3 份報名 HTML inline script 及新增 JS 做語法檢查，全部通過。
+- 390×844 管理頁及報名前台無水平溢出；1024×768 管理頁無水平溢出。
+- 本機記憶體 fixture：滿班＋剩餘0→前台不可選；重新開放→先提示調整名額；改成2→前台恢復可選。
+- 複製班級預設暫停且不沿用剩餘名額。
+- 手機及平板截圖為本機 fixture，不是正式雲端交易驗收。
+
+待接通項目／不得直接發布
+- Supabase 專案 afsowcntqlimbtyfnceu 的 get_project 被連線工具拒絕：You do not have permission to perform this action。
+- 未讀取或修改該資料庫；未恢復任何 paused 專案。需先使用有權限帳號連線並確認既有資料表。
+- docs/classes-setup.sql 是待審查的加法建表／種子腳本，尚未執行。正式與預覽各35個班；名額留空、狀態沿用開放，沒有替真實班級關班。
+- 種子來源是目前官網 nextClassData；正式套用前應再次比對部署版本，避免覆蓋期間新增的班級。
+- SQL 開啟 RLS，撤銷 PUBLIC/anon/authenticated 直接資料權限，僅 service_role 可讀寫；前台只能經受控 API 讀班級。
+- 自動核准審查拒絕推送功能分支，原因：需要使用者明確授權對 GitHub 遠端發布。尚未建立任何遠端分支、PR 或 Vercel Preview。
+
+後續發布順序
+1. 取得對 rock7652-beep/luby-music 功能分支推送、草稿 PR 與 Vercel 預覽／正式發布的明確授權。
+2. 接通正確 Supabase 帳號，查核專案健康與既有表結構；paused 不自動恢復。
+3. 審查並執行加法設定；驗證兩張表各35列、RLS 開啟、公開角色無直接權限。不要更動既有報名。
+4. 推送 feat/class-management，草稿 PR base=vercel-production，確認 Vercel Preview READY。
+5. 授權登入 Preview，對預覽表完成新增、複製、編輯、滿班與重開讀回驗收；使用虛構班級，不提交真實報名或發信。
+6. 確認現行 Apps Script 接受新班級字串ID與完整ISO日期；目前僅以相容 payload 代理單元測試，尚未驗證實際上游。
+7. 正式預檢可讀35班且不發生503後，才合併正式分支；保留上一個部署 dpl_2HT4ryrtTmoJ4KQTgRjcy8Ui2hSU 作回退。
+8. 正式驗證管理入口、班級清單、官網選班及未登入寫入401。任何需停招的真實班級由店長確認操作。
+
+限制
+目前改動尚未發布，正式網站功能及招生狀態未變。新流程依賴雲端班級讀取；雲端不可用時團體班提交會明確拒絕，避免使用過時招生設定。個別課及自組班諮詢維持既有流程。

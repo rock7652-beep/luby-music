@@ -1,3 +1,4 @@
+import { getClass, isClassOpen } from './_lib/classes-store.js';
 /**
  * /api/register
  * Vercel serverless function: validates registration payloads and forwards
@@ -42,6 +43,23 @@ export default async function handler(req, res) {
     if (missing.length) {
       return res.status(400).json({ ok: false, error: '缺少必要欄位：' + missing.join(', ') });
     }
+    // 名額由店長手動控管；報名只是申請，不自動扣名額。
+    // 每次送出重新查雲端，舊頁面也不能提交已關閉的班。
+    let selected;
+    try { selected = await getClass(String(body.classId)); }
+    catch { return res.status(503).json({ ok: false, error: '暫時無法確認班級狀態，請稍後再試' }); }
+    if (!isClassOpen(selected)) return res.status(409).json({ ok: false, error: '此班已暫停報名或滿班，請重新選班' });
+    const early = new Date() <= new Date('2026-10-20T23:59:59+08:00');
+    const finalPrice = early ? Math.round(selected.price * 0.95) : selected.price;
+    if ((body.classVersion !== undefined && body.classVersion !== selected.version) || Number(body.finalPrice) !== finalPrice ||
+        ['Name','Day','Time','Teacher','StartDate','EndDate'].some(key => {
+          const oldValue = body['class' + key];
+          return oldValue !== undefined && String(oldValue) !== String(selected[key[0].toLowerCase() + key.slice(1)]);
+        })) return res.status(409).json({ ok: false, error: '班級資料已更新，請重新整理確認時間與費用後再報名' });
+    Object.assign(body, { classId: selected.id, classVersion: selected.version, className: selected.name,
+      classLevel: selected.level, classDay: selected.day, classTime: selected.time, classTeacher: selected.teacher,
+      classStartDate: selected.startDate, classEndDate: selected.endDate, basePrice: selected.price,
+      finalPrice, discount: selected.price - finalPrice, isEarlyBird: early });
     if (!/^\d{4}$/.test(String(body.transferLast4))) {
       return res.status(400).json({ ok: false, error: '轉帳末四碼格式錯誤' });
     }

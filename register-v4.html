@@ -359,7 +359,7 @@ html{scroll-behavior:smooth;}
       </div>
       <div class="fg"><label>下一期班別 <span class="req">*</span></label>
         <select id="fNextClass" onchange="onClassPick(this.value)">
-          <option value="">請選擇要續報的 11-12 月班別</option>
+          <option value="">請選擇要續報的班別</option>
         </select>
       </div>
     </div>
@@ -527,43 +527,7 @@ const currentClassData=[
 {id:22,name:'吉他中級 #2',level:'中級',day:'週五',time:'19:00',startDate:'9/4',endDate:'10/23',teacher:'張鈺君',lessons:8,price:4400},{id:23,name:'吉他初級',level:'初級',day:'週五',time:'19:00',startDate:'9/4',endDate:'10/23',teacher:'吳興儒',lessons:8,price:3600},{id:24,name:'樂理編曲 #7',level:'樂理編曲',day:'週五',time:'20:00',startDate:'9/4',endDate:'10/23',teacher:'張鈺君',lessons:8,price:5200},
 {id:25,name:'樂理編曲 #5',level:'樂理編曲',day:'週六',time:'10:00',startDate:'9/5',endDate:'10/24',teacher:'張鈺君',lessons:8,price:5200},{id:26,name:'樂理編曲 #4',level:'樂理編曲',day:'週六',time:'11:00',startDate:'9/5',endDate:'10/24',teacher:'張鈺君',lessons:8,price:5200},{id:27,name:'吉他中級 #2',level:'中級',day:'週六',time:'12:00',startDate:'9/5',endDate:'10/24',teacher:'張鈺君',lessons:8,price:4400},{id:28,name:'進階彈唱 #5',level:'進階彈唱',day:'週六',time:'12:00',startDate:'9/5',endDate:'10/24',teacher:'吳興儒',lessons:8,price:4800},{id:29,name:'吉他中級 #3',level:'中級',day:'週六',time:'13:00',startDate:'9/5',endDate:'10/24',teacher:'張鈺君',lessons:8,price:4400},{id:30,name:'進階彈唱 #1',level:'進階彈唱',day:'週六',time:'13:00',startDate:'9/5',endDate:'10/24',teacher:'吳興儒',lessons:8,price:4800},{id:31,name:'進階彈唱 #5',level:'進階彈唱',day:'週六',time:'15:00',startDate:'9/5',endDate:'10/24',teacher:'張鈺君',lessons:8,price:4800},{id:32,name:'吉他入門',level:'入門',day:'週六',time:'16:00',startDate:'9/5',endDate:'10/24',teacher:'曾筠藩',lessons:8,price:3600},{id:33,name:'吉他初級',level:'初級',day:'週六',time:'16:00',startDate:'9/5',endDate:'10/24',teacher:'張鈺君',lessons:8,price:3600},{id:34,name:'吉他中級 #1',level:'中級',day:'週六',time:'17:00',startDate:'9/5',endDate:'10/24',teacher:'曾筠藩',lessons:8,price:4400},{id:35,name:'進階彈唱 #2',level:'進階彈唱',day:'週六',time:'17:00',startDate:'9/5',endDate:'10/24',teacher:'張鈺君',lessons:8,price:4800}
 ];
-const nextClassData=[
-{"id":1,"name":"吉他入門","level":"入門","day":"週一","time":"19:00","startDate":"11/2","endDate":"12/21","teacher":"張鈺君","lessons":8,"price":3600},
-{"id":2,"name":"吉他中級 #3","level":"中級","day":"週一","time":"19:00","startDate":"11/2","endDate":"12/21","teacher":"曾筠藩","lessons":8,"price":4400},
-{"id":3,"name":"吉他中級 #1","level":"中級","day":"週一","time":"20:00","startDate":"11/2","endDate":"12/21","teacher":"張鈺君","lessons":8,"price":4400},
-{"id":4,"name":"進階彈唱 #5","level":"進階彈唱","day":"週一","time":"21:00","startDate":"11/2","endDate":"12/21","teacher":"張鈺君","lessons":8,"price":4800},
-{"id":5,"name":"吉他入門","level":"入門","day":"週二","time":"18:00","startDate":"11/3","endDate":"12/22","teacher":"張鈺君","lessons":8,"price":3600},
-{"id":6,"name":"進階彈唱 #4","level":"進階彈唱","day":"週二","time":"19:00","startDate":"11/3","endDate":"12/22","teacher":"詹俊皓","lessons":8,"price":4800},
-{"id":7,"name":"樂理編曲 #1","level":"樂理編曲","day":"週二","time":"19:00","startDate":"11/3","endDate":"12/22","teacher":"吳興儒","lessons":8,"price":5200},
-{"id":8,"name":"樂理編曲 #5","level":"樂理編曲","day":"週二","time":"19:00","startDate":"11/3","endDate":"12/22","teacher":"張鈺君","lessons":8,"price":5200},
-{"id":9,"name":"進階彈唱 #2","level":"進階彈唱","day":"週二","time":"20:00","startDate":"11/3","endDate":"12/22","teacher":"江松霖","lessons":8,"price":4800},
-{"id":10,"name":"進階彈唱 #4","level":"進階彈唱","day":"週二","time":"20:00","startDate":"11/3","endDate":"12/22","teacher":"張鈺君","lessons":8,"price":4800},
-{"id":11,"name":"吉他中級 #1","level":"中級","day":"週三","time":"18:00","startDate":"11/4","endDate":"12/23","teacher":"張鈺君","lessons":8,"price":4400},
-{"id":12,"name":"吉他初級","level":"初級","day":"週三","time":"19:00","startDate":"11/4","endDate":"12/23","teacher":"張鈺君","lessons":8,"price":3600},
-{"id":13,"name":"進階彈唱 #3","level":"進階彈唱","day":"週三","time":"20:00","startDate":"11/4","endDate":"12/23","teacher":"張鈺君","lessons":8,"price":4800},
-{"id":14,"name":"樂理編曲 #8","level":"樂理編曲","day":"週三","time":"20:00","startDate":"11/4","endDate":"12/23","teacher":"吳興儒","lessons":8,"price":5200},
-{"id":15,"name":"吉他中級 #2","level":"中級","day":"週三","time":"21:00","startDate":"11/4","endDate":"12/23","teacher":"張鈺君","lessons":8,"price":4400},
-{"id":16,"name":"吉他初級","level":"初級","day":"週四","time":"19:00","startDate":"11/5","endDate":"12/24","teacher":"詹俊皓","lessons":8,"price":3600},
-{"id":17,"name":"樂理編曲 #4","level":"樂理編曲","day":"週四","time":"19:00","startDate":"11/5","endDate":"12/24","teacher":"吳興儒","lessons":8,"price":5200},
-{"id":18,"name":"吉他入門","level":"入門","day":"週四","time":"20:00","startDate":"11/5","endDate":"12/24","teacher":"吳興儒","lessons":8,"price":3600},
-{"id":19,"name":"進階彈唱 #3","level":"進階彈唱","day":"週四","time":"20:00","startDate":"11/5","endDate":"12/24","teacher":"張鈺君","lessons":8,"price":4800},
-{"id":20,"name":"樂理編曲 #1","level":"樂理編曲","day":"週四","time":"20:00","startDate":"11/5","endDate":"12/24","teacher":"詹俊皓","lessons":8,"price":5200},
-{"id":21,"name":"吉他中級 #1","level":"中級","day":"週五","time":"19:00","startDate":"11/6","endDate":"12/25","teacher":"吳興儒","lessons":8,"price":4400},
-{"id":22,"name":"吉他中級 #4","level":"中級","day":"週五","time":"19:00","startDate":"11/6","endDate":"12/25","teacher":"張鈺君","lessons":8,"price":4400},
-{"id":23,"name":"樂理編曲 #7","level":"樂理編曲","day":"週五","time":"20:00","startDate":"11/6","endDate":"12/25","teacher":"張鈺君","lessons":8,"price":5200},
-{"id":24,"name":"樂理編曲 #5","level":"樂理編曲","day":"週六","time":"10:00","startDate":"11/7","endDate":"12/26","teacher":"張鈺君","lessons":8,"price":5200},
-{"id":25,"name":"樂理編曲 #5","level":"樂理編曲","day":"週六","time":"11:00","startDate":"11/7","endDate":"12/26","teacher":"張鈺君","lessons":8,"price":5200},
-{"id":26,"name":"吉他中級 #3","level":"中級","day":"週六","time":"12:00","startDate":"11/7","endDate":"12/26","teacher":"張鈺君","lessons":8,"price":4400},
-{"id":27,"name":"進階彈唱 #6","level":"進階彈唱","day":"週六","time":"12:00","startDate":"11/7","endDate":"12/26","teacher":"吳興儒","lessons":8,"price":4800},
-{"id":28,"name":"吉他中級 #4","level":"中級","day":"週六","time":"13:00","startDate":"11/7","endDate":"12/26","teacher":"張鈺君","lessons":8,"price":4400},
-{"id":29,"name":"進階彈唱 #2","level":"進階彈唱","day":"週六","time":"13:00","startDate":"11/7","endDate":"12/26","teacher":"吳興儒","lessons":8,"price":4800},
-{"id":30,"name":"吉他中級 #1","level":"中級","day":"週六","time":"14:00","startDate":"11/7","endDate":"12/26","teacher":"曾筠藩","lessons":8,"price":4400},
-{"id":31,"name":"吉他入門","level":"入門","day":"週六","time":"15:00","startDate":"11/7","endDate":"12/26","teacher":"張鈺君","lessons":8,"price":3600},
-{"id":32,"name":"吉他初級","level":"初級","day":"週六","time":"16:00","startDate":"11/7","endDate":"12/26","teacher":"曾筠藩","lessons":8,"price":3600},
-{"id":33,"name":"吉他中級 #1","level":"中級","day":"週六","time":"16:00","startDate":"11/7","endDate":"12/26","teacher":"張鈺君","lessons":8,"price":4400},
-{"id":34,"name":"吉他中級 #2","level":"中級","day":"週六","time":"17:00","startDate":"11/7","endDate":"12/26","teacher":"曾筠藩","lessons":8,"price":4400},
-{"id":35,"name":"進階彈唱 #3","level":"進階彈唱","day":"週六","time":"17:00","startDate":"11/7","endDate":"12/26","teacher":"張鈺君","lessons":8,"price":4800}
-];
+const nextClassData=[]; // 雲端班級為唯一招生來源
 
 /* =========================================================
  * State
@@ -608,14 +572,16 @@ function renderQuiz(){
     else if(qScore<=5)tl='初級';
     else if(qScore<=7)tl='中級';
     else tl='進階彈唱';
-    const rec=nextClassData.find(c=>c.level===tl)||nextClassData[0];
+    const available=nextClassData.filter(isClassAvailable);
+    const rec=available.find(c=>c.level===tl)||available[0];
+    if(!rec){area.textContent='目前暫無開放班級，歡迎透過 LINE 洽詢。';return;}
     area.innerHTML='<div class="quiz-progress">'+quizData.map(()=>'<div class="qp-bar done"></div>').join('')+'</div>'+
       '<div style="text-align:center;padding:20px 0 24px;">'+
         '<div style="font-size:0.7rem;letter-spacing:0.2em;color:var(--gray-light);margin-bottom:10px;">推薦給你</div>'+
-        '<div style="font-family:\'Noto Serif TC\',serif;font-size:1.25rem;color:var(--black);margin-bottom:6px;">'+rec.name+'</div>'+
-        '<div style="font-size:0.82rem;color:var(--gray);">'+rec.day+' '+rec.time+' ・ '+rec.startDate+' 開課</div>'+
+        '<div style="font-family:\'Noto Serif TC\',serif;font-size:1.25rem;color:var(--black);margin-bottom:6px;">'+escapeClassText(rec.name)+'</div>'+
+        '<div style="font-size:0.82rem;color:var(--gray);">'+escapeClassText(rec.day)+' '+escapeClassText(rec.time)+' ・ '+escapeClassText(rec.startDate)+' 開課</div>'+
       '</div>'+
-      '<button class="btn-primary" onclick="confirmQuizPick('+rec.id+')">就選這個班</button>'+
+      '<button class="btn-primary" onclick="confirmQuizPick(\''+rec.id+'\')">就選這個班</button>'+
       '<div class="spacer-s"></div>'+
       '<button class="btn-outline" onclick="initQuiz()">重新測一次</button>';
     return;
@@ -721,7 +687,7 @@ function switchPickMode(p){
 function onClassPick(id){
   if(!id){selectedClass=null;renderSelectedClass();return;}
   const c=nextClassData.find(x=>String(x.id)===String(id));
-  if(!c){selectedClass=null;renderSelectedClass();return;}
+  if(!isClassAvailable(c)){selectedClass=null;renderSelectedClass();return;}
   selectedClass=c;
   renderSelectedClass();
 }
@@ -740,7 +706,8 @@ function renderSelectedClass(){
     return;
   }
 
-  const c=selectedClass;
+  const c={...selectedClass};
+  ['name','teacher','day','time','startDate','endDate'].forEach(k=>c[k]=escapeClassText(c[k]));
   const p=calcPrice(c.price);
   const periodLabel=mode==='returning'?'下一期班別':'課程資訊';
 
@@ -751,6 +718,7 @@ function renderSelectedClass(){
       c.day+' '+c.time+' ・ '+c.teacher+' 老師<br>'+
       c.startDate+' ~ '+c.endDate+' ・ 共 '+c.lessons+' 堂'+
     '</div>'+
+    (c.remaining===null?'':'<p>對外剩餘 '+c.remaining+' 名（錄取以店長確認為準）</p>')+
     '<div class="cc-price">'+
       '<span class="cc-price-label">學費</span>'+
       '<span>'+
@@ -770,10 +738,11 @@ function renderSelectedClass(){
  * dropdown 初始化
  * ========================================================= */
 function initDropdowns(){
+  ['fOriginClass','fNextClass','fManualClass'].forEach(id=>{const sel=document.getElementById(id);if(sel._cd){sel._cd.wrap.remove();delete sel._cd;}});
   const groupOpts=(sel,data)=>{
     const byDay={};
     const summer=[];
-    const dateRange=c=>[c.startDate,c.endDate].map(d=>d.split('/').map(n=>n.padStart(2,'0')).join('/')).join('-');
+    const dateRange=c=>[c.startDate,c.endDate].join(' ~ ');
     const dayHint=day=>'（'+day.replaceAll('週','')+'）';
     data.forEach(c=>{
       if(c.type==='summer'){summer.push(c);return;}
@@ -787,7 +756,9 @@ function initDropdowns(){
       byDay[day].sort((a,b)=>a.time.localeCompare(b.time)).forEach(c=>{
         const o=document.createElement('option');
         o.value=c.id;
+        if(data===nextClassData&&!isClassAvailable(c))o.disabled=true;
         o.textContent=dateRange(c)+dayHint(c.day)+' '+c.time+'  '+c.name+'（'+c.teacher+'）';
+        if(o.disabled)o.textContent+=' · '+(c.status==='paused'?'暫停報名':'已滿班');
         o.dataset.date=dateRange(c);o.dataset.dayHint=dayHint(c.day);o.dataset.time=c.time;o.dataset.name=c.name;o.dataset.tea=c.teacher;
         og.appendChild(o);
       });
@@ -798,7 +769,9 @@ function initDropdowns(){
       summer.forEach(c=>{
         const o=document.createElement('option');
         o.value=c.id;
+        if(data===nextClassData&&!isClassAvailable(c))o.disabled=true;
         o.textContent=dateRange(c)+dayHint(c.day)+' '+c.name+' '+c.time+'（'+c.teacher+'）';
+        if(o.disabled)o.textContent+=' · '+(c.status==='paused'?'暫停報名':'已滿班');
         o.dataset.date=dateRange(c);o.dataset.dayHint=dayHint(c.day);o.dataset.time=c.time;o.dataset.name=c.name;o.dataset.tea=c.teacher;
         og.appendChild(o);
       });
@@ -832,14 +805,16 @@ function buildCustomDropdown(sel){
       Array.from(node.children).forEach(opt=>{
         const it=document.createElement('div');it.className='cd-opt';
         it.dataset.value=opt.value;
-        const date=opt.dataset.date||'';
-        const dayHint=opt.dataset.dayHint||'';
-        const t=opt.dataset.time||'';
-        const nm=opt.dataset.name||opt.textContent;
-        const tea=opt.dataset.tea||'';
+        if(opt.disabled){it.style.opacity='.5';it.setAttribute('aria-disabled','true');}
+        const date=escapeClassText(opt.dataset.date||'');
+        const dayHint=escapeClassText(opt.dataset.dayHint||'');
+        const t=escapeClassText(opt.dataset.time||'');
+        const nm=escapeClassText(opt.dataset.name||opt.textContent)+(opt.disabled?' · '+(opt.textContent.includes('暫停報名')?'暫停報名':'已滿班'):'');
+        const tea=escapeClassText(opt.dataset.tea||'');
         it.innerHTML='<span class="cd-time">'+date+dayHint+' '+t+'</span><span class="cd-name">'+nm+'</span>'+(tea?'<span class="cd-tea">'+tea+'</span>':'');
         it.addEventListener('click',(ev)=>{
           ev.stopPropagation();
+          if(opt.disabled)return;
           sel.value=opt.value;
           trigger.querySelector('.cd-label').textContent=opt.textContent;
           trigger.classList.remove('placeholder');
@@ -920,6 +895,7 @@ async function submitForm(){
       originClassDay:mode==='returning'?selectedOriginClass.day:null,
       originClassTime:mode==='returning'?selectedOriginClass.time:null,
       classId:selectedClass.id,
+      classVersion:selectedClass.version,
       className:selectedClass.name,
       classLevel:selectedClass.level,
       classDay:selectedClass.day,
@@ -1016,8 +992,19 @@ function copy(text){
   }).catch(()=>{});
 }
 
+function escapeClassText(value){return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function isClassAvailable(c){return c&&c.status==='open'&&c.remaining!==0;}
+async function loadCloudClasses(){
+  try{
+    const res=await fetch('/api/classes?public=1',{cache:'no-store'});const json=await res.json();
+    if(!res.ok||!json.ok)throw new Error();
+    nextClassData.splice(0,nextClassData.length,...json.classes);
+    initDropdowns();
+    if(!nextClassData.some(isClassAvailable))showAlert('目前暫無開放班級，歡迎透過 LINE 洽詢。',10000);
+  }catch{nextClassData.length=0;initDropdowns();showAlert('班級資料暫時無法載入，請重新整理或透過 LINE 洽詢。',10000);}
+}
 /* boot */
-initDropdowns();
+loadCloudClasses();
 bindChips();
 updateSubmitButton();
 </script>
